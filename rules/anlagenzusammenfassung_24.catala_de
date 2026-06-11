@@ -1,0 +1,113 @@
+```catala-metadata
+# § 24 EEG 2023 — Anlagenzusammenfassung (formale Spezifikation)
+#
+# Rolle dieser Datei: Catala-Spezifikation als VERIFIKATIONS-Schicht.
+# Die ausführbare Runtime ist src/rules/anlagenzusammenfassung.ts (TypeScript);
+# diese Datei annotiert den Gesetzestext literal (literate programming) und
+# dient als formale Referenz + späteres Kompilierziel (catala → OCaml/JS),
+# sobald die Catala-Toolchain in CI verfügbar ist (siehe docs/architektur.md).
+#
+# Catala nutzt "prioritized default logic": Grundregel + Ausnahmen — exakt das
+# Muster von § 24 (Grundsatz Abs. 1 S. 1, Ausnahmen S. 2–5).
+
+deklaration struktur Anlage:
+  daten energietraeger inhalt Energietraeger
+  daten ibn_datum inhalt Datum
+  daten anlagentyp inhalt Anlagentyp
+  daten grundstueck inhalt Text
+  daten gebaeude inhalt Text
+  daten netzverknuepfungspunkt inhalt Text
+
+deklaration aufzählung Energietraeger:
+  -- Solar
+  -- Wind
+  -- Biomasse
+  -- Wasser
+  -- Geothermie
+
+deklaration aufzählung Anlagentyp:
+  -- Dach
+  -- Freiflaeche
+  -- Steckersolar
+  -- Fassade
+  -- Sonstig
+
+deklaration aufzählung Ergebnis:
+  -- Zusammenzufassen
+  -- NichtZusammenzufassen
+  -- SubsumtionErforderlich   # "unmittelbare räumliche Nähe" — BGH XIII ZR 12/19
+
+deklaration anwendungsbereich Zusammenfassung:
+  eingabe anlage_a inhalt Anlage
+  eingabe anlage_b inhalt Anlage
+  ausgabe ergebnis inhalt Ergebnis
+  intern gleichartig inhalt Wahrheitswert
+  intern innerhalb_zwoelf_monate inhalt Wahrheitswert
+```
+
+## § 24 Abs. 1 Satz 1 EEG 2023 (Grundsatz)
+
+> Mehrere Anlagen sind unabhängig von den Eigentumsverhältnissen zum Zweck der
+> Ermittlung des Anspruchs nach § 19 Absatz 1 und zur Bestimmung der Größe der
+> Anlage [...] als eine Anlage anzusehen, wenn sie 1. sich auf demselben
+> Grundstück, demselben Gebäude, demselben Betriebsgelände oder sonst in
+> unmittelbarer räumlicher Nähe befinden, 2. Strom aus gleichartigen
+> erneuerbaren Energien erzeugen, [...] 4. innerhalb von zwölf aufeinander
+> folgenden Kalendermonaten in Betrieb genommen worden sind.
+
+```catala
+anwendungsbereich Zusammenfassung:
+  definition gleichartig gleich
+    anlage_a.energietraeger = anlage_b.energietraeger
+
+  definition innerhalb_zwoelf_monate gleich
+    # Betrag der Monatsdifferenz der IBN-Daten <= 12
+    wenn anlage_a.ibn_datum >= anlage_b.ibn_datum
+    dann anlage_a.ibn_datum <= anlage_b.ibn_datum + 12 monat
+    sonst anlage_b.ibn_datum <= anlage_a.ibn_datum + 12 monat
+
+  # Grundregel (Default): keine Zusammenfassung
+  definition ergebnis gleich NichtZusammenzufassen
+
+  # Tatbestand erfüllt bei deterministisch feststellbarer Ortsidentität
+  ausnahme definition ergebnis unter bedingung
+    gleichartig und innerhalb_zwoelf_monate
+    und (anlage_a.grundstueck = anlage_b.grundstueck
+         oder anlage_a.gebaeude = anlage_b.gebaeude)
+  erfüllt gleich Zusammenzufassen
+
+  # Auffangtatbestand "unmittelbare räumliche Nähe": NICHT deterministisch.
+  # BGH XIII ZR 12/19: funktionale Betrachtung (gemeinsame technische
+  # Infrastruktur), nicht bloße Entfernung. → Subsumtion durch Mensch/LLM.
+  ausnahme definition ergebnis unter bedingung
+    gleichartig und innerhalb_zwoelf_monate
+    und anlage_a.grundstueck != anlage_b.grundstueck
+    und anlage_a.gebaeude != anlage_b.gebaeude
+  erfüllt gleich SubsumtionErforderlich
+```
+
+## § 24 Abs. 1 Satz 3–5 EEG 2023 (Ausnahmen, Solarpaket I)
+
+> [S. 3] Freiflächenanlagen sind nicht mit Anlagen auf, an oder in einem
+> Gebäude zusammenzufassen. [S. 4] Anlagen auf, an oder in einem Gebäude
+> [...] sind nicht zusammenzufassen, wenn sie nicht denselben
+> Netzverknüpfungspunkt nutzen. [S. 5] Steckersolargeräte [...] bleiben
+> unberücksichtigt.
+
+```catala
+anwendungsbereich Zusammenfassung:
+  # Ausnahmen haben Vorrang vor dem Tatbestand (höhere Priorität im Default-Baum)
+  ausnahme definition ergebnis unter bedingung
+    anlage_a.anlagentyp = Steckersolar oder anlage_b.anlagentyp = Steckersolar
+  erfüllt gleich NichtZusammenzufassen
+
+  ausnahme definition ergebnis unter bedingung
+    (anlage_a.anlagentyp = Freiflaeche und anlage_b.anlagentyp = Dach)
+    oder (anlage_a.anlagentyp = Dach und anlage_b.anlagentyp = Freiflaeche)
+  erfüllt gleich NichtZusammenzufassen
+
+  ausnahme definition ergebnis unter bedingung
+    anlage_a.anlagentyp = Dach und anlage_b.anlagentyp = Dach
+    und anlage_a.netzverknuepfungspunkt != anlage_b.netzverknuepfungspunkt
+  erfüllt gleich NichtZusammenzufassen
+```

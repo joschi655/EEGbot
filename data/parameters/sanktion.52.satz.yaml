@@ -1,0 +1,11 @@
+id: sanktion.52.satz
+beschreibung: "Strafzahlung § 52 Abs. 2 EEG 2023 — pro kW installierter Leistung und Kalendermonat des Pflichtverstoßes (auch zeitweise)."
+einheit: EUR/kW/Monat
+staffelung: keine
+zeitraeume:
+  - gueltig_von: "2023-01-01"
+    wert: 10
+    quelle:
+      bezeichnung: "EEG 2023"
+      fundstelle: "§ 52 Abs. 2 EEG 2023"
+    hinweis: "Gilt über § 100 Abs. 9 für alle Bestandsanlagen (Clearingstelle FAQ 236)."

@@ -1,0 +1,65 @@
+version: "0.1.0"
+default_ampel: gruen
+disclaimer: >
+  EEG-Kompass liefert allgemeine Rechtsinformationen auf Kategorie-Ebene und
+  deterministische Berechnungen nach veröffentlichten Werten — keine Rechtsberatung
+  im Einzelfall (§ 2 RDG) und keine Steuerberatung (StBerG). Für verbindliche
+  Einzelfallprüfung: Fachanwalt für Energierecht, Clearingstelle EEG|KWKG
+  (kostenfreie Erstbearbeitung) oder Steuerberater.
+
+kategorien:
+  # ── ROT: harte Blocker ─────────────────────────────────────────────
+  - id: prozessfuehrung
+    ampel: rot
+    beschreibung: "Vertretung/Strategie in Streit, Klage, Widerspruch, Verfahren"
+    muster: ["klage", "verklagen", "widerspruch einlegen", "gericht", "prozess", "einstweilige", "anwaltsschreiben", "abmahnung", "schadensersatz fordern", "vor gericht"]
+    begruendung: "Rechtsdienstleistung i.S.d. § 2 Abs. 1 RDG — Tätigkeit in konkreter fremder Angelegenheit mit rechtlicher Prüfung; Prozessvertretung anwaltsexklusiv."
+    eskalation_an: anwalt
+    ersatztext: >
+      Bei einer streitigen Auseinandersetzung kann ich nicht strategisch beraten.
+      Drei Wege stehen offen: (1) Clearingstelle EEG|KWKG — kostenfreie Erstbearbeitung,
+      Einigungs-/Votumsverfahren ohne Anwaltszwang, (2) Fachanwalt für Energierecht,
+      (3) BNetzA-Aufsichtsbeschwerde (§ 85 EEG). Ich kann den Sachverhalt neutral
+      für die Übergabe zusammenfassen (Eskalations-Paket).
+  - id: steuergestaltung
+    ampel: rot
+    beschreibung: "Individuelle steuerliche Bewertung/Gestaltung"
+    muster: ["steuererklärung", "absetzen", "steuer sparen", "umsatzsteuer option", "kleinunternehmerregelung wählen", "steuerlich optimal", "abschreibung", "gewerbesteuer"]
+    begruendung: "Vorbehaltsaufgabe nach § 1 ff. StBerG."
+    eskalation_an: steuerberater
+    ersatztext: >
+      Individuelle Steuerfragen darf ich nicht beantworten (StBerG). Allgemein gilt:
+      Für PV ≤ 30 kWp existieren Ertragsteuer- (§ 3 Nr. 72 EStG) und Umsatzsteuer-
+      Erleichterungen (0 %-Satz § 12 Abs. 3 UStG) — die Anwendung auf Ihren Fall
+      klärt ein Steuerberater.
+  - id: vertragsgestaltung
+    ampel: rot
+    beschreibung: "Entwurf/Prüfung individueller Verträge (PPA, Pacht, Mieterstrom)"
+    muster: ["vertrag aufsetzen", "vertrag prüfen", "vertragsentwurf", "ppa verhandeln", "pachtvertrag", "klausel formulieren"]
+    begruendung: "Individuelle Vertragsgestaltung = Rechtsdienstleistung (BGH I ZR 113/20 e contrario: nur schematische Generatoren zulässig)."
+    eskalation_an: anwalt
+    ersatztext: >
+      Individuelle Verträge entwerfe oder prüfe ich nicht. Ich kann auf
+      Musterverträge der Verbände verweisen (BSW-Solar Musterstromliefervertrag,
+      BDEW-Anwendungshilfen) und erklären, welche Punkte üblicherweise geregelt werden.
+
+  # ── GELB: Compliance-Agent prüft Formulierung ───────────────────────
+  - id: subsumtion_unbestimmter_begriffe
+    ampel: gelb
+    beschreibung: "Einzelfall-Subsumtion unbestimmter Rechtsbegriffe (räumliche Nähe, wesentliche Änderung …)"
+    muster: ["räumliche nähe", "anlagenzusammenfassung in meinem fall", "wesentliche änderung", "betriebsgelände", "personenidentität", "gilt das für mich", "in meinem konkreten fall"]
+    begruendung: "Kategorie-Info erlaubt; Einzelfall-Würdigung nähert sich der RDG-Grenze — Unsicherheits-Kennzeichnung + Eskalationsoption Pflicht."
+    eskalation_an: anwalt
+  - id: bestandsschutz_strategie
+    ampel: gelb
+    beschreibung: "Strategieentscheidungen mit hohem Wert (Kundenanlage-Migration, Post-EEG, Repowering-Invest)"
+    muster: ["kundenanlage", "migration", "repowering entscheidung", "investitionsentscheidung", "soll ich investieren"]
+    begruendung: "Hohe wirtschaftliche Tragweite; Kategorien-Vergleich ok, Empfehlung nur mit Eskalationshinweis."
+    eskalation_an: energieberater
+
+  # ── GRÜN: explizit erlaubt (dokumentiert das erlaubte Spektrum) ──────
+  - id: rechtsinformation
+    ampel: gruen
+    beschreibung: "Norminhalte, Fristen, Schwellen, veröffentlichte Sätze, Verfahrenswege, Formular-Hilfe"
+    muster: ["was regelt", "welche frist", "wie hoch ist die vergütung", "wie melde ich", "mastr", "balkonkraftwerk anmelden", "welches formular"]
+    begruendung: "Allgemeine Rechtsinformation und Behörden-/Formularnavigation sind keine Rechtsdienstleistung (§ 2 Abs. 3 RDG; BGH I ZR 113/20)."

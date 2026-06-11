@@ -1,0 +1,60 @@
+id: verguetung.solar.teileinspeisung
+beschreibung: >
+  Feste Einspeisevergütung (Überschuss-/Teileinspeisung) für Gebäude-Solaranlagen
+  nach § 48 Abs. 2, § 49 EEG, je IBN-Zeitfenster (Degression 1 %/6 Monate ab
+  01.02.2024, § 49 Abs. 1 EEG i.d.F. Solarpaket I). Operative Werte gem.
+  BNetzA-Veröffentlichung der anzulegenden Werte. Mischvergütung bei
+  Leistungsstaffel anteilig (§ 48 Abs. 2: "bis einschließlich").
+einheit: ct/kWh
+staffelung: leistung_kwp
+zeitraeume:
+  - gueltig_von: "2022-07-30"
+    gueltig_bis: "2024-01-31"
+    wert:
+      - { bis_kwp: 10, wert: 8.2 }
+      - { bis_kwp: 40, wert: 7.1 }
+      - { bis_kwp: 100, wert: 5.8 }
+    quelle:
+      bezeichnung: "EEG 2023 § 48 Abs. 2 (Werte ab 30.07.2022, Degressionsaussetzung bis 31.01.2024)"
+      fundstelle: "§ 48 Abs. 2, § 49 EEG 2023"
+  - gueltig_von: "2024-02-01"
+    gueltig_bis: "2024-07-31"
+    wert:
+      - { bis_kwp: 10, wert: 8.11 }
+      - { bis_kwp: 40, wert: 7.03 }
+      - { bis_kwp: 100, wert: 5.74 }
+    quelle:
+      bezeichnung: "BNetzA anzulegende Werte Solar (Degression 1 % zum 01.02.2024)"
+      url: "https://www.bundesnetzagentur.de/DE/Fachthemen/ElektrizitaetundGas/ErneuerbareEnergien/Solaranlagen/start.html"
+  - gueltig_von: "2024-08-01"
+    gueltig_bis: "2025-01-31"
+    wert:
+      - { bis_kwp: 10, wert: 8.03 }
+      - { bis_kwp: 40, wert: 6.95 }
+      - { bis_kwp: 100, wert: 5.68 }
+    quelle:
+      bezeichnung: "BNetzA anzulegende Werte Solar (Degression zum 01.08.2024)"
+  - gueltig_von: "2025-02-01"
+    gueltig_bis: "2025-07-31"
+    wert:
+      - { bis_kwp: 10, wert: 7.94 }
+      - { bis_kwp: 40, wert: 6.88 }
+      - { bis_kwp: 100, wert: 5.62 }
+    quelle:
+      bezeichnung: "BNetzA anzulegende Werte Solar (Degression zum 01.02.2025)"
+  - gueltig_von: "2025-08-01"
+    gueltig_bis: "2026-01-31"
+    wert:
+      - { bis_kwp: 10, wert: 7.86 }
+      - { bis_kwp: 40, wert: 6.81 }
+      - { bis_kwp: 100, wert: 5.56 }
+    quelle:
+      bezeichnung: "BNetzA anzulegende Werte Solar (Degression zum 01.08.2025)"
+  - gueltig_von: "2026-02-01"
+    wert:
+      - { bis_kwp: 10, wert: 7.78 }
+      - { bis_kwp: 40, wert: 6.74 }
+      - { bis_kwp: 100, wert: 5.51 }
+    quelle:
+      bezeichnung: "BNetzA anzulegende Werte Solar (Degression zum 01.02.2026)"
+    hinweis: "ZU VERIFIZIEREN gegen aktuelle BNetzA-Tabelle (rechnerisch fortgeschrieben, 1 % Degression)."

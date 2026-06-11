@@ -1,0 +1,15 @@
+id: schwellen
+beschreibung: "Zentrale Leistungs-Schwellenwerte des EEG/EnWG als benannte Konstanten (jeweils mit Norm-Quelle im Hinweis der Engine)."
+einheit: gemischt (kW, VA, Monate)
+staffelung: keine
+zeitraeume:
+  - gueltig_von: "2023-01-01"
+    wert: "siehe src/rules/schwellen.ts — Werte dort mit Einzelquellen"
+    quelle:
+      bezeichnung: "Sammelverweis; Einzelwerte in schwellen.ts mit Norm je Schwelle"
+    hinweis: >
+      Die Schwellen (100 kW Direktvermarktungspflicht § 21 Abs. 1; 1 MW
+      Ausschreibungspflicht Freifläche § 22; 2 kW/800 VA Steckersolar § 8 Abs. 5a;
+      30 kW Netzanschluss-Vereinfachung § 8; 10,8 kW Monatsfrist-Fiktion § 8 Abs. 5)
+      sind in der Engine kodiert, da mehrdimensional. Diese Datei dient als
+      Änderungs-Anker für den Changefeed.

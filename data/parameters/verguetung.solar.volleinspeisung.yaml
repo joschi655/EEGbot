@@ -1,0 +1,57 @@
+id: verguetung.solar.volleinspeisung
+beschreibung: >
+  Feste Einspeisevergütung bei Volleinspeisung (Basis + Zuschlag nach § 48 Abs. 2,
+  Mitteilungspflicht § 48 Abs. 2a: Volleinspeisung VOR Inbetriebnahme bzw. jährlich
+  bis 30.11. für Folgejahr in Textform melden — Verstoß ist § 52-bewehrt, Nr. 10).
+einheit: ct/kWh
+staffelung: leistung_kwp
+zeitraeume:
+  - gueltig_von: "2022-07-30"
+    gueltig_bis: "2024-01-31"
+    wert:
+      - { bis_kwp: 10, wert: 13.0 }
+      - { bis_kwp: 40, wert: 10.9 }
+      - { bis_kwp: 100, wert: 10.9 }
+    quelle:
+      bezeichnung: "EEG 2023 § 48 Abs. 2 inkl. Volleinspeisungszuschlag"
+      fundstelle: "§ 48 Abs. 2, 2a EEG 2023"
+  - gueltig_von: "2024-02-01"
+    gueltig_bis: "2024-07-31"
+    wert:
+      - { bis_kwp: 10, wert: 12.87 }
+      - { bis_kwp: 40, wert: 10.79 }
+      - { bis_kwp: 100, wert: 10.79 }
+    quelle:
+      bezeichnung: "BNetzA anzulegende Werte Solar (Degression zum 01.02.2024)"
+  - gueltig_von: "2024-08-01"
+    gueltig_bis: "2025-01-31"
+    wert:
+      - { bis_kwp: 10, wert: 12.73 }
+      - { bis_kwp: 40, wert: 10.68 }
+      - { bis_kwp: 100, wert: 10.68 }
+    quelle:
+      bezeichnung: "BNetzA anzulegende Werte Solar (Degression zum 01.08.2024)"
+  - gueltig_von: "2025-02-01"
+    gueltig_bis: "2025-07-31"
+    wert:
+      - { bis_kwp: 10, wert: 12.6 }
+      - { bis_kwp: 40, wert: 10.57 }
+      - { bis_kwp: 100, wert: 10.57 }
+    quelle:
+      bezeichnung: "BNetzA anzulegende Werte Solar (Degression zum 01.02.2025)"
+  - gueltig_von: "2025-08-01"
+    gueltig_bis: "2026-01-31"
+    wert:
+      - { bis_kwp: 10, wert: 12.47 }
+      - { bis_kwp: 40, wert: 10.46 }
+      - { bis_kwp: 100, wert: 10.46 }
+    quelle:
+      bezeichnung: "BNetzA anzulegende Werte Solar (Degression zum 01.08.2025)"
+  - gueltig_von: "2026-02-01"
+    wert:
+      - { bis_kwp: 10, wert: 12.35 }
+      - { bis_kwp: 40, wert: 10.36 }
+      - { bis_kwp: 100, wert: 10.36 }
+    quelle:
+      bezeichnung: "BNetzA anzulegende Werte Solar (Degression zum 01.02.2026)"
+    hinweis: "ZU VERIFIZIEREN gegen aktuelle BNetzA-Tabelle (rechnerisch fortgeschrieben, 1 % Degression)."
