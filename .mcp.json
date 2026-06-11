@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "eeg-wissen": {
+      "command": "bun",
+      "args": ["run", "mcp/wissen/server.ts"]
+    },
+    "eeg-rechner": {
+      "command": "bun",
+      "args": ["run", "mcp/rechner/server.ts"]
+    },
+    "eeg-foerder": {
+      "command": "bun",
+      "args": ["run", "mcp/foerder/server.ts"]
+    },
+    "eeg-daten": {
+      "command": "bun",
+      "args": ["run", "mcp/daten/server.ts"]
+    }
+  }
+}

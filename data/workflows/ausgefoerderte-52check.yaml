@@ -1,0 +1,114 @@
+id: ausgefoerderte-52check
+titel: "Ausgeförderte Ü20-Anlage: Optionen + §52-Compliance-Check"
+beschreibung: >
+  Für Anlagen am/nach dem Förderende (20 Jahre + IBN-Jahr): Weiterbetriebs-Optionen
+  vergleichen und die §52-Sanktions-Exposure prüfen. 66.000+ Anlagen verlassen
+  allein 2026 die Förderung; die Strafzahlung (10 €/kW/Monat) übersteigt bei 5 kWp
+  die Jahres-Anschlussvergütung in ~4 Monaten.
+zustaendig_wenn:
+  eine:
+    - { feld: fall_typ, op: eq, wert: ausgefoerderte }
+    - { feld: fall_typ, op: eq, wert: 52check }
+    - { feld: anlage.ibn_datum, op: vor, wert: "2006-01-01" }
+start: intake_basis
+schritte:
+  - id: intake_basis
+    titel: "Anlagendaten erfassen"
+    typ: nutzer_input
+    benoetigte_felder:
+      - { feld: anlage.ibn_datum, frage: "Wann ging die Anlage erstmals in Betrieb?" }
+      - { feld: anlage.leistung_kwp, frage: "Installierte Leistung (kWp)?" }
+      - { feld: anlage.mastr_registriert, frage: "Ist die Anlage im Marktstammdatenregister registriert?", hinweis: "Pflicht gilt auch für Altanlagen — Registrierung war bis 31.01.2021 nachzuholen." }
+      - { feld: anlage.veraeusserungsform_gemeldet, frage: "Ist dem Netzbetreiber die aktuelle Veräußerungsform gemeldet?" }
+    weiter:
+      - zu: uebergangsrecht
+
+  - id: uebergangsrecht
+    titel: "Anwendbare EEG-Fassung (Versteinerung)"
+    typ: tool
+    tool:
+      server: eeg-wissen
+      name: resolve_uebergangsrecht
+      args_aus_fall: { ibn_datum: anlage.ibn_datum }
+      ergebnis_feld: ergebnisse.uebergangsrecht
+    weiter:
+      - zu: optionen
+
+  - id: optionen
+    titel: "Weiterbetriebs-Optionen vergleichen"
+    typ: tool
+    tool:
+      server: eeg-rechner
+      name: ausgefoerderte_optionen
+      args_aus_fall: { ibn_datum: anlage.ibn_datum, leistung_kwp: anlage.leistung_kwp }
+      ergebnis_feld: ergebnisse.optionen
+    weiter:
+      - wenn: { feld: anlage.mastr_registriert, op: eq, wert: false }
+        zu: sanktion_radar
+      - wenn: { feld: anlage.veraeusserungsform_gemeldet, op: eq, wert: false }
+        zu: sanktion_radar
+      - zu: pflichten_hinweis
+
+  - id: sanktion_radar
+    titel: "§52 Liability Radar"
+    typ: tool
+    tool:
+      server: eeg-rechner
+      name: sanktion_52
+      args_aus_fall: { leistung_kw: anlage.leistung_kwp, verstoesse: ergebnisse.verstoss_liste }
+      ergebnis_feld: ergebnisse.sanktion
+    weiter:
+      - zu: eskalations_check
+
+  - id: eskalations_check
+    titel: "Hohe Exposure → Fachperson"
+    typ: agent
+    agent_aufgabe:
+      beschreibung: >
+        Erkläre die berechnete §52-Exposure (ergebnisse.sanktion) mit Heilungs-
+        ersparnis und Verjährung. Die Verstoß-Zeiträume hast du zuvor aus den
+        Nutzerangaben als ergebnisse.verstoss_liste konstruiert (Kategorie 11 für
+        fehlende MaStR-Registrierung ab dem späteren von [IBN+1 Monat, 2023-01-01];
+        Kategorie 9 für fehlende Veräußerungsform-Meldung). Empfehle die Heilung
+        als ersten Schritt (Registrierung nachholen senkt rückwirkend auf 2 €/kW).
+        Bei Exposure > 1.000 € oder bereits laufender Netzbetreiber-Forderung:
+        Eskalation vorbereiten.
+      pflicht_quellen: ["§ 52 EEG 2023", "Clearingstelle FAQ 236"]
+    weiter:
+      - wenn: { feld: ergebnisse.sanktion.exposure_gesamt_eur, op: gt, wert: 1000 }
+        zu: eskalation
+      - zu: pflichten_hinweis
+
+  - id: eskalation
+    titel: "Übergabe an Fachperson"
+    typ: eskalation
+    eskalation_an: clearingstelle
+    weiter:
+      - zu: pflichten_hinweis
+
+  - id: pflichten_hinweis
+    titel: "Pflichten bleiben"
+    typ: hinweis
+    hinweis_text: >
+      Wichtig: Auch ohne Förderung bleibt die Anlage eine EE-Anlage im Sinne des
+      EEG (BNetzA-FAQ). MaStR-Pflichten, Meldepflichten und das §52-Sanktionsregime
+      gelten weiter — ebenso die Meldung eines Betreiberwechsels (z. B. bei
+      Hausverkauf). Die Anschlussvergütung (Jahresmarktwert minus Kostenpauschale)
+      läuft ohne Antrag automatisch bis Ende 2032, WENN die Meldedaten stimmen.
+    weiter:
+      - zu: abschluss
+
+  - id: abschluss
+    titel: "Zusammenfassung"
+    typ: agent
+    agent_aufgabe:
+      beschreibung: >
+        Fasse zusammen: (1) Compliance-Status zuerst (Verstöße + Heilungsweg, falls
+        vorhanden), (2) Options-Vergleich aus ergebnisse.optionen als Tabelle mit
+        Jahreserträgen und Annahmen, (3) konkrete nächste Schritte in Reihenfolge.
+        Steuer-/Investitionsfragen → Steuerberater/Energieberater. Disclaimer.
+    weiter:
+      - zu: ende
+quellen:
+  - { bezeichnung: "§ 25, § 21 Abs. 1 Nr. 3, § 52, § 100 Abs. 9 EEG 2023" }
+  - { bezeichnung: "Clearingstelle EEG|KWKG FAQ 236" }
