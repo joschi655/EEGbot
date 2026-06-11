@@ -1,0 +1,16 @@
+# Generierte Wissensbasis — Nutzer baut lokal via `bun run build:knowledge`.
+# Gesetze/Urteile (amtliche Werke, § 5 UrhG) dürften eingecheckt werden,
+# Clearingstelle-/Verbands-Korpora NICHT — daher ist knowledge/ pauschal ignoriert.
+knowledge/*
+!knowledge/.gitkeep
+!knowledge/README.md
+
+# Roh-Downloads der Pipelines
+.cache/
+
+node_modules/
+*.log
+.DS_Store
+
+# Catala-Kompilate (CI baut sie; Quelldateien rules/*.catala_de sind versioniert)
+rules/build/

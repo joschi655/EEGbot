@@ -1,0 +1,35 @@
+{
+  "name": "eeg-kompass",
+  "version": "0.1.0",
+  "description": "Open-Source Claude-Code-Framework für deutsches EEG-/Energierecht: deterministische Rechner, temporaler Normgraph, Graph-RAG und geführte B2C-Workflows (Balkonkraftwerk, PV-Dach, Förderung, §52-Check, Ausgeförderte)",
+  "license": "Apache-2.0",
+  "type": "module",
+  "private": false,
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "validate:data": "bun run pipelines/validate-data.ts",
+    "build:knowledge": "bun run pipelines/ingest-gesetze.ts && bun run pipelines/build-normgraph.ts && bun run pipelines/build-index.ts",
+    "ingest:gesetze": "bun run pipelines/ingest-gesetze.ts",
+    "ingest:clearingstelle": "bun run pipelines/ingest-clearingstelle.ts",
+    "ingest:rechtsprechung": "bun run pipelines/ingest-rechtsprechung.ts",
+    "ingest:markt": "bun run pipelines/ingest-markt.ts",
+    "changefeed": "bun run pipelines/changefeed.ts",
+    "evals": "bun run evals/run.ts",
+    "mcp:wissen": "bun run mcp/wissen/server.ts",
+    "mcp:rechner": "bun run mcp/rechner/server.ts",
+    "mcp:daten": "bun run mcp/daten/server.ts",
+    "mcp:foerder": "bun run mcp/foerder/server.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "zod": "^3.23.0",
+    "yaml": "^2.5.0",
+    "fast-xml-parser": "^4.5.0",
+    "minisearch": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.6.0"
+  }
+}
