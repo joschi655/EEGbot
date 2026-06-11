@@ -15,7 +15,9 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bun run typecheck
       - run: bun run validate:data
+      - run: bun run build:knowledge   # lädt QuantLaw-Snapshots (GitHub→GitHub, gecacht via .cache)
       - run: bun test
+      - run: bun run evals
 
   # Catala-Regeln werden separat gebaut, sobald rules/ kompilierbare Module enthält.
   # catala:

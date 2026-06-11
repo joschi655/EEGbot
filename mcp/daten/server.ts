@@ -58,13 +58,14 @@ server.registerTool(
 server.registerTool(
   "gesetzesvorhaben",
   {
-    description: "Laufende Gesetzgebungsverfahren zum EEG/EnWG aus dem DIP des Bundestags (Frühwarnung vor Novellen). Ohne API-Key wird der öffentliche Demo-Key des DIP verwendet.",
+    description: "Laufende Gesetzgebungsverfahren zum EEG/EnWG aus dem DIP des Bundestags (Frühwarnung vor Novellen). Benötigt DIP_API_KEY (kostenlos: dip.bundestag.de/über-dip/hilfe/api).",
     inputSchema: { suchbegriff: z.string().default("Erneuerbare-Energien-Gesetz"), max: z.number().int().min(1).max(20).default(5) },
   },
   async ({ suchbegriff, max }) => {
+    if (!process.env.DIP_API_KEY)
+      return json({ fehler: "DIP_API_KEY nicht gesetzt", hinweis: "Kostenlosen API-Key beantragen: https://dip.bundestag.de/über-dip/hilfe/api — dann als Umgebungsvariable DIP_API_KEY setzen." });
     try {
-      const key = process.env.DIP_API_KEY ?? "OSOegLs.PR2lwJ1dwCeje9vTj7FPOt3hvpYKtwKkhw"; // öffentlicher DIP-Demo-Key
-      const url = `https://search.dip.bundestag.de/api/v1/vorgang?f.titel=${encodeURIComponent(suchbegriff)}&rows=${max}&apikey=${key}`;
+      const url = `https://search.dip.bundestag.de/api/v1/vorgang?f.titel=${encodeURIComponent(suchbegriff)}&rows=${max}&apikey=${process.env.DIP_API_KEY}`;
       const res = await fetch(url);
       if (!res.ok) throw new Error(`DIP HTTP ${res.status}`);
       const data = (await res.json()) as { documents?: { titel?: string; datum?: string; vorgangstyp?: string; beratungsstand?: string }[] };
