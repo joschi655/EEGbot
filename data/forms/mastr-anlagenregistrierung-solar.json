@@ -1,0 +1,70 @@
+{
+  "id": "mastr-anlagenregistrierung-solar",
+  "name": "MaStR — Registrierung einer Solaranlage",
+  "aussteller": "Bundesnetzagentur (Marktstammdatenregister)",
+  "einreichungskanal": "online-portal",
+  "zweck": "Pflicht-Registrierung jeder Solaranlage binnen 1 Monat nach Inbetriebnahme (§ 5 MaStRV). ZWEISTUFIG: erst Marktakteur (Betreiber) registrieren, dann die Anlage — häufigster Ablauffehler.",
+  "benoetigt_wenn": { "feld": "anlage.energietraeger", "op": "eq", "wert": "solar" },
+  "felder": [
+    {
+      "id": "ibn_datum",
+      "bezeichnung": "Inbetriebnahmedatum",
+      "pflicht": true,
+      "ai_vorbefuellbar": true,
+      "fall_feld": "anlage.ibn_datum",
+      "haeufiger_fehler": "IBN = erstmalige Stromerzeugung, NICHT Zählersetzungsdatum (Clearingstelle 2021/28-IX). Wer auf den Zähler wartet, verschenkt Vergütungssatz (Degression)."
+    },
+    {
+      "id": "bruttoleistung_kwp",
+      "bezeichnung": "Installierte Leistung (kWp, Modulleistung)",
+      "pflicht": true,
+      "ai_vorbefuellbar": true,
+      "fall_feld": "anlage.leistung_kwp"
+    },
+    {
+      "id": "wechselrichterleistung_va",
+      "bezeichnung": "Wechselrichterleistung (VA)",
+      "pflicht": true,
+      "ai_vorbefuellbar": true,
+      "fall_feld": "anlage.wechselrichter_va"
+    },
+    {
+      "id": "anlagentyp",
+      "bezeichnung": "Lage der Anlage (Gebäudedach / Freifläche / Steckersolar)",
+      "pflicht": true,
+      "ai_vorbefuellbar": true,
+      "fall_feld": "anlage.anlagentyp"
+    },
+    {
+      "id": "netzbetreiber",
+      "bezeichnung": "Anschluss-Netzbetreiber",
+      "pflicht": true,
+      "ai_vorbefuellbar": false,
+      "haeufiger_fehler": "Aus dem Netzanschluss-Bescheid übernehmen; bei Unsicherheit per PLZ über die VNB-Suche ermitteln."
+    },
+    {
+      "id": "speicher_vorhanden",
+      "bezeichnung": "Batteriespeicher vorhanden?",
+      "pflicht": true,
+      "ai_vorbefuellbar": true,
+      "fall_feld": "anlage.speicher_vorhanden",
+      "haeufiger_fehler": "Speicher ist SEPARAT als eigene Einheit zu registrieren — eigener Registrierungsvorgang!"
+    },
+    {
+      "id": "marktakteur",
+      "bezeichnung": "Marktakteur (Anlagenbetreiber) — Voraussetzung",
+      "pflicht": true,
+      "ai_vorbefuellbar": false,
+      "human_only": true,
+      "haeufiger_fehler": "Marktakteur-Registrierung MUSS vor der Anlagen-Registrierung abgeschlossen sein (zweistufiges Verfahren)."
+    }
+  ],
+  "benoetigte_anhaenge": [],
+  "frist_hinweis": "1 Monat nach IBN (§ 5 MaStRV). Verstoß: § 52 Abs. 1 Nr. 11 EEG — 10 €/kW/Monat; nach Nachholung rückwirkend 2 €/kW/Monat. Die Veräußerungsform ist ZUSÄTZLICH separat dem Netzbetreiber zu melden (§ 21b/21c EEG) — das MaStR ersetzt diese Meldung NICHT.",
+  "url": "https://www.marktstammdatenregister.de",
+  "quellen": [
+    { "bezeichnung": "MaStR Registrierungshilfe Solar", "url": "https://www.marktstammdatenregister.de/MaStRHilfe/files/regHilfen/Registrierungshilfe_Solar.pdf" },
+    { "bezeichnung": "§ 5 MaStRV; § 52 Abs. 1 Nr. 11 EEG 2023", "fundstelle": "§ 5 MaStRV" }
+  ],
+  "zuletzt_geprueft": "2026-06-12"
+}

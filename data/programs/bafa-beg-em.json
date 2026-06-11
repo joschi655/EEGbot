@@ -1,0 +1,52 @@
+{
+  "id": "bafa-beg-em",
+  "name": "BAFA BEG EM — Bundesförderung für effiziente Gebäude: Einzelmaßnahmen",
+  "traeger": "BAFA",
+  "foerderart": "zuschuss",
+  "status": "aktiv",
+  "beschreibung": "Zuschüsse für Einzelmaßnahmen an Bestandsgebäuden: Gebäudehülle (Dämmung, Fenster, Türen), Anlagentechnik, Heizungsoptimierung. Grundsatz 15 % + 5 % iSFP-Bonus (individueller Sanierungsfahrplan).",
+  "eligibility": {
+    "alle": [
+      { "feld": "massnahme.typ", "op": "in", "wert": ["daemmung", "fenster", "tueren", "lueftung", "heizungsoptimierung", "anlagentechnik"] },
+      { "feld": "gebaeude.bestandsgebaeude", "op": "eq", "wert": true },
+      { "feld": "massnahme.begonnen", "op": "eq", "wert": false }
+    ]
+  },
+  "ausschluesse": [
+    {
+      "grund": "Antrag vor Maßnahmenbeginn im BAFA-Portal stellen",
+      "bedingung": { "feld": "massnahme.begonnen", "op": "eq", "wert": true }
+    }
+  ],
+  "foerdersaetze": [
+    { "bezeichnung": "Grundförderung", "satz_prozent": 15 },
+    {
+      "bezeichnung": "iSFP-Bonus",
+      "satz_prozent": 5,
+      "bedingung": { "feld": "antragsteller.isfp_vorhanden", "op": "eq", "wert": true }
+    }
+  ],
+  "max_foerdersatz_prozent": 20,
+  "kumulierung": [
+    { "programm_id": "estg-35c", "kombinierbar": false, "hinweis": "Keine Doppelförderung derselben Maßnahme." },
+    { "programm_id": "kfw-458", "kombinierbar": true, "hinweis": "Heizung über KfW, Hülle über BAFA — getrennte Maßnahmen kombinierbar." }
+  ],
+  "antragsweg": {
+    "kanal": "online-portal",
+    "portal_url": "https://www.bafa.de",
+    "antrag_vor_massnahmenbeginn": true,
+    "fachunternehmer_pflicht": true,
+    "benoetigte_formulare": ["bafa-tbs"]
+  },
+  "fristen": [
+    { "bezeichnung": "Bewilligungszeitraum", "beschreibung": "Umsetzung innerhalb des Bewilligungszeitraums (i. d. R. 36 Monate), Verwendungsnachweis danach." }
+  ],
+  "quellen": [
+    {
+      "bezeichnung": "BAFA BEG EM Förderübersicht",
+      "url": "https://www.bafa.de/DE/Energie/Effiziente_Gebaeude/Foerderprogramm_im_Ueberblick/foerderprogramm_im_ueberblick_node.html",
+      "abgerufen_am": "2026-06-12"
+    }
+  ],
+  "zuletzt_geprueft": "2026-06-12"
+}

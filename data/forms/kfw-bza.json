@@ -1,0 +1,17 @@
+{
+  "id": "kfw-bza",
+  "name": "KfW — Bestätigung zum Antrag (BzA)",
+  "aussteller": "Energieeffizienz-Experte oder Fachunternehmen",
+  "einreichungskanal": "online-portal",
+  "zweck": "Technische Bestätigung der geplanten Maßnahme VOR Antragstellung im KfW-Portal (Heizungsförderung 458). Die BzA-ID wird im Antrag benötigt.",
+  "felder": [
+    { "id": "massnahme", "bezeichnung": "Geplante Maßnahme (z. B. Wärmepumpe)", "pflicht": true, "ai_vorbefuellbar": true, "fall_feld": "massnahme.typ" },
+    { "id": "kosten", "bezeichnung": "Voraussichtliche förderfähige Kosten", "pflicht": true, "ai_vorbefuellbar": false },
+    { "id": "experten_bestaetigung", "bezeichnung": "Bestätigung durch EEE/Fachunternehmen", "pflicht": true, "ai_vorbefuellbar": false, "human_only": true }
+  ],
+  "benoetigte_anhaenge": [],
+  "frist_hinweis": "VOR Abschluss eines unbedingten Liefer-/Leistungsvertrags und vor Antragstellung.",
+  "url": "https://meine.kfw.de",
+  "quellen": [{ "bezeichnung": "KfW 458 Merkblatt", "url": "https://www.kfw.de" }],
+  "zuletzt_geprueft": "2026-06-12"
+}

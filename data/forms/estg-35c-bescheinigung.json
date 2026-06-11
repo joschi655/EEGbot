@@ -1,0 +1,16 @@
+{
+  "id": "estg-35c-bescheinigung",
+  "name": "§ 35c EStG — Bescheinigung des Fachunternehmens (BMF-Muster)",
+  "aussteller": "Fachunternehmen / Energieberater",
+  "einreichungskanal": "schriftlich",
+  "zweck": "Pflicht-Nachweis für die Steuerermäßigung nach § 35c EStG; amtliches Muster des BMF, der Steuererklärung beizufügen.",
+  "felder": [
+    { "id": "massnahme", "bezeichnung": "Durchgeführte energetische Maßnahme", "pflicht": true, "ai_vorbefuellbar": true, "fall_feld": "massnahme.typ" },
+    { "id": "aufwendungen", "bezeichnung": "Aufwendungen (Rechnungsbeträge)", "pflicht": true, "ai_vorbefuellbar": false },
+    { "id": "bescheinigung", "bezeichnung": "Bescheinigung nach amtlichem Muster", "pflicht": true, "ai_vorbefuellbar": false, "human_only": true }
+  ],
+  "benoetigte_anhaenge": ["Rechnungen (unbar bezahlt)"],
+  "frist_hinweis": "Mit der Einkommensteuererklärung des Jahres der Fertigstellung einreichen.",
+  "quellen": [{ "bezeichnung": "§ 35c EStG; BMF-Musterbescheinigung", "fundstelle": "§ 35c EStG" }],
+  "zuletzt_geprueft": "2026-06-12"
+}
