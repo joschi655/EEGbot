@@ -12,3 +12,8 @@ Vor längeren Läufen prüfen, ob eine bestehende Session fortgesetzt werden kan
 - Nutzer-Dokumenten-Ingestion (PDF/OCR/Vision) + eeg-dokumente MCP + Unterlagen-Skill
 - Pipelines clearingstelle/rechtsprechung/markt/ausschreibungen gebaut + real verprobt
 - docs/user-guide.md neu; architektur.md RAG-Topologie; setup-Skript
+
+## Session 2026-06-12-c — Catala-CI
+- Befund: kein catala_de — Spezifikationen auf catala_en portiert (§52 neu, §24 ersetzt)
+- Cross-Check evals/catala-crosscheck.ts: 24/24 im arm64-Container verifiziert (clerk run)
+- CI-Job catala (setup-ocaml@v3, opam catala.1.2.0); clerk-Artefakte gitignored
