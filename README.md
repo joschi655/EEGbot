@@ -1,4 +1,4 @@
-# EEG-Kompass
+# EEGbot
 
 **Ein Open-Source-Claude-Code-Framework für deutsches Energierecht.** Geführte
 Workflows für Balkonkraftwerk, PV-Dachanlage, Wärmepumpen-Förderung und
@@ -12,7 +12,7 @@ RDG-Guardrails.
 ## Warum das kein „Chatbot über Gesetze" ist
 
 Sprachmodelle raten Vergütungssätze, verwechseln EEG-Fassungen und übersehen
-Fristen. EEG-Kompass dreht das um — **deterministisch, wo das Recht eindeutig
+Fristen. EEGbot dreht das um — **deterministisch, wo das Recht eindeutig
 ist; agentisch nur, wo Auslegung oder Nutzerführung gebraucht wird:**
 
 - **§52 Liability Radar** — Strafzahlungs-Exposure (10 €/kW/Monat) mit Heilungs-
@@ -35,9 +35,8 @@ ist; agentisch nur, wo Auslegung oder Nutzerführung gebraucht wird:**
 ## Quickstart
 
 ```bash
-git clone https://github.com/<org>/eeg-kompass && cd eeg-kompass
-bun install
-bun run build:knowledge   # lädt Gesetze (QuantLaw-Archiv), baut Normgraph + Suchindex
+git clone https://github.com/joschi655/EEGbot && cd EEGbot
+bun run setup             # installiert, validiert, baut Normgraph + Suchindex (~2–5 Min)
 claude                    # Claude Code im Repo starten — MCPs & Hooks laden automatisch
 ```
 
@@ -46,6 +45,27 @@ der Intake-Skill strukturiert den Fall und führt durch den Workflow.
 
 Voraussetzungen: [bun](https://bun.sh), [Claude Code](https://claude.ai/code).
 Kein API-Key für die Wissensbasis nötig — alle Quellen sind offene Daten.
+Ausführliche Anleitung: **[docs/user-guide.md](docs/user-guide.md)**.
+
+## Deine Unterlagen als Wissensquelle
+
+Leg deinen kompletten Papierkram in **einen Ordner** (`dokumente/`) —
+Einspeisezusage, MaStR-Bestätigung, Angebote, Datenblätter, Dachpläne,
+Zählerschrank-Fotos:
+
+```bash
+bun run ingest:dokumente
+```
+
+PDF-Text wird extrahiert, Scans und Fotos werden per OCR (tesseract.js, deutsch)
+durchsuchbar, **Pläne und Fotos liest Claude zusätzlich im Original** (Vision).
+Die Workflows ziehen Daten (IBN-Datum, Leistung, Netzbetreiber …) aus deinen
+Unterlagen, statt dich abzufragen. Alles bleibt lokal und gitignored —
+nichts wird hochgeladen oder committet.
+
+Optionale Wissensquellen (je ein Befehl, lokal gebaut): Clearingstelle-FAQ +
+Voten (`ingest:clearingstelle`), BGH-Rechtsprechung (`ingest:rechtsprechung`),
+BNetzA-Gebotstermine (`ingest:ausschreibungen`), Marktwerte (`ingest:markt`).
 
 ## Architektur (Kurzfassung)
 
@@ -56,10 +76,12 @@ Claude Code (Runtime)
  ├─ Agenten     7 Spezialisten (Intake, Eligibility, Navigator, DocPrep,
  │              Guardrail, Eskalation, Research)
  ├─ Hooks       RDG-Ampel (UserPromptSubmit) · Freshness (SessionStart)
- └─ MCP-Server  eeg-wissen   Normgraph, §100-Resolver, Suche
-                eeg-rechner  §52, Vergütung, §24, Fristen, Schwellen, Ü20
-                eeg-foerder  Programme, Kumulierung, Formularinventar
-                eeg-daten    MaStR-Suche, Marktwerte, DIP, Gebotstermine
+ └─ MCP-Server  eeg-wissen     Normgraph, §100-Resolver, Norm-/Clearingstelle-/
+                               Rechtsprechungs-Suche
+                eeg-rechner    §52, Vergütung, §24, Fristen, Schwellen, Ü20
+                eeg-foerder    Programme, Kumulierung, Formularinventar
+                eeg-daten      MaStR-Suche, Marktwerte, DIP, Gebotstermine
+                eeg-dokumente  DEINE Unterlagen: Suche, Volltext, Pläne/Fotos
 data/           Geschäftslogik als DATEN (zod-validiert): Programme, Workflows,
                 Formulare, Guardrail-Policy, datierte Parameter (OpenFisca-Pattern)
 rules/          Catala-Spezifikationen (Gesetz-als-Code, Verifikations-Schicht)
@@ -71,7 +93,7 @@ Referenz-Testfälle — das System ist generisch: **neuer Fall-Typ = neue YAML-D
 
 ## Rechtlicher Rahmen (wichtig)
 
-EEG-Kompass liefert **allgemeine Rechtsinformationen und deterministische
+EEGbot liefert **allgemeine Rechtsinformationen und deterministische
 Berechnungen nach veröffentlichten Werten** — keine Rechtsberatung im Einzelfall
 (§ 2 RDG), keine Steuerberatung (StBerG). Du betreibst das Tool selbst, lokal,
 mit deinem eigenen Modell-Zugang. Die Guardrail-Policy
@@ -103,16 +125,16 @@ Fragen) ausdrücklich willkommen.
 | gesetze-im-internet.de via [QuantLaw-Archiv](https://github.com/QuantLaw/gesetze-im-internet) | Normtexte, Versionshistorie | amtliche Werke (§ 5 UrhG) |
 | [MaStR](https://www.marktstammdatenregister.de) | Anlagendaten | DL-DE-BY-2.0 (© Bundesnetzagentur) |
 | [DIP Bundestag](https://dip.bundestag.de) | Gesetzesvorhaben | offene Parlamentsdaten |
-| Clearingstelle EEG\|KWKG, KfW, BAFA, BDEW | Referenzen/Verweise | **nicht** redistribuiert — das Repo shipped Verweise, keine Korpora |
+| [Open Legal Data](https://de.openlegaldata.io) | BGH-/EEG-Rechtsprechung | amtliche Werke (§ 5 UrhG), API CC |
+| Clearingstelle EEG\|KWKG, KfW, BAFA, BDEW | FAQ/Voten werden **nur lokal** indexiert (`ingest:clearingstelle`) | **nicht** redistribuiert — das Repo shipped Scraper, keine Korpora |
 
-Code: **Apache-2.0**. Generierte Wissensbasis (`knowledge/`) wird lokal gebaut
+Code: **MIT**. Generierte Wissensbasis (`knowledge/`) wird lokal gebaut
 und nicht eingecheckt.
 
 ## Roadmap
 
 - Historische Vergütungssätze (EEG 2000–2014) als Parameter — dann rechnet der
   Ü20-Pfad auch Alt-Vergütungen nach
-- Clearingstelle-Index (Scraper + lokale Suche über 260+ FAQ und Voten)
 - Hybrid-Retrieval: Vektor-Reranking (jina-embeddings-v2-base-de) über dem BM25-Index
 - Catala-Kompilierung in CI (Spezifikation → ausführbare Verifikation)
 - Neuro-symbolische Rückverifikation von LLM-Subsumtionen

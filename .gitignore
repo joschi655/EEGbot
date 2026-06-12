@@ -8,9 +8,16 @@ knowledge/*
 # Roh-Downloads der Pipelines
 .cache/
 
+# Private Nutzer-Dokumente — bleiben IMMER lokal
+dokumente/*
+!dokumente/README.md
+
 node_modules/
 *.log
 .DS_Store
 
 # Catala-Kompilate (CI baut sie; Quelldateien rules/*.catala_de sind versioniert)
 rules/build/
+
+# OCR-Sprachdaten (tesseract.js lädt sie in .cache/)
+*.traineddata

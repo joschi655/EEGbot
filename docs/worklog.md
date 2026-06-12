@@ -27,3 +27,32 @@
 - Vergütungssätze ab 01.02.2026 (rechnerisch fortgeschrieben) gegen BNetzA-Tabelle
 - Jahresmarktwerte Solar 2023/2024 gegen netztransparenz.de
 - E2E-Personas P1–P5 in frischer Session durchspielen (evals/personas.md)
+
+## 2026-06-12 — v0.2.0 EEGbot-Migration + Vollausbau
+
+- **Migration:** eeg-kompass (6 Commits) per `merge --allow-unrelated-histories`
+  in den EEGbot-Clone (github.com/joschi655/EEGbot); LICENSE = MIT (Repo-Owner),
+  package name = eegbot.
+- **Dokumente-Layer (neu):** `dokumente/`-Ordner für Nutzer-Unterlagen;
+  `ingest:dokumente` mit unpdf (PDF-Text), tesseract.js-OCR deu+eng
+  (Gotcha: expliziter `workerPath` nötig, bun löst den Worker sonst aus dem
+  Install-Cache ohne regenerator-runtime), pdftoppm-Rasterung für Scans,
+  sips-HEIC-Konvertierung (macOS), DOCX via unzip; SHA-256-idempotent;
+  Bilder/Pläne → Vision-Routing statt eigenem Plan-Parser. MCP `eeg-dokumente`
+  (suche/lesen/status/bilder), Skill `Unterlagen`. E2E mit Fixture-PDF +
+  OCR-Scan verifiziert.
+- **Pipelines vervollständigt:** `ingest:rechtsprechung` (Open Legal Data —
+  Listen-Endpunkt hat keinen Volltext, Detail-Fetch nötig; 8 Kernurteile + 30
+  Breitensuche), `ingest:clearingstelle` (FAQ-Detailseiten numerisch
+  enumerierbar, Facettensuche WAF-403; Drosselung nach ~200 Requests →
+  Resume-Logik; 283 Einträge geladen), `ingest:markt` (SMARD live;
+  netztransparenz via optionale NT_CLIENT_*-Credentials), `ingest:ausschreibungen`
+  (§28a-Termine deterministisch + BNetzA-Höchstwert-Scrape defensiv).
+  `eeg-wissen` um suche_clearingstelle + suche_rechtsprechung erweitert.
+- **Docs:** user-guide.md (neu, Laien-Anleitung), architektur.md
+  (RAG-Topologie-Tabelle, Dokumente-Layer), README (EEGbot, setup-Befehl,
+  Unterlagen-Sektion), `bun run setup`.
+
+**Weiter offen:** Vergütungssätze ab 01.02.2026 + Jahresmarktwerte 2023/2024
+verifizieren (`ZU VERIFIZIEREN`), E2E-Personas P1–P5 in frischer Session,
+Clearingstelle-Restbestand (FAQ ~198–330) per erneutem Pipeline-Lauf.

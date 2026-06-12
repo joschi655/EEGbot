@@ -15,6 +15,10 @@
     "eeg-daten": {
       "command": "bun",
       "args": ["run", "mcp/daten/server.ts"]
+    },
+    "eeg-dokumente": {
+      "command": "bun",
+      "args": ["run", "mcp/dokumente/server.ts"]
     }
   }
 }

@@ -87,4 +87,41 @@ server.registerTool(
   async ({ query, stichtag, slug, limit }) => json(await sucheNormen(query, { stichtag, slug, limit })),
 );
 
+/** Generische BM25-Suche über einen Zusatz-Index (clearingstelle/rechtsprechung). */
+async function sucheZusatzIndex(indexName: string, query: string, limit: number) {
+  const MiniSearch = (await import("minisearch")).default;
+  const pfad = new URL(`../../knowledge/index/${indexName}.json`, import.meta.url).pathname;
+  const file = Bun.file(pfad);
+  if (!(await file.exists()))
+    return { fehler: `Index fehlt — \`bun run ingest:${indexName}\` ausführen (baut die Wissensbasis lokal auf).` };
+  const felder =
+    indexName === "clearingstelle"
+      ? { fields: ["titel", "text"], storeFields: ["url", "typ", "titel", "text"] }
+      : { fields: ["az", "text"], storeFields: ["az", "gericht", "datum", "warum", "quelle_url", "text"] };
+  const index = MiniSearch.loadJSON(await file.text(), felder);
+  let erg = index.search(query, { fuzzy: 0.15, prefix: true, combineWith: "AND" });
+  if (erg.length === 0) erg = index.search(query, { fuzzy: 0.2, prefix: true, combineWith: "OR" });
+  return erg.slice(0, limit);
+}
+
+server.registerTool(
+  "suche_clearingstelle",
+  {
+    description:
+      "Suche über die lokal aufgebaute Clearingstelle-EEG|KWKG-Wissensbasis (Häufige Rechtsfragen, Voten, Empfehlungen, Hinweise). Die Clearingstelle ist DIE Auslegungsinstanz für EEG-Praxisfragen — vor jeder eigenen Auslegung hier suchen.",
+    inputSchema: { query: z.string(), limit: z.number().int().min(1).max(20).default(8) },
+  },
+  async ({ query, limit }) => json(await sucheZusatzIndex("clearingstelle", query, limit)),
+);
+
+server.registerTool(
+  "suche_rechtsprechung",
+  {
+    description:
+      "Suche über lokal geladene EEG-Rechtsprechung (BGH-Kernurteile zu Anlagenbegriff, §100-Übergangsrecht, §52-Sanktionen, Kundenanlage, RDG + Breitensuche via Open Legal Data). Treffer enthalten Aktenzeichen, Gericht, Datum und Fundstellen-URL.",
+    inputSchema: { query: z.string(), limit: z.number().int().min(1).max(20).default(8) },
+  },
+  async ({ query, limit }) => json(await sucheZusatzIndex("rechtsprechung", query, limit)),
+);
+
 await server.connect(new StdioServerTransport());
