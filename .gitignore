@@ -25,3 +25,7 @@ rules/build/
 # Catala/clerk Build-Artefakte (clerk start)
 rules/_build/
 rules/clerk.toml
+
+# Catala/clerk Build-Artefakte (Projekt-Root)
+_build/
+clerk.toml
