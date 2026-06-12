@@ -1,0 +1,19 @@
+{
+  "id": "netzbetreiber-veraeusserungsform",
+  "name": "Meldung der Veräußerungsform an den Netzbetreiber (§ 21b/21c EEG)",
+  "aussteller": "Anschluss-Netzbetreiber",
+  "einreichungskanal": "netzbetreiber-portal",
+  "zweck": "Zuordnung des Stroms zu einer Veräußerungsform (Einspeisevergütung, Marktprämie, sonstige Direktvermarktung). OHNE Meldung: unentgeltliche Abnahme zu 0 ct/kWh (§ 21b Abs. 4 Nr. 2) — nicht rückwirkend heilbar. Research: ~700.000 betroffene Haushalte seit Mai 2024.",
+  "benoetigt_wenn": { "feld": "anlage.mastr_registriert", "op": "exists" },
+  "felder": [
+    { "id": "veraeusserungsform", "bezeichnung": "Gewählte Veräußerungsform", "pflicht": true, "ai_vorbefuellbar": true, "fall_feld": "anlage.veraeusserungsform" },
+    { "id": "mastr_nummer", "bezeichnung": "MaStR-Anlagennummer (SEE-Nummer)", "pflicht": true, "ai_vorbefuellbar": false, "haeufiger_fehler": "Erst nach MaStR-Registrierung verfügbar." },
+    { "id": "einspeiseart", "bezeichnung": "Voll- oder Überschusseinspeisung", "pflicht": true, "ai_vorbefuellbar": true, "fall_feld": "anlage.veraeusserungsform", "haeufiger_fehler": "Volleinspeisung zusätzlich VOR IBN bzw. jährlich bis 30.11. in Textform mitteilen (§ 48 Abs. 2a)." }
+  ],
+  "benoetigte_anhaenge": ["Inbetriebnahmeprotokoll (vom Installateur)"],
+  "frist_hinweis": "Mit/unmittelbar nach Inbetriebnahme. Wechsel der Veräußerungsform: Meldung vor Beginn des Vormonats (§ 21c Abs. 1: zum 1. eines Monats, Meldung vor Beginn des vorangegangenen Kalendermonats).",
+  "quellen": [
+    { "bezeichnung": "§ 21b, § 21c EEG 2023", "fundstelle": "§ 21b, § 21c EEG 2023" }
+  ],
+  "zuletzt_geprueft": "2026-06-12"
+}

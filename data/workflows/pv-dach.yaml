@@ -1,0 +1,104 @@
+id: pv-dach
+titel: "PV-Dachanlage (≤ 30 kWp): Anmeldung, Vergütung, Pflichten"
+beschreibung: >
+  Der Standard-Hausdach-Fall — inklusive der drei teuersten Fehlerquellen:
+  Veräußerungsform-Meldung (0-€-Falle), MaStR-Frist, falsches IBN-Datum.
+zustaendig_wenn:
+  alle:
+    - { feld: anlage.energietraeger, op: eq, wert: solar }
+    - eine:
+        - { feld: fall_typ, op: eq, wert: pv-dach }
+        - { feld: anlage.anlagentyp, op: in, wert: [dach, fassade] }
+start: intake_basis
+schritte:
+  - id: intake_basis
+    titel: "Eckdaten erfassen"
+    typ: nutzer_input
+    benoetigte_felder:
+      - { feld: anlage.leistung_kwp, frage: "Installierte Leistung (kWp)?" }
+      - { feld: anlage.ibn_datum, frage: "Inbetriebnahmedatum (erstmalige Stromerzeugung — nicht Zählersetzung!)? Falls geplant: geplantes Datum." }
+      - { feld: anlage.veraeusserungsform, frage: "Teileinspeisung (Eigenverbrauch + Überschuss) oder Volleinspeisung?" }
+      - { feld: anlage.mastr_registriert, frage: "Ist die Anlage schon im Marktstammdatenregister registriert?" }
+      - { feld: anlage.veraeusserungsform_gemeldet, frage: "Wurde die Veräußerungsform dem Netzbetreiber gemeldet (separat vom MaStR)?" }
+    weiter:
+      - zu: schwellen_check
+
+  - id: schwellen_check
+    titel: "Pflichten-Klasse bestimmen"
+    typ: tool
+    tool:
+      server: eeg-rechner
+      name: schwellen_pruefen
+      args_aus_fall: { leistung_kwp: anlage.leistung_kwp, anlagentyp: anlage.anlagentyp, imsys_vorhanden: anlage.imsys_vorhanden, ibn_datum: anlage.ibn_datum }
+      ergebnis_feld: ergebnisse.schwellen
+    weiter:
+      - zu: fristen_check
+
+  - id: fristen_check
+    titel: "Fristen & Meldepflichten (die 0-€-Falle)"
+    typ: tool
+    tool:
+      server: eeg-rechner
+      name: fristen_pruefen
+      args_aus_fall: { ibn_datum: anlage.ibn_datum, mastr_registriert: anlage.mastr_registriert, veraeusserungsform_gemeldet: anlage.veraeusserungsform_gemeldet, einspeiseart: anlage.veraeusserungsform }
+      ergebnis_feld: ergebnisse.fristen
+    weiter:
+      - wenn: { feld: anlage.ibn_datum, op: nach, wert: "2022-07-29" }
+        zu: verguetung
+      - zu: uebergangsrecht
+
+  - id: verguetung
+    titel: "Vergütungssatz berechnen"
+    typ: tool
+    tool:
+      server: eeg-rechner
+      name: verguetung_berechnen
+      args_aus_fall: { ibn_datum: anlage.ibn_datum, leistung_kwp: anlage.leistung_kwp, einspeiseart: anlage.veraeusserungsform }
+      ergebnis_feld: ergebnisse.verguetung
+    weiter:
+      - wenn: { feld: anlage_b, op: exists }
+        zu: zusammenfassung
+      - zu: abschluss
+
+  - id: uebergangsrecht
+    titel: "Bestandsanlage: anwendbare EEG-Fassung"
+    typ: tool
+    tool:
+      server: eeg-wissen
+      name: resolve_uebergangsrecht
+      args_aus_fall: { ibn_datum: anlage.ibn_datum }
+      ergebnis_feld: ergebnisse.uebergangsrecht
+    weiter:
+      - wenn: { feld: anlage_b, op: exists }
+        zu: zusammenfassung
+      - zu: abschluss
+
+  - id: zusammenfassung
+    titel: "Anlagenzusammenfassung prüfen (zweite Anlage vorhanden)"
+    typ: tool
+    tool:
+      server: eeg-rechner
+      name: anlagenzusammenfassung_pruefen
+      args_aus_fall: { anlage_a: anlage_zsf_a, anlage_b: anlage_zsf_b }
+      ergebnis_feld: ergebnisse.zusammenfassung
+    weiter:
+      - zu: abschluss
+
+  - id: abschluss
+    titel: "Ergebnis & nächste Schritte"
+    typ: agent
+    agent_aufgabe:
+      beschreibung: >
+        Fasse zusammen: Pflichten-Klasse, Fristen-Status (überschrittene Fristen
+        mit Folgen FETT zuerst — insbesondere Veräußerungsform-0-€-Falle),
+        Vergütungssatz mit Förderende bzw. Übergangsrechts-Kette. Falls
+        ergebnisse.zusammenfassung Status LLM_SUBSUMTION_ERFORDERLICH hat:
+        Subsumtionsauftrag mit Unsicherheits-Kennzeichnung abarbeiten
+        (Compliance-Skill-Regeln). Dokumenten-Checkliste über formular_inventar.
+        Disclaimer anfügen.
+      subsumtion: true
+      pflicht_quellen: ["BGH XIII ZR 12/19"]
+    weiter:
+      - zu: ende
+quellen:
+  - { bezeichnung: "§ 8, § 21b/21c, § 48, § 100 EEG 2023" }

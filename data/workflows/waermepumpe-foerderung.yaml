@@ -1,0 +1,75 @@
+id: waermepumpe-foerderung
+titel: "Wärmepumpe: Förderung finden und beantragen (KfW 458 / BAFA / §35c)"
+beschreibung: >
+  Förder-Matching mit Boni-Berechnung, Kumulierungs-Check und Antragsweg —
+  inklusive der härtesten Regel: Antrag VOR Maßnahmenbeginn.
+zustaendig_wenn:
+  eine:
+    - { feld: fall_typ, op: eq, wert: waermepumpe }
+    - { feld: massnahme.typ, op: eq, wert: waermepumpe }
+start: intake_basis
+schritte:
+  - id: intake_basis
+    titel: "Vorhaben erfassen"
+    typ: nutzer_input
+    benoetigte_felder:
+      - { feld: massnahme.typ, frage: "Welche Maßnahme ist geplant (Wärmepumpe, Dämmung, …)?" }
+      - { feld: massnahme.begonnen, frage: "Wurde schon ein Liefer-/Leistungsvertrag unterschrieben oder mit der Umsetzung begonnen?", hinweis: "Entscheidend für die Förderfähigkeit!" }
+      - { feld: gebaeude.bestandsgebaeude, frage: "Bestandsgebäude oder Neubau?" }
+      - { feld: antragsteller.selbstnutzend, frage: "Wohnst du selbst im Gebäude?" }
+      - { feld: massnahme.ersetzt_fossile_heizung, frage: "Ersetzt die Wärmepumpe eine funktionstüchtige Öl-/Gas-/Kohle-/Nachtspeicherheizung?" }
+      - { feld: antragsteller.haushaltseinkommen_eur, frage: "Liegt das zu versteuernde Haushaltseinkommen unter 40.000 €? (Falls ja: +30 % Einkommensbonus — Angabe optional)" }
+    weiter:
+      - zu: matching
+
+  - id: matching
+    titel: "Programme matchen"
+    typ: tool
+    tool:
+      server: eeg-foerder
+      name: programme_matchen
+      args_aus_fall: { fall: . }
+      ergebnis_feld: ergebnisse.programme
+    weiter:
+      - zu: erklaerung
+
+  - id: erklaerung
+    titel: "Match-Ergebnis erklären"
+    typ: agent
+    agent_aufgabe:
+      beschreibung: >
+        Erkläre das Matcher-Ergebnis (Eligibility-Agent-Regeln): je Programm
+        passt/passt nicht + Grund, Fördersatz mit Boni-Aufschlüsselung, Antragsweg.
+        Kumulierung KfW 458 vs. §35c als Entweder-oder ausweisen
+        (kumulierung_pruefen). Bei massnahme.begonnen=true: erklären, was noch
+        geht (§35c läuft über die Steuererklärung und kennt keinen Vor-Beginn-
+        Antrag — Details zum Einzelfall: Steuerberater).
+    weiter:
+      - zu: dokumente
+
+  - id: dokumente
+    titel: "Dokumenten-Checkliste"
+    typ: tool
+    tool:
+      server: eeg-foerder
+      name: formular_inventar
+      args_aus_fall: { fall: . }
+      ergebnis_feld: ergebnisse.formulare
+    weiter:
+      - zu: abschluss
+
+  - id: abschluss
+    titel: "Antrags-Fahrplan"
+    typ: agent
+    agent_aufgabe:
+      beschreibung: >
+        Erstelle den Fahrplan in Prozessreihenfolge: (1) BzA durch
+        Energieeffizienz-Experten/Fachunternehmen, (2) Antrag im KfW-Portal VOR
+        Vertragsschluss (bzw. Vertrag nur mit aufschiebender Bedingung),
+        (3) Umsetzung durch Fachunternehmen, (4) Verwendungsnachweis → Auszahlung.
+        Dokumente aus ergebnisse.formulare einbinden (human_only-Felder ausweisen).
+        Disclaimer anfügen.
+    weiter:
+      - zu: ende
+quellen:
+  - { bezeichnung: "KfW 458 Merkblatt; BAFA BEG EM; § 35c EStG" }

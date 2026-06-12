@@ -1,0 +1,27 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - run: bun run typecheck
+      - run: bun run validate:data
+      - run: bun run build:knowledge   # lädt QuantLaw-Snapshots (GitHub→GitHub, gecacht via .cache)
+      - run: bun test
+      - run: bun run evals
+
+  # Catala-Regeln werden separat gebaut, sobald rules/ kompilierbare Module enthält.
+  # catala:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - run: opam ... (Catala-Toolchain) && make -C rules

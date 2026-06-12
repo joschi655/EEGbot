@@ -1,0 +1,78 @@
+{
+  "id": "kfw-458",
+  "name": "KfW 458 — Heizungsförderung für Privatpersonen (Wohngebäude)",
+  "traeger": "KfW",
+  "foerderart": "zuschuss",
+  "status": "aktiv",
+  "beschreibung": "Zuschuss für den Einbau klimafreundlicher Heizungen (Wärmepumpe, Biomasse, Fernwärmeanschluss u. a.) in bestehenden Wohngebäuden. Grundförderung 30 %, Boni kumulierbar bis max. 70 %; förderfähige Kosten bis 30.000 € (erste Wohneinheit).",
+  "eligibility": {
+    "alle": [
+      { "feld": "massnahme.typ", "op": "in", "wert": ["waermepumpe", "biomasseheizung", "fernwaermeanschluss", "solarthermie"] },
+      { "feld": "gebaeude.bestandsgebaeude", "op": "eq", "wert": true },
+      { "feld": "massnahme.begonnen", "op": "eq", "wert": false }
+    ]
+  },
+  "ausschluesse": [
+    {
+      "grund": "Antrag muss VOR Vorhabensbeginn gestellt werden (Liefer-/Leistungsvertrag nur mit aufschiebender/auflösender Bedingung zulässig)",
+      "bedingung": { "feld": "massnahme.begonnen", "op": "eq", "wert": true }
+    },
+    {
+      "grund": "Neubau ist nicht über KfW 458 förderfähig (dort: Klimafreundlicher Neubau)",
+      "bedingung": { "feld": "gebaeude.bestandsgebaeude", "op": "eq", "wert": false }
+    }
+  ],
+  "foerdersaetze": [
+    { "bezeichnung": "Grundförderung", "satz_prozent": 30 },
+    {
+      "bezeichnung": "Klimageschwindigkeits-Bonus",
+      "satz_prozent": 20,
+      "bedingung": {
+        "alle": [
+          { "feld": "antragsteller.selbstnutzend", "op": "eq", "wert": true },
+          { "feld": "massnahme.ersetzt_fossile_heizung", "op": "eq", "wert": true }
+        ]
+      }
+    },
+    {
+      "bezeichnung": "Einkommensbonus",
+      "satz_prozent": 30,
+      "bedingung": {
+        "alle": [
+          { "feld": "antragsteller.selbstnutzend", "op": "eq", "wert": true },
+          { "feld": "antragsteller.haushaltseinkommen_eur", "op": "lte", "wert": 40000 }
+        ]
+      }
+    },
+    {
+      "bezeichnung": "Effizienzbonus (Wärmepumpe: natürliches Kältemittel oder Erd-/Wasserquelle)",
+      "satz_prozent": 5,
+      "bedingung": { "feld": "massnahme.wp_effizienzbonus_qualifiziert", "op": "eq", "wert": true }
+    }
+  ],
+  "max_foerdersatz_prozent": 70,
+  "kumulierung": [
+    { "programm_id": "estg-35c", "kombinierbar": false, "hinweis": "Keine Doppelförderung derselben Maßnahme (§ 35c Abs. 3 EStG)." },
+    { "programm_id": "bafa-beg-em", "kombinierbar": true, "hinweis": "Andere Maßnahmen (z. B. Dämmung über BAFA) parallel möglich; je Maßnahme nur ein Programm." },
+    { "programm_id": "kfw-270", "kombinierbar": true, "hinweis": "Ergänzungskredit für Restkosten möglich." }
+  ],
+  "antragsweg": {
+    "kanal": "online-portal",
+    "portal_url": "https://meine.kfw.de",
+    "antrag_vor_massnahmenbeginn": true,
+    "fachunternehmer_pflicht": true,
+    "benoetigte_formulare": ["kfw-bza"]
+  },
+  "fristen": [
+    { "bezeichnung": "Bestätigung zum Antrag (BzA)", "beschreibung": "Vor Antragstellung durch Energieeffizienz-Experten oder Fachunternehmer erstellen lassen." },
+    { "bezeichnung": "Verwendungsnachweis (BnD)", "beschreibung": "Nach Umsetzung: Bestätigung nach Durchführung einreichen, dann Auszahlung." }
+  ],
+  "quellen": [
+    {
+      "bezeichnung": "KfW 458 Programmseite / Merkblatt",
+      "url": "https://www.kfw.de/inlandsfoerderung/Privatpersonen/Bestandsimmobilie/F%C3%B6rderprodukte/Heizungsf%C3%B6rderung-f%C3%BCr-Privatpersonen-Wohngeb%C3%A4ude-(458)/",
+      "abgerufen_am": "2026-06-12"
+    }
+  ],
+  "zuletzt_geprueft": "2026-06-12"
+}

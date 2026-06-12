@@ -1,0 +1,41 @@
+{
+  "id": "kfw-270",
+  "name": "KfW 270 — Erneuerbare Energien Standard (Kredit)",
+  "traeger": "KfW",
+  "foerderart": "kredit",
+  "beschreibung": "Förderkredit für Strom- und Wärmeerzeugung aus erneuerbaren Energien: PV-Anlagen, Batteriespeicher, Wind, Wasserkraft, Biogas — auch für Privatpersonen, die Strom einspeisen. Bis 100 % der Investitionskosten, max. 150 Mio. € je Vorhaben.",
+  "status": "aktiv",
+  "eligibility": {
+    "alle": [
+      { "feld": "massnahme.typ", "op": "in", "wert": ["pv-anlage", "speicher", "wind", "wasserkraft", "biogas", "pv-mit-speicher"] }
+    ]
+  },
+  "ausschluesse": [
+    {
+      "grund": "Antrag vor Vorhabensbeginn beim Finanzierungspartner (Hausbank) stellen",
+      "bedingung": { "feld": "massnahme.begonnen", "op": "eq", "wert": true }
+    }
+  ],
+  "foerdersaetze": [
+    { "bezeichnung": "Kreditvolumen", "satz_prozent": 100, "max_eur": 150000000 }
+  ],
+  "kumulierung": [
+    { "programm_id": "kfw-458", "kombinierbar": true, "hinweis": "Ergänzungskredit für Restkosten möglich." },
+    { "programm_id": "eeg-einspeiseverguetung", "kombinierbar": true, "hinweis": "EEG-Vergütung ist keine Beihilfe-Doppelung zum Kredit." }
+  ],
+  "antragsweg": {
+    "kanal": "finanzierungspartner",
+    "antrag_vor_massnahmenbeginn": true,
+    "fachunternehmer_pflicht": false,
+    "benoetigte_formulare": []
+  },
+  "fristen": [],
+  "quellen": [
+    {
+      "bezeichnung": "KfW 270 Merkblatt",
+      "url": "https://www.kfw.de/inlandsfoerderung/Unternehmen/Energie-Umwelt/F%C3%B6rderprodukte/Erneuerbare-Energien-Standard-(270)/",
+      "abgerufen_am": "2026-06-12"
+    }
+  ],
+  "zuletzt_geprueft": "2026-06-12"
+}

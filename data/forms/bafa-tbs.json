@@ -1,0 +1,16 @@
+{
+  "id": "bafa-tbs",
+  "name": "BAFA — Technische Projektbeschreibung (TPB/TBS)",
+  "aussteller": "Energieeffizienz-Experte",
+  "einreichungskanal": "online-portal",
+  "zweck": "Fachliche Projektbeschreibung als Antragsvoraussetzung für BEG-EM-Zuschüsse (Gebäudehülle/Anlagentechnik); erzeugt TPB-ID für das BAFA-Portal.",
+  "felder": [
+    { "id": "massnahme", "bezeichnung": "Maßnahmenbeschreibung", "pflicht": true, "ai_vorbefuellbar": true, "fall_feld": "massnahme.typ" },
+    { "id": "technische_werte", "bezeichnung": "Technische Kennwerte (U-Werte etc.)", "pflicht": true, "ai_vorbefuellbar": false, "human_only": true }
+  ],
+  "benoetigte_anhaenge": [],
+  "frist_hinweis": "Vor Antragstellung im BAFA-Portal erstellen lassen.",
+  "url": "https://www.bafa.de",
+  "quellen": [{ "bezeichnung": "BAFA BEG EM Formulare", "url": "https://www.bafa.de/DE/Energie/Effiziente_Gebaeude/Informationen_fuer_Antragstellende/informationen_fuer_antragstellende_node.html" }],
+  "zuletzt_geprueft": "2026-06-12"
+}

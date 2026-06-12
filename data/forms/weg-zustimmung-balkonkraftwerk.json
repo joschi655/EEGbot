@@ -1,0 +1,20 @@
+{
+  "id": "weg-zustimmung-balkonkraftwerk",
+  "name": "Zustimmung Vermieter/WEG für Steckersolargerät",
+  "aussteller": "Vermieter bzw. WEG-Verwalter",
+  "einreichungskanal": "schriftlich",
+  "zweck": "Seit dem WEG-/BGB-Reformpaket 2024 ist Steckersolar privilegierte Maßnahme (§ 554 BGB, § 20 Abs. 2 WEG): Anspruch auf Gestattung, Vermieter/WEG entscheiden nur noch über das WIE (Ausführung), nicht das OB.",
+  "benoetigt_wenn": { "eine": [ { "feld": "eigentumsform", "op": "eq", "wert": "miete" }, { "feld": "eigentumsform", "op": "eq", "wert": "weg" } ] },
+  "felder": [
+    { "id": "anbringungsort", "bezeichnung": "Geplanter Anbringungsort (Balkonbrüstung, Fassade, Terrasse)", "pflicht": true, "ai_vorbefuellbar": true, "fall_feld": "anlage.anlagentyp" },
+    { "id": "geraetedaten", "bezeichnung": "Gerätedaten (Modulleistung, Wechselrichter ≤ 800 VA, Konformität)", "pflicht": true, "ai_vorbefuellbar": true, "fall_feld": "anlage.leistung_kwp" },
+    { "id": "befestigung", "bezeichnung": "Befestigungsart / Statik-Angaben", "pflicht": true, "ai_vorbefuellbar": false },
+    { "id": "unterschrift", "bezeichnung": "Unterschrift Vermieter/Verwalter", "pflicht": true, "ai_vorbefuellbar": false, "human_only": true }
+  ],
+  "benoetigte_anhaenge": ["Produktdatenblatt", "ggf. Foto/Skizze des Anbringungsorts"],
+  "frist_hinweis": "Vor Installation einholen. Musterbrief kann generiert werden (Dokumente-Skill) — privilegierter Anspruch nach § 554 BGB / § 20 Abs. 2 S. 1 Nr. 5 WEG zitieren.",
+  "quellen": [
+    { "bezeichnung": "§ 554 BGB, § 20 Abs. 2 WEG (privilegierte Maßnahmen seit 2024)", "fundstelle": "§ 554 BGB; § 20 WEG" }
+  ],
+  "zuletzt_geprueft": "2026-06-12"
+}

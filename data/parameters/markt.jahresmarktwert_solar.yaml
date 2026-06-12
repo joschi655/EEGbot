@@ -1,0 +1,25 @@
+id: markt.jahresmarktwert_solar
+beschreibung: >
+  Jahresmarktwert Solar (Anlage 1 EEG) — Basis der Anschlussvergütung für
+  ausgeförderte Anlagen (Einspeisevergütung = JW minus Vermarktungskostenpauschale).
+  Jahreswerte; Pipeline ingest-markt aktualisiert aus SMARD/Netztransparenz.
+einheit: ct/kWh
+staffelung: keine
+zeitraeume:
+  - gueltig_von: "2023-01-01"
+    gueltig_bis: "2023-12-31"
+    wert: 7.2
+    quelle:
+      bezeichnung: "netztransparenz.de Jahresmarktwert Solar 2023"
+      url: "https://www.netztransparenz.de/de-de/Erneuerbare-Energien-und-Umlagen/EEG/Transparenzanforderungen/Marktpr%C3%A4mie/Marktwert%C3%BCbersicht"
+    hinweis: "ZU VERIFIZIEREN — aus Sekundärquelle übernommen."
+  - gueltig_von: "2024-01-01"
+    gueltig_bis: "2024-12-31"
+    wert: 4.62
+    quelle:
+      bezeichnung: "netztransparenz.de Jahresmarktwert Solar 2024"
+    hinweis: "ZU VERIFIZIEREN — aus Sekundärquelle übernommen."
+  - gueltig_von: "2025-01-01"
+    wert: 4.51
+    quelle:
+      bezeichnung: "Jahresmarktwert Solar 2025 (Research-Korpus EEG-Jura, Verbraucherzentrale/Final Report)"

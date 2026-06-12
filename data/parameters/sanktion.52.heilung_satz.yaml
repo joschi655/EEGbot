@@ -1,0 +1,10 @@
+id: sanktion.52.heilung_satz
+beschreibung: "Verringerter Satz § 52 Abs. 3 EEG 2023 nach Heilung (Nr. 1, 3, 4, 11 — rückwirkend ab Verstoßbeginn) bzw. pauschal bei Nr. 9a und 10."
+einheit: EUR/kW/Monat
+staffelung: keine
+zeitraeume:
+  - gueltig_von: "2023-01-01"
+    wert: 2
+    quelle:
+      bezeichnung: "EEG 2023"
+      fundstelle: "§ 52 Abs. 3 EEG 2023"

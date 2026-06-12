@@ -1,0 +1,89 @@
+id: balkonkraftwerk
+titel: "Balkonkraftwerk (Steckersolargerät) anmelden und betreiben"
+beschreibung: >
+  Geführter Weg von der Geräteauswahl bis zur MaStR-Registrierung für
+  Steckersolargeräte (≤ 2 kW Modulleistung, ≤ 800 VA Wechselrichter).
+zustaendig_wenn:
+  eine:
+    - { feld: fall_typ, op: eq, wert: balkonkraftwerk }
+    - { feld: anlage.anlagentyp, op: eq, wert: steckersolar }
+start: intake_basis
+schritte:
+  - id: intake_basis
+    titel: "Eckdaten erfassen"
+    typ: nutzer_input
+    benoetigte_felder:
+      - { feld: anlage.leistung_kwp, frage: "Wie groß ist die Modulleistung (kWp)?", hinweis: "Steht auf dem Datenblatt der Module." }
+      - { feld: anlage.wechselrichter_va, frage: "Welche Ausgangsleistung hat der Wechselrichter (VA)?", hinweis: "Für die Steckersolar-Privilegien: max. 800 VA." }
+      - { feld: eigentumsform, frage: "Wohnst du zur Miete, in einer WEG oder im Eigentum?" }
+      - { feld: anlage.ibn_datum, frage: "Ist das Gerät schon in Betrieb? Falls ja: seit wann (erstmalige Stromerzeugung)?" }
+    weiter:
+      - zu: schwellen_check
+
+  - id: schwellen_check
+    titel: "Steckersolar-Privilegien prüfen"
+    typ: tool
+    tool:
+      server: eeg-rechner
+      name: schwellen_pruefen
+      args_aus_fall: { leistung_kwp: anlage.leistung_kwp, wechselrichter_va: anlage.wechselrichter_va, anlagentyp: anlage.anlagentyp }
+      ergebnis_feld: ergebnisse.schwellen
+    weiter:
+      - wenn: { eine: [ { feld: eigentumsform, op: eq, wert: miete }, { feld: eigentumsform, op: eq, wert: weg } ] }
+        zu: zustimmung
+      - zu: mastr_hinweis
+
+  - id: zustimmung
+    titel: "Vermieter-/WEG-Zustimmung"
+    typ: agent
+    agent_aufgabe:
+      beschreibung: >
+        Erkläre den privilegierten Anspruch auf Steckersolar (§ 554 BGB Miete /
+        § 20 Abs. 2 WEG) und biete an, mit dem Dokumente-Skill einen Musterbrief
+        auf Basis von data/forms/weg-zustimmung-balkonkraftwerk.json zu erstellen.
+      pflicht_quellen: ["§ 554 BGB", "§ 20 WEG"]
+    weiter:
+      - zu: mastr_hinweis
+
+  - id: mastr_hinweis
+    titel: "Registrierung & Einspeisung"
+    typ: hinweis
+    hinweis_text: >
+      Registrierung: Nur das Marktstammdatenregister, vereinfachter Steckersolar-
+      Pfad (zweistufig: erst Betreiber als Marktakteur, dann das Gerät) — Frist
+      1 Monat nach Inbetriebnahme. Eine Anmeldung beim Netzbetreiber ist seit dem
+      Solarpaket I NICHT mehr nötig (das MaStR informiert ihn automatisch).
+      Einspeisung: Überschuss wird typischerweise unvergütet eingespeist; eine
+      Einspeisevergütung lohnt wegen Zähler-/Meldeaufwand bei dieser Größe regelmäßig
+      nicht. Ein rücklaufender Ferraris-Zähler wird vom Messstellenbetreiber nach
+      der Registrierung kostenlos getauscht — Weiterbetrieb bis dahin ist geduldet.
+    weiter:
+      - wenn: { feld: anlage.ibn_datum, op: exists }
+        zu: fristen_check
+      - zu: abschluss
+
+  - id: fristen_check
+    titel: "Fristen prüfen (falls schon in Betrieb)"
+    typ: tool
+    tool:
+      server: eeg-rechner
+      name: fristen_pruefen
+      args_aus_fall: { ibn_datum: anlage.ibn_datum, mastr_registriert: anlage.mastr_registriert, veraeusserungsform_gemeldet: anlage.veraeusserungsform_gemeldet }
+      ergebnis_feld: ergebnisse.fristen
+    weiter:
+      - zu: abschluss
+
+  - id: abschluss
+    titel: "Zusammenfassung und nächste Schritte"
+    typ: agent
+    agent_aufgabe:
+      beschreibung: >
+        Fasse zusammen: Privilegien-Status (aus ergebnisse.schwellen), ggf.
+        Zustimmungs-/Fristen-Status, dann konkrete Schritt-für-Schritt-Liste
+        (Zustimmung → Montage → MaStR binnen 1 Monat). Checkliste über das
+        Formularinventar (eeg-foerder: formular_inventar mit Fall). Disclaimer anfügen.
+    weiter:
+      - zu: ende
+quellen:
+  - { bezeichnung: "§ 8 Abs. 5a EEG (Steckersolar)", fundstelle: "§ 8 Abs. 5a EEG" }
+  - { bezeichnung: "§ 24 Abs. 1 S. 5 EEG (keine Zusammenfassung)", fundstelle: "§ 24 EEG" }

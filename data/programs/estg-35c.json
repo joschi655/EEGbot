@@ -1,0 +1,44 @@
+{
+  "id": "estg-35c",
+  "name": "§ 35c EStG — Steuerermäßigung für energetische Sanierung",
+  "traeger": "Finanzamt",
+  "foerderart": "steuerlich",
+  "status": "aktiv",
+  "beschreibung": "Steuerermäßigung 20 % der Aufwendungen (max. 40.000 € je Objekt), verteilt über 3 Jahre (7 %/7 %/6 %), für energetische Maßnahmen am selbstgenutzten Wohneigentum (Gebäude älter als 10 Jahre). Alternative zu KfW/BAFA — keine Antragstellung vor Beginn nötig, läuft über die Steuererklärung.",
+  "eligibility": {
+    "alle": [
+      { "feld": "antragsteller.selbstnutzend", "op": "eq", "wert": true },
+      { "feld": "eigentumsform", "op": "eq", "wert": "eigentum" },
+      { "feld": "gebaeude.alter_jahre", "op": "gt", "wert": 10 }
+    ]
+  },
+  "ausschluesse": [
+    {
+      "grund": "Doppelförderungsverbot: dieselbe Maßnahme darf nicht bereits über KfW/BAFA gefördert sein (§ 35c Abs. 3 EStG)",
+      "bedingung": { "feld": "massnahme.bereits_gefoerdert", "op": "eq", "wert": true }
+    }
+  ],
+  "foerdersaetze": [
+    { "bezeichnung": "Steuerermäßigung gesamt", "satz_prozent": 20, "max_eur": 40000 }
+  ],
+  "kumulierung": [
+    { "programm_id": "kfw-458", "kombinierbar": false, "hinweis": "Entweder-oder je Maßnahme (§ 35c Abs. 3 EStG)." },
+    { "programm_id": "bafa-beg-em", "kombinierbar": false, "hinweis": "Entweder-oder je Maßnahme (§ 35c Abs. 3 EStG)." }
+  ],
+  "antragsweg": {
+    "kanal": "finanzamt",
+    "antrag_vor_massnahmenbeginn": false,
+    "fachunternehmer_pflicht": true,
+    "benoetigte_formulare": ["estg-35c-bescheinigung"]
+  },
+  "fristen": [],
+  "quellen": [
+    { "bezeichnung": "§ 35c EStG", "fundstelle": "§ 35c EStG" },
+    {
+      "bezeichnung": "Bescheinigung des Fachunternehmens (BMF-Muster)",
+      "url": "https://www.bundesfinanzministerium.de",
+      "abgerufen_am": "2026-06-12"
+    }
+  ],
+  "zuletzt_geprueft": "2026-06-12"
+}

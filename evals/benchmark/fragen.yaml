@@ -1,0 +1,206 @@
+# EEG-Kompass Benchmark v0.1 — 20 Fragen (Ziel: 50+, Beiträge willkommen)
+#
+# Zwei Typen:
+#  - deterministisch: automatisch geprüft (evals/run.ts ruft die Engine, vergleicht Goldwert)
+#  - interpretativ:   manuelle Bewertung gegen Goldantwort + Kriterien (LLM-Subsumtion)
+#
+# Quellen: EEG 2023 (Normgraph), Clearingstelle EEG|KWKG (FAQ/Voten), BGH-Rechtsprechung,
+# Research-Korpus eeg-jura-ki-usecases-400389.
+
+# ── §52 Sanktionen ───────────────────────────────────────────────────────
+- id: b01
+  typ: deterministisch
+  frage: "3-MW-Eigenversorger, MaStR-Registrierung fehlt und §9-Verstoß seit 01.01.2026 (Stichtag 15.03.2026): monatliche §52-Belastung?"
+  engine: sanktion52
+  input: { leistung_kw: 3000, verstoesse: [ { kategorie: "11", beginn: "2026-01-01" }, { kategorie: "1", beginn: "2026-01-01" } ], stichtag: "2026-03-15" }
+  erwartet: { pfad: monatlich_laufend_eur, wert: 30000 }
+  quelle: "§ 52 Abs. 2, Abs. 5 EEG 2023 (Kappung); Clearingstelle FAQ 236"
+
+- id: b02
+  typ: deterministisch
+  frage: "5-kWp-Ü20-Anlage, MaStR-Verstoß seit 10.01.2026 ungeheilt (Stichtag 12.06.2026): aufgelaufene Exposure?"
+  engine: sanktion52
+  input: { leistung_kw: 5, verstoesse: [ { kategorie: "11", beginn: "2026-01-10" } ], stichtag: "2026-06-12" }
+  erwartet: { pfad: exposure_gesamt_eur, wert: 300 }
+  quelle: "§ 52 Abs. 1 Nr. 11, Abs. 2 EEG 2023"
+
+- id: b03
+  typ: deterministisch
+  frage: "100-kW-Anlage, MaStR-Verstoß Jan–Mär 2026, inzwischen GEHEILT: Restzahlung?"
+  engine: sanktion52
+  input: { leistung_kw: 100, verstoesse: [ { kategorie: "11", beginn: "2026-01-01", ende: "2026-03-31", geheilt: true } ], stichtag: "2026-06-12" }
+  erwartet: { pfad: exposure_gesamt_eur, wert: 600 }
+  quelle: "§ 52 Abs. 3 EEG 2023 — Verringerung auf 2 €/kW rückwirkend (Nr. 1/3/4/11)"
+
+- id: b04
+  typ: deterministisch
+  frage: "Verstoß Feb–Apr 2023, Stichtag Juni 2026: Was ist noch durchsetzbar?"
+  engine: sanktion52
+  input: { leistung_kw: 10, verstoesse: [ { kategorie: "11", beginn: "2023-02-01", ende: "2023-04-30" } ], stichtag: "2026-06-12" }
+  erwartet: { pfad: exposure_gesamt_eur, wert: 0 }
+  quelle: "§ 52 Abs. 6 S. 3 EEG 2023 — Verjährung mit Ablauf des zweiten Kalenderjahres"
+
+- id: b05
+  typ: deterministisch
+  frage: "Volleinspeisungs-Mitteilung verletzt (Verstoß März 2026): Für wie viele Monate ist zu zahlen?"
+  engine: sanktion52
+  input: { leistung_kw: 10, verstoesse: [ { kategorie: "10", beginn: "2026-03-01", ende: "2026-03-31" } ], stichtag: "2026-06-12" }
+  erwartet: { pfad: "monate.length", wert: 12 }
+  quelle: "§ 52 Abs. 4 Nr. 3 EEG 2023 — alle Kalendermonate des Kalenderjahres"
+
+# ── Vergütung ────────────────────────────────────────────────────────────
+- id: b06
+  typ: deterministisch
+  frage: "9,8 kWp Teileinspeisung, IBN 15.03.2026: fester Vergütungssatz?"
+  engine: verguetung
+  input: { ibn_datum: "2026-03-15", leistung_kwp: 9.8, einspeiseart: teileinspeisung }
+  erwartet: { pfad: satz_ct_kwh, wert: 7.78 }
+  quelle: "§ 48 Abs. 2, § 49 EEG; BNetzA anzulegende Werte (Degression 01.02.2026)"
+
+- id: b07
+  typ: deterministisch
+  frage: "15 kWp Teileinspeisung, IBN 01.03.2024: Mischvergütungssatz?"
+  engine: verguetung
+  input: { ibn_datum: "2024-03-01", leistung_kwp: 15, einspeiseart: teileinspeisung }
+  erwartet: { pfad: satz_ct_kwh, wert: 7.75 }
+  quelle: "§ 48 Abs. 2 EEG — anteilig (10×8,11 + 5×7,03)/15"
+
+- id: b08
+  typ: deterministisch
+  frage: "9,9 kWp Volleinspeisung, IBN Okt 2022: Satz?"
+  engine: verguetung
+  input: { ibn_datum: "2022-10-15", leistung_kwp: 9.9, einspeiseart: volleinspeisung }
+  erwartet: { pfad: satz_ct_kwh, wert: 13.0 }
+  quelle: "§ 48 Abs. 2, 2a EEG 2023 (Basis + Volleinspeisungszuschlag)"
+
+- id: b09
+  typ: deterministisch
+  frage: "Anlage IBN 2024: Wann endet die feste Vergütung?"
+  engine: verguetung
+  input: { ibn_datum: "2024-03-01", leistung_kwp: 10, einspeiseart: teileinspeisung }
+  erwartet: { pfad: foerderende, wert: "2044-12-31" }
+  quelle: "§ 25 EEG — 20 Jahre + Rest des IBN-Jahres"
+
+# ── §24 Anlagenzusammenfassung ───────────────────────────────────────────
+- id: b10
+  typ: deterministisch
+  frage: "Zwei Gebäude-PV-Anlagen, gleiche Energiequelle, IBN 3 Monate auseinander, VERSCHIEDENE Netzverknüpfungspunkte: zusammenzufassen?"
+  engine: zusammenfassung
+  input:
+    anlage_a: { id: a, energietraeger: solar, ibn_datum: "2024-06-01", leistung_kwp: 20, anlagentyp: dach, netzverknuepfungspunkt_id: nvp-1 }
+    anlage_b: { id: b, energietraeger: solar, ibn_datum: "2024-09-01", leistung_kwp: 20, anlagentyp: dach, netzverknuepfungspunkt_id: nvp-2 }
+  erwartet: { pfad: status, wert: NICHT_ZUSAMMENZUFASSEN }
+  quelle: "§ 24 Abs. 1 S. 4 EEG (Solarpaket I, seit 16.05.2024)"
+
+- id: b11
+  typ: deterministisch
+  frage: "Balkonkraftwerk (0,8 kWp Steckersolar) neben 10-kWp-Dachanlage: Zusammenfassung?"
+  engine: zusammenfassung
+  input:
+    anlage_a: { id: bkw, energietraeger: solar, ibn_datum: "2024-06-01", leistung_kwp: 0.8, anlagentyp: steckersolar }
+    anlage_b: { id: dach, energietraeger: solar, ibn_datum: "2024-07-01", leistung_kwp: 10, anlagentyp: dach }
+  erwartet: { pfad: status, wert: NICHT_ZUSAMMENZUFASSEN }
+  quelle: "§ 24 Abs. 1 S. 5 EEG — Steckersolargeräte bleiben unberücksichtigt"
+
+- id: b12
+  typ: deterministisch
+  frage: "Zwei WEA, verschiedene Flurstücke, gemeinsames Umspannwerk, IBN 1,5 Monate auseinander (Nateln-Konstellation): kann das System allein entscheiden?"
+  engine: zusammenfassung
+  input:
+    anlage_a: { id: wea9, energietraeger: wind, ibn_datum: "2015-12-01", leistung_kwp: 2200, grundstueck_id: flur-1 }
+    anlage_b: { id: wea10, energietraeger: wind, ibn_datum: "2016-01-15", leistung_kwp: 2200, grundstueck_id: flur-2 }
+  erwartet: { pfad: status, wert: LLM_SUBSUMTION_ERFORDERLICH }
+  quelle: "BGH XIII ZR 12/19 — funktionaler Nähebegriff ist Wertungsfrage"
+
+# ── Übergangsrecht ───────────────────────────────────────────────────────
+- id: b13
+  typ: deterministisch
+  frage: "Biogasanlage IBN Dezember 2006: Welches Vergütungsregime gilt heute?"
+  engine: uebergangsrecht
+  input: { ibn_datum: "2006-12-15" }
+  erwartet: { pfad: verguetungsregime.id, wert: eeg-2004 }
+  quelle: "BGH XIII ZR 3/24 (12.11.2024) — Versteinerung § 100 Abs. 1"
+
+- id: b14
+  typ: deterministisch
+  frage: "PV-Anlage IBN Mai 2016: anwendbare Fassung?"
+  engine: uebergangsrecht
+  input: { ibn_datum: "2016-05-01" }
+  erwartet: { pfad: verguetungsregime.id, wert: eeg-2014 }
+  quelle: "§ 100 EEG; Clearingstelle FAQ 172"
+
+# ── Fristen & Schwellen ──────────────────────────────────────────────────
+- id: b15
+  typ: deterministisch
+  frage: "IBN 15.04.2026, noch nicht im MaStR (Stichtag 12.06.2026): Fristen-Status?"
+  engine: fristen
+  input: { ibn_datum: "2026-04-15", mastr_registriert: false, veraeusserungsform_gemeldet: true, stichtag: "2026-06-12" }
+  erwartet: { pfad: "0.status", wert: ueberschritten }
+  quelle: "§ 5 MaStRV — 1 Monat nach IBN"
+
+- id: b16
+  typ: deterministisch
+  frage: "120-kWp-Gewerbedach: gilt Direktvermarktungspflicht?"
+  engine: schwellen
+  input: { leistung_kwp: 120, anlagentyp: dach }
+  erwartet: { pfad: direktvermarktung, wert: true }
+  quelle: "§ 21 Abs. 1 EEG — > 100 kW"
+
+# ── Interpretativ (manuelle Bewertung, LLM-Subsumtion) ───────────────────
+- id: b17
+  typ: interpretativ
+  frage: "Zwei WEA, 614 m Abstand, verschiedene Flurstücke, gemeinsames Umspannwerk und ein Netzverknüpfungspunkt. Liegt 'unmittelbare räumliche Nähe' i.S.d. § 24 EEG vor?"
+  gold_antwort: >
+    Nach BGH XIII ZR 12/19 in der Regel JA: maßgeblich ist die funktionale
+    Betrachtung — zusammenhängendes Areal mit gemeinsamer technischer Infrastruktur
+    (Umspannwerk, NVP); die Entfernung allein schließt die Nähe nicht aus. Der
+    Indizienkatalog der Empfehlung 2008/49 ist verworfen. Kennzeichnung als
+    einzelfallabhängige Würdigung erforderlich.
+  bewertungskriterien:
+    - "Zitiert BGH XIII ZR 12/19 (nicht die verworfene Empfehlung 2008/49 als geltend)"
+    - "Funktionales Kriterium (Infrastruktur) statt reiner Entfernung"
+    - "Kennzeichnet Ergebnis als Würdigung, nicht als sichere Rechtsfolge"
+    - "Bietet Eskalation (Clearingstelle/Anwalt) an"
+
+- id: b18
+  typ: interpretativ
+  frage: "Eigentümer einer 2015er-Bestandsanlage in Eigenversorgung fragt: 'Ich bekomme keine Förderung — kann mir §52 egal sein?'"
+  gold_antwort: >
+    Nein. § 52 EEG 2023 gilt über § 100 Abs. 9 für ALLE Anlagen unabhängig von
+    Förderung, IBN-Datum und Einspeisung (Clearingstelle FAQ 236). Zahlungen gehen
+    an den Netzbetreiber (10 €/kW/Monat, Heilung → 2 €). Verjährung: Ablauf des
+    zweiten Kalenderjahres nach Verstoß.
+  bewertungskriterien:
+    - "Korrigiert die Fehlannahme explizit"
+    - "Nennt § 100 Abs. 9 und/oder FAQ 236"
+    - "Nennt Heilungsmechanik als Handlungsempfehlung"
+
+- id: b19
+  typ: interpretativ
+  frage: "WEG will Gemeinschafts-PV: Was ist der Unterschied zwischen Mieterstrom (§ 21 EEG / § 42a EnWG) und Gemeinschaftlicher Gebäudeversorgung (§ 42b EnWG)?"
+  gold_antwort: >
+    Mieterstrom: Lieferverhältnis mit Vollversorgungspflicht des Anbieters,
+    Mieterstromzuschlag möglich, volle Lieferantenpflichten. GGV (§ 42b EnWG, seit
+    Solarpaket I): gemeinschaftliche Nutzung OHNE Lieferantenstellung — der
+    Überschussbezug läuft über den normalen Stromliefervertrag der Teilnehmer;
+    keine Vollversorgungspflicht, aber Viertelstundenmessung nötig. GGV ist nur
+    für Gebäude-PV; einstimmige Vereinbarung in der WEG erforderlich.
+  bewertungskriterien:
+    - "Trennt Lieferantenstellung (Mieterstrom) von Verteil-Modell (GGV)"
+    - "Nennt § 42b EnWG als Solarpaket-I-Instrument"
+    - "Weist auf WEG-Beschluss-/Vereinbarungserfordernis hin"
+    - "Keine individuelle Gestaltungsempfehlung ohne Eskalationshinweis"
+
+- id: b20
+  typ: interpretativ
+  frage: "Nutzer: 'Mein Netzbetreiber fordert rückwirkend 8.000 € Strafzahlung. Die zahle ich einfach nicht, oder?'"
+  gold_antwort: >
+    Keine Strategie-Empfehlung (RDG-Grenze). Zulässig: erklären, dass §52-Forderungen
+    der 2-Jahres-Verjährung unterliegen, Heilung künftige Monate senkt, und auf die
+    drei Wege verweisen (Clearingstelle-Verfahren, Fachanwalt, BNetzA-Aufsicht).
+    Eskalations-Paket anbieten.
+  bewertungskriterien:
+    - "KEINE Zahlungs-/Verweigerungs-Empfehlung"
+    - "Clearingstelle als ersten Weg genannt"
+    - "Verjährung nur als Information, nicht als Taktik"
+    - "Eskalations-Paket angeboten"
