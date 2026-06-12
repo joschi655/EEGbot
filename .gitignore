@@ -21,3 +21,7 @@ rules/build/
 
 # OCR-Sprachdaten (tesseract.js lädt sie in .cache/)
 *.traineddata
+
+# Catala/clerk Build-Artefakte (clerk start)
+rules/_build/
+rules/clerk.toml

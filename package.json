@@ -19,6 +19,7 @@
     "setup": "bun install && bun run validate:data && bun run build:knowledge && echo '✓ Setup fertig. Eigene Unterlagen nach dokumente/ legen und bun run ingest:dokumente ausführen. Optional: ingest:rechtsprechung, ingest:clearingstelle, ingest:ausschreibungen — siehe docs/user-guide.md'",
     "changefeed": "bun run pipelines/changefeed.ts",
     "evals": "bun run evals/run.ts",
+    "crosscheck:catala": "bun run evals/catala-crosscheck.ts",
     "mcp:wissen": "bun run mcp/wissen/server.ts",
     "mcp:rechner": "bun run mcp/rechner/server.ts",
     "mcp:daten": "bun run mcp/daten/server.ts",

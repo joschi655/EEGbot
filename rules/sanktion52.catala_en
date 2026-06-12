@@ -1,0 +1,227 @@
+# § 52 EEG 2023 — Sanktionssatz und Exposure (formale Spezifikation)
+
+**Rolle dieser Datei:** Catala-Spezifikation als Verifikations-Schicht für
+`src/rules/sanktion52.ts` (die ausführbare TS-Runtime). Der Gesetzestext
+steht als Prosa direkt über jeder Formalisierung (literate programming).
+CI kompiliert/interpretiert diese Datei und rechnet die Test-Szenarien
+gegen die TS-Engine gegen (`evals/catala-crosscheck.ts`).
+
+**Sprachhinweis:** Catala unterstützt als Oberflächensyntax nur en/fr/pl —
+Keywords sind daher englisch, der annotierte Gesetzestext bleibt deutsch.
+
+**Scope der Spezifikation:** Satzbestimmung (Abs. 2/3), Zusatzmonate
+(Abs. 4) und die Exposure-Grundformel für EINEN Verstoß. Kappung (Abs. 5),
+Verjährung (Abs. 6), Defekt-Klausel und Monats-Iteration über mehrere
+Verstöße sind bewusst nur in der TS-Engine (Listen-/Kalenderlogik);
+Cross-Check-Szenarien sind so gewählt, dass diese nicht greifen.
+
+```catala-metadata
+declaration enumeration Kategorie:
+  -- Nr1   # § 9 Abs. 1/2 — technische Ausstattung / Steuerbarkeit
+  -- Nr2   # § 9 Abs. 5
+  -- Nr3   # § 9 Abs. 8
+  -- Nr4   # § 10b — Fernsteuerbarkeit Direktvermarktung
+  -- Nr5   # § 21 Abs. 1 S. 1 Nr. 3 — Ausfallvergütung über Höchstdauer
+  -- Nr6   # § 21 Abs. 2
+  -- Nr7   # § 21b Abs. 2 S. 1 2. Hs.
+  -- Nr8   # § 21b Abs. 3 — viertelstündliche Messung
+  -- Nr9   # § 21c — Veräußerungsform-Wechselmeldung
+  -- Nr9a  # § 37 Abs. 1a / § 48 Abs. 6
+  -- Nr10  # § 48 Abs. 2a — Volleinspeisungs-Mitteilung
+  -- Nr11  # MaStR-Registrierung fehlt (§ 71 Abs. 1 Nr. 1)
+  -- Nr12  # § 80 — Doppelvermarktungsverbot
+
+declaration scope Sanktionssatz:
+  input kategorie content Kategorie
+  input geheilt content boolean
+  output satz_eur_pro_kw_monat content decimal
+  output zusatzmonate content decimal
+  output ganzes_kalenderjahr content boolean
+  internal heilbar_rueckwirkend content boolean
+  internal pauschal_reduziert content boolean
+
+declaration scope SanktionsExposure:
+  input kategorie content Kategorie
+  input geheilt content boolean
+  input leistung_kw content decimal
+  input verstossmonate content decimal
+  satz scope Sanktionssatz
+  output exposure_eur content decimal
+```
+
+## § 52 Abs. 2 EEG 2023 (Grundsatz: 10 €/kW/Monat)
+
+Die Höhe der Zahlung [...] beträgt 10 Euro pro Kilowatt installierter
+Leistung je Kalendermonat, in dem der Verstoß vorliegt.
+
+```catala
+scope Sanktionssatz:
+  label grundsatz definition satz_eur_pro_kw_monat equals 10.0
+```
+
+## § 52 Abs. 3 EEG 2023 (Verringerung auf 2 €)
+
+Die Höhe der Zahlung [...] verringert sich auf 2 Euro pro Kilowatt [...]
+in den Fällen des Absatzes 1 Satz 1 Nummer 1, 3, 4 und 11 **rückwirkend**,
+sobald der Pflichtverstoß behoben ist; in den Fällen des Absatzes 1 Satz 1
+Nummer 9a und 10 gilt der verringerte Satz **generell**.
+
+```catala
+scope Sanktionssatz:
+  definition heilbar_rueckwirkend equals
+    kategorie with pattern Nr1
+    or kategorie with pattern Nr3
+    or kategorie with pattern Nr4
+    or kategorie with pattern Nr11
+
+  definition pauschal_reduziert equals
+    kategorie with pattern Nr9a
+    or kategorie with pattern Nr10
+
+  exception grundsatz definition satz_eur_pro_kw_monat
+    under condition (heilbar_rueckwirkend and geheilt) or pauschal_reduziert
+    consequence equals 2.0
+```
+
+## § 52 Abs. 4 EEG 2023 (Zusatzmonate)
+
+Der Zeitraum [...] verlängert sich in den Fällen des Absatzes 1 Satz 1
+Nummer 7 um drei, Nummer 9 um einen und Nummer 12 um sechs Kalendermonate;
+in den Fällen der Nummer 10 ist das gesamte Kalenderjahr maßgeblich.
+
+```catala
+scope Sanktionssatz:
+  label zusatz_basis definition zusatzmonate equals 0.0
+
+  exception zusatz_basis definition zusatzmonate
+    under condition kategorie with pattern Nr7
+    consequence equals 3.0
+
+  exception zusatz_basis definition zusatzmonate
+    under condition kategorie with pattern Nr9
+    consequence equals 1.0
+
+  exception zusatz_basis definition zusatzmonate
+    under condition kategorie with pattern Nr12
+    consequence equals 6.0
+
+  definition ganzes_kalenderjahr equals kategorie with pattern Nr10
+```
+
+## Exposure-Grundformel (ein Verstoß, ohne Kappung/Verjährung)
+
+Exposure = Satz × installierte Leistung × maßgebliche Monate.
+Bei Nr. 10 ist das gesamte Kalenderjahr (12 Monate) maßgeblich,
+sonst Verstoßmonate + Zusatzmonate.
+
+```catala
+scope SanktionsExposure:
+  definition satz.kategorie equals kategorie
+  definition satz.geheilt equals geheilt
+
+  definition exposure_eur equals
+    if satz.ganzes_kalenderjahr
+    then satz.satz_eur_pro_kw_monat * leistung_kw * 12.0
+    else satz.satz_eur_pro_kw_monat * leistung_kw
+           * (verstossmonate + satz.zusatzmonate)
+```
+
+## Test-Szenarien (CI: `catala interpret --scope=TestN`)
+
+Die erwarteten Werte sind per `assertion` verankert — schlägt eine Assertion
+fehl, bricht die Interpretation ab. `evals/catala-crosscheck.ts` rechnet
+dieselben Szenarien zusätzlich durch die TS-Engine.
+
+```catala
+# T1: Nr. 11 (MaStR fehlt), NICHT geheilt, 10 kW, 6 Monate → 10 € → 600 €
+declaration scope Test1:
+  output exposure content decimal
+  e scope SanktionsExposure
+
+scope Test1:
+  definition e.kategorie equals Nr11
+  definition e.geheilt equals false
+  definition e.leistung_kw equals 10.0
+  definition e.verstossmonate equals 6.0
+  definition exposure equals e.exposure_eur
+  assertion exposure = 600.0
+
+# T2: Nr. 11 GEHEILT → 2 € rückwirkend → 120 €
+declaration scope Test2:
+  output exposure content decimal
+  e scope SanktionsExposure
+
+scope Test2:
+  definition e.kategorie equals Nr11
+  definition e.geheilt equals true
+  definition e.leistung_kw equals 10.0
+  definition e.verstossmonate equals 6.0
+  definition exposure equals e.exposure_eur
+  assertion exposure = 120.0
+
+# T3: Nr. 9a → generell 2 €, auch ungeheilt; 5.5 kW, 3 Monate → 33 €
+declaration scope Test3:
+  output exposure content decimal
+  e scope SanktionsExposure
+
+scope Test3:
+  definition e.kategorie equals Nr9a
+  definition e.geheilt equals false
+  definition e.leistung_kw equals 5.5
+  definition e.verstossmonate equals 3.0
+  definition exposure equals e.exposure_eur
+  assertion exposure = 33.0
+
+# T4: Nr. 7 → +3 Zusatzmonate; 20 kW, 2 Monate → 10 × 20 × 5 = 1000 €
+declaration scope Test4:
+  output exposure content decimal
+  e scope SanktionsExposure
+
+scope Test4:
+  definition e.kategorie equals Nr7
+  definition e.geheilt equals false
+  definition e.leistung_kw equals 20.0
+  definition e.verstossmonate equals 2.0
+  definition exposure equals e.exposure_eur
+  assertion exposure = 1000.0
+
+# T5: Nr. 9 → +1 Zusatzmonat; Heilung ändert nichts (nicht in Abs. 3);
+#     10 kW, 1 Monat → 10 × 10 × 2 = 200 €
+declaration scope Test5:
+  output exposure content decimal
+  e scope SanktionsExposure
+
+scope Test5:
+  definition e.kategorie equals Nr9
+  definition e.geheilt equals true
+  definition e.leistung_kw equals 10.0
+  definition e.verstossmonate equals 1.0
+  definition exposure equals e.exposure_eur
+  assertion exposure = 200.0
+
+# T6: Nr. 10 → 2 € generell, ganzes Kalenderjahr; 8 kW → 2 × 8 × 12 = 192 €
+declaration scope Test6:
+  output exposure content decimal
+  e scope SanktionsExposure
+
+scope Test6:
+  definition e.kategorie equals Nr10
+  definition e.geheilt equals false
+  definition e.leistung_kw equals 8.0
+  definition e.verstossmonate equals 2.0
+  definition exposure equals e.exposure_eur
+  assertion exposure = 192.0
+
+# T7: Nr. 12 → +6 Zusatzmonate, Heilung irrelevant; 1 kW, 1 Monat → 70 €
+declaration scope Test7:
+  output exposure content decimal
+  e scope SanktionsExposure
+
+scope Test7:
+  definition e.kategorie equals Nr12
+  definition e.geheilt equals true
+  definition e.leistung_kw equals 1.0
+  definition e.verstossmonate equals 1.0
+  definition exposure equals e.exposure_eur
+  assertion exposure = 70.0
+```

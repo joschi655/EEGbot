@@ -113,6 +113,7 @@ changefeed` überwacht BGBl, QuantLaw-Delta und Bundestags-Vorhaben.
 bun test              # 40 Tests: Normgraph, Engines, Förder-Matcher (BGH-/Clearingstelle-Fixtures)
 bun run evals         # EEG-Benchmark: 16 deterministische + 4 interpretative Fragen
 bun run validate:data # Schema- + Konsistenz-Gate für alle data/-Artefakte
+bun run crosscheck:catala # Catala-Spezifikation ⇄ TS-Engine (12 Szenarien; Catala via opam, sonst nur TS-Seite)
 ```
 
 Der **EEG-Benchmark** (`evals/benchmark/fragen.yaml`) ist unseres Wissens der

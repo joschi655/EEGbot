@@ -56,3 +56,20 @@
 **Weiter offen:** Vergütungssätze ab 01.02.2026 + Jahresmarktwerte 2023/2024
 verifizieren (`ZU VERIFIZIEREN`), E2E-Personas P1–P5 in frischer Session,
 Clearingstelle-Restbestand (FAQ ~198–330) per erneutem Pipeline-Lauf.
+
+## 2026-06-12 — Catala-CI (Spezifikation ⇄ Engine Cross-Check)
+
+- **Befund:** Catala unterstützt nur en/fr/pl-Syntax — die bisherige
+  `.catala_de`-Datei war Pseudo-Syntax und nie kompilierbar. Ersetzt durch
+  echtes `catala_en` (Keywords englisch, Gesetzestext deutsch).
+- **Neu:** `rules/sanktion52.catala_en` (Abs. 2/3/4 + Exposure-Formel,
+  7 Test-Scopes mit assertions), `rules/anlagenzusammenfassung_24.catala_en`
+  (Tatbestand + Solarpaket-I-Rückausnahmen als label/exception-Hierarchie,
+  5 Test-Scopes), `evals/catala-crosscheck.ts` (12 Szenarien durch BEIDE
+  Implementierungen; Divergenz = Exit 1), CI-Job `catala` (setup-ocaml@v3,
+  opam install catala.1.2.0, --require-catala).
+- **Distribution:** Kein brew/npm/Docker-Image; Release-Binaries fehlen,
+  Nightly-.deb hat kaputte Abhängigkeiten → opam ist der einzige Weg.
+  Lokale Validierung via podman-Container (arm64, opam-Build).
+- Scope-Abgrenzung dokumentiert: Kappung/Verjährung/Monats-Iteration bewusst
+  nur in TS; Catala deckt Satzbestimmung + Entscheidungsbaum.

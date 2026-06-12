@@ -1,0 +1,211 @@
+# § 24 EEG 2023 — Anlagenzusammenfassung (formale Spezifikation)
+
+**Rolle dieser Datei:** Catala-Spezifikation als Verifikations-Schicht.
+Die ausführbare Runtime ist `src/rules/anlagenzusammenfassung.ts`; diese
+Datei annotiert den Gesetzestext literal und wird in CI kompiliert,
+interpretiert und gegen die TS-Engine gegengerechnet.
+
+Catala nutzt *prioritized default logic*: Grundregel + Ausnahmen +
+Rückausnahmen — exakt das Muster von § 24 (Grundsatz Abs. 1 S. 1,
+Ausnahmen S. 3–5 aus Solarpaket I).
+
+**Sprachhinweis:** Catala unterstützt als Oberflächensyntax nur en/fr/pl —
+Keywords englisch, Gesetzestext deutsch. (Ersetzt die frühere
+`.catala_de`-Pseudo-Syntax, die nie kompilierbar war.)
+
+```catala-metadata
+declaration enumeration Energietraeger:
+  -- Solar
+  -- Wind
+  -- Biomasse
+  -- Wasser
+  -- Geothermie
+
+declaration enumeration Anlagentyp:
+  -- Dach
+  -- Freiflaeche
+  -- Steckersolar
+  -- Fassade
+  -- Sonstig
+
+declaration enumeration Ergebnis:
+  -- Zusammenzufassen
+  -- NichtZusammenzufassen
+  -- SubsumtionErforderlich  # "unmittelbare räumliche Nähe" — BGH XIII ZR 12/19
+
+declaration structure Anlage:
+  data energietraeger content Energietraeger
+  data ibn_datum content date
+  data anlagentyp content Anlagentyp
+  data grundstueck content integer        # ID (Text-Vergleich in TS; hier ID)
+  data gebaeude content integer           # ID; 0 = kein Gebäude
+  data netzverknuepfungspunkt content integer  # ID
+
+declaration scope Zusammenfassung:
+  input anlage_a content Anlage
+  input anlage_b content Anlage
+  output ergebnis content Ergebnis
+  internal gleichartig content boolean
+  internal innerhalb_zwoelf_monate content boolean
+  internal ortsidentitaet content boolean
+```
+
+## § 24 Abs. 1 Satz 1 EEG 2023 (Grundsatz)
+
+Mehrere Anlagen sind unabhängig von den Eigentumsverhältnissen zum Zweck der
+Ermittlung des Anspruchs nach § 19 Absatz 1 und zur Bestimmung der Größe der
+Anlage [...] als eine Anlage anzusehen, wenn sie 1. sich auf demselben
+Grundstück, demselben Gebäude, demselben Betriebsgelände oder sonst in
+unmittelbarer räumlicher Nähe befinden, 2. Strom aus gleichartigen
+erneuerbaren Energien erzeugen, [...] 4. innerhalb von zwölf aufeinander
+folgenden Kalendermonaten in Betrieb genommen worden sind.
+
+```catala
+scope Zusammenfassung:
+  definition gleichartig equals
+    anlage_a.energietraeger = anlage_b.energietraeger
+
+  definition innerhalb_zwoelf_monate equals
+    if anlage_a.ibn_datum >= anlage_b.ibn_datum
+    then anlage_a.ibn_datum <= anlage_b.ibn_datum + 12 month
+    else anlage_b.ibn_datum <= anlage_a.ibn_datum + 12 month
+
+  definition ortsidentitaet equals
+    anlage_a.grundstueck = anlage_b.grundstueck
+    or (anlage_a.gebaeude = anlage_b.gebaeude and anlage_a.gebaeude != 0)
+
+  # Grundregel (Default): keine Zusammenfassung
+  definition ergebnis equals NichtZusammenzufassen
+
+  # Tatbestand erfüllt bei deterministisch feststellbarer Ortsidentität
+  label tatbestand exception definition ergebnis
+    under condition gleichartig and innerhalb_zwoelf_monate and ortsidentitaet
+    consequence equals Zusammenzufassen
+
+  # Auffangtatbestand "unmittelbare räumliche Nähe": NICHT deterministisch.
+  # BGH XIII ZR 12/19: funktionale Betrachtung (gemeinsame technische
+  # Infrastruktur), nicht bloße Entfernung → Subsumtion durch Mensch/LLM.
+  label tatbestand exception definition ergebnis
+    under condition
+      gleichartig and innerhalb_zwoelf_monate and (not ortsidentitaet)
+    consequence equals SubsumtionErforderlich
+```
+
+## § 24 Abs. 1 Satz 3–5 EEG 2023 (Ausnahmen, Solarpaket I)
+
+[S. 3] Freiflächenanlagen sind nicht mit Anlagen auf, an oder in einem
+Gebäude zusammenzufassen. [S. 4] Anlagen auf, an oder in einem Gebäude
+[...] sind nicht zusammenzufassen, wenn sie nicht denselben
+Netzverknüpfungspunkt nutzen. [S. 5] Steckersolargeräte [...] bleiben
+unberücksichtigt.
+
+Die Sätze 3–5 sind **Rückausnahmen zum Tatbestand** — sie greifen nur, wo
+Satz 1 überhaupt zusammenfassen würde, und haben deshalb höhere Priorität
+(`exception tatbestand`).
+
+```catala
+scope Zusammenfassung:
+  # S. 5: Steckersolargeräte bleiben stets unberücksichtigt
+  exception tatbestand definition ergebnis
+    under condition
+      anlage_a.anlagentyp with pattern Steckersolar
+      or anlage_b.anlagentyp with pattern Steckersolar
+    consequence equals NichtZusammenzufassen
+
+  # S. 3: Freifläche niemals mit Gebäude-Anlagen zusammenfassen
+  exception tatbestand definition ergebnis
+    under condition
+      (anlage_a.anlagentyp with pattern Freiflaeche
+         and anlage_b.anlagentyp with pattern Dach)
+      or (anlage_a.anlagentyp with pattern Dach
+         and anlage_b.anlagentyp with pattern Freiflaeche)
+    consequence equals NichtZusammenzufassen
+
+  # S. 4: Gebäude-Anlagen ohne gemeinsamen Netzverknüpfungspunkt
+  exception tatbestand definition ergebnis
+    under condition
+      anlage_a.anlagentyp with pattern Dach
+      and anlage_b.anlagentyp with pattern Dach
+      and anlage_a.netzverknuepfungspunkt != anlage_b.netzverknuepfungspunkt
+    consequence equals NichtZusammenzufassen
+```
+
+## Test-Szenarien (CI: `catala interpret --scope=TestN24`)
+
+```catala
+# T1: Gleiches Grundstück, gleichartig, innerhalb 12 Monate → Zusammenzufassen
+declaration scope Test1_24:
+  output erg content Ergebnis
+  z scope Zusammenfassung
+
+scope Test1_24:
+  definition z.anlage_a equals Anlage {
+    -- energietraeger: Solar -- ibn_datum: |2024-03-01| -- anlagentyp: Dach
+    -- grundstueck: 1 -- gebaeude: 10 -- netzverknuepfungspunkt: 100 }
+  definition z.anlage_b equals Anlage {
+    -- energietraeger: Solar -- ibn_datum: |2024-09-01| -- anlagentyp: Dach
+    -- grundstueck: 1 -- gebaeude: 10 -- netzverknuepfungspunkt: 100 }
+  definition erg equals z.ergebnis
+  assertion erg = Zusammenzufassen
+
+# T2: Steckersolar bleibt unberücksichtigt (S. 5) trotz gleichem Grundstück
+declaration scope Test2_24:
+  output erg content Ergebnis
+  z scope Zusammenfassung
+
+scope Test2_24:
+  definition z.anlage_a equals Anlage {
+    -- energietraeger: Solar -- ibn_datum: |2024-03-01| -- anlagentyp: Steckersolar
+    -- grundstueck: 1 -- gebaeude: 10 -- netzverknuepfungspunkt: 100 }
+  definition z.anlage_b equals Anlage {
+    -- energietraeger: Solar -- ibn_datum: |2024-04-01| -- anlagentyp: Dach
+    -- grundstueck: 1 -- gebaeude: 10 -- netzverknuepfungspunkt: 100 }
+  definition erg equals z.ergebnis
+  assertion erg = NichtZusammenzufassen
+
+# T3: > 12 Monate Abstand → keine Zusammenfassung (S. 1 Nr. 4)
+declaration scope Test3_24:
+  output erg content Ergebnis
+  z scope Zusammenfassung
+
+scope Test3_24:
+  definition z.anlage_a equals Anlage {
+    -- energietraeger: Solar -- ibn_datum: |2022-01-01| -- anlagentyp: Dach
+    -- grundstueck: 1 -- gebaeude: 10 -- netzverknuepfungspunkt: 100 }
+  definition z.anlage_b equals Anlage {
+    -- energietraeger: Solar -- ibn_datum: |2024-09-01| -- anlagentyp: Dach
+    -- grundstueck: 1 -- gebaeude: 10 -- netzverknuepfungspunkt: 100 }
+  definition erg equals z.ergebnis
+  assertion erg = NichtZusammenzufassen
+
+# T4: Verschiedene Grundstücke/Gebäude, gleichartig, < 12 Monate
+#     → räumliche Nähe offen → SubsumtionErforderlich
+declaration scope Test4_24:
+  output erg content Ergebnis
+  z scope Zusammenfassung
+
+scope Test4_24:
+  definition z.anlage_a equals Anlage {
+    -- energietraeger: Solar -- ibn_datum: |2024-03-01| -- anlagentyp: Sonstig
+    -- grundstueck: 1 -- gebaeude: 0 -- netzverknuepfungspunkt: 100 }
+  definition z.anlage_b equals Anlage {
+    -- energietraeger: Solar -- ibn_datum: |2024-05-01| -- anlagentyp: Sonstig
+    -- grundstueck: 2 -- gebaeude: 0 -- netzverknuepfungspunkt: 101 }
+  definition erg equals z.ergebnis
+  assertion erg = SubsumtionErforderlich
+
+# T5: Freifläche + Dach (S. 3) trotz gleichem Grundstück → keine Zusammenfassung
+declaration scope Test5_24:
+  output erg content Ergebnis
+  z scope Zusammenfassung
+
+scope Test5_24:
+  definition z.anlage_a equals Anlage {
+    -- energietraeger: Solar -- ibn_datum: |2024-03-01| -- anlagentyp: Freiflaeche
+    -- grundstueck: 1 -- gebaeude: 0 -- netzverknuepfungspunkt: 100 }
+  definition z.anlage_b equals Anlage {
+    -- energietraeger: Solar -- ibn_datum: |2024-04-01| -- anlagentyp: Dach
+    -- grundstueck: 1 -- gebaeude: 10 -- netzverknuepfungspunkt: 100 }
+  definition erg equals z.ergebnis
+  assertion erg = NichtZusammenzufassen
+```

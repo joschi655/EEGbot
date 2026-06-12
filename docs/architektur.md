@@ -49,11 +49,21 @@ Zeiträume werden nie editiert, Änderungen hängen neue Zeiträume an
 
 ## Catala-Rolle
 
-`rules/*.catala_de` sind formale Spezifikationen (literate programming am
-Gesetzestext, prioritized default logic für Ausnahme-von-der-Ausnahme).
-Ausführbare Runtime ist v0.1 der TS-Spiegel in `src/rules/` — die Catala-Dateien
-sind Referenz + CI-Kompilierziel, sobald die Toolchain eingebunden ist
-(Roadmap). Divergenz zwischen Spezifikation und TS-Engine ist ein Bug.
+`rules/*.catala_en` sind formale Spezifikationen (literate programming am
+Gesetzestext, prioritized default logic für Ausnahme-von-der-Ausnahme) für die
+rechnenden Normen: § 52 (Satzbestimmung/Zusatzmonate/Exposure-Formel) und § 24
+(Entscheidungsbaum inkl. Solarpaket-I-Rückausnahmen). **Wichtig:** Catala
+unterstützt als Oberflächensyntax nur en/fr/pl — die Keywords sind englisch,
+der annotierte Gesetzestext bleibt deutsch (eine frühere `.catala_de`-Datei war
+Pseudo-Syntax und wurde ersetzt).
+
+Ausführbare Runtime bleibt der TS-Spiegel in `src/rules/`. Die CI (`catala`-Job)
+installiert den Compiler via opam, interpretiert die Test-Scopes der
+Spezifikationen (mit `assertion`-Ankern) und rechnet dieselben Szenarien per
+`evals/catala-crosscheck.ts` durch die TS-Engines gegen — **Divergenz zwischen
+Spezifikation und Engine bricht den Build.** Kappung (Abs. 5), Verjährung
+(Abs. 6) und Monats-Iteration sind bewusst nur in TS (Kalender-/Listenlogik);
+die Cross-Check-Szenarien sind so gewählt, dass sie nicht greifen.
 
 ## Guardrails (RDG/StBerG)
 
