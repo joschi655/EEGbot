@@ -16,6 +16,7 @@ import {
   ladeFormulare,
   matcheProgramme,
   pruefeKumulierung,
+  referenzierteFelder,
   type ProgrammMatch,
 } from "./foerderMatcher.ts";
 import { feldWert } from "../lib/bedingung.ts";
@@ -363,6 +364,21 @@ export async function erstelleFahrplan(fall: Record<string, unknown>): Promise<F
   // Offene Fragen: fehlende Felder aller Programme + ggf. fehlende Kostenangabe.
   const fehlend = new Set<string>(matches.flatMap((m) => m.fehlende_felder));
   if (feldWert(fall, "massnahme.kosten_eur") === undefined) fehlend.add("massnahme.kosten_eur");
+  // Bonus-Potenzial gezielt nachfragen: NUR Sätze, die der Matcher als
+  // "unbekannt" markiert hat (Bedingung noch offen) — bereits entschiedene
+  // Sätze (true/false) erzeugen keine Rückfrage (Cato: semantisch statt
+  // syntaktisch, sonst Fragen-Spam für längst ausgeschlossene Boni).
+  for (const e of [empfehlungsMatch, ...passende.filter((m) => m !== empfehlungsMatch)]) {
+    if (!e) continue;
+    const p = progVon(e.programm_id);
+    if (!p) continue;
+    p.foerdersaetze.forEach((s, i) => {
+      if (!s.bedingung || e.saetze[i]?.zutreffend !== "unbekannt") return;
+      for (const feld of referenzierteFelder(s.bedingung)) {
+        if (feldWert(fall, feld) === undefined) fehlend.add(feld);
+      }
+    });
+  }
   const offene_fragen = [...fehlend].map((feld) => ({
     feld,
     frage: FELD_FRAGEN[feld] ?? `Bitte Angabe zu „${feld}" ergänzen.`,

@@ -4,6 +4,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { formulareFuerFall, ladeFormulare, matcheProgramme, pruefeKumulierung } from "../../src/rules/foerderMatcher.ts";
+import { erstelleFahrplan, renderFahrplanMarkdown } from "../../src/rules/fahrplan.ts";
 
 const server = new McpServer({ name: "eeg-foerder", version: "0.1.0" });
 const json = (x: unknown) => ({ content: [{ type: "text" as const, text: JSON.stringify(x, null, 1) }] });
@@ -16,6 +17,21 @@ server.registerTool(
     inputSchema: { fall: z.record(z.unknown()).describe("Strukturierter Fall (siehe Beschreibung)") },
   },
   async ({ fall }) => json(await matcheProgramme(fall)),
+);
+
+server.registerTool(
+  "foerderfahrplan",
+  {
+    description:
+      "DAS Lead-Tool: erzeugt aus einem strukturierten Fall den deterministischen Förderfahrplan — Programm-Empfehlung mit Boni, geordnete Schritte (Antrag VOR Auftrag!), Dokumenten-Checkliste (human_only ausgewiesen), iSFP-Weiche, Entweder-oder/Kombinationen mit Gesamtquoten-Deckel, offene Fragen, RDG-Disclaimer, Markdown. " +
+      "Fall-Felder: massnahme.{typ,begonnen,ersetzt_fossile_heizung,wp_effizienzbonus_qualifiziert,kosten_eur,bereits_gefoerdert}, gebaeude.{bestandsgebaeude,alter_jahre}, antragsteller.{selbstnutzend,haushaltseinkommen_eur,isfp_vorhanden}, eigentumsform, standort.{bundesland,kommune,plz}. " +
+      "Fehlende Felder crashen nicht — sie erscheinen als offene_fragen. Fülle den Fall bevorzugt aus den Nutzer-Unterlagen (eeg-dokumente-MCP) statt den Nutzer abzufragen.",
+    inputSchema: { fall: z.record(z.unknown()).describe("Strukturierter Fall (siehe Beschreibung)") },
+  },
+  async ({ fall }) => {
+    const fahrplan = await erstelleFahrplan(fall);
+    return json({ fahrplan, markdown: renderFahrplanMarkdown(fahrplan) });
+  },
 );
 
 server.registerTool(

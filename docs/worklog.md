@@ -176,3 +176,54 @@ Clearingstelle-Restbestand (FAQ ~198–330) per erneutem Pipeline-Lauf.
 - **Offen:** PLZ→Netzbetreiber via MaStR (Phase C Schritt 9),
   Recherche-Workflow „regionales Programm erfassen" (Schritt 10),
   Live-Test des Intake mit echtem API-Key + Beispiel-Dokumenten.
+
+## 2026-07-03 — Claude-Code-Vollausbau + PLZ→Netzbetreiber (Phase C Schritt 9)
+
+- **foerderfahrplan als MCP-Tool** (eeg-foerder): Das Lead-Artefakt ist jetzt
+  in Claude Code erreichbar — dünner Adapter über erstelleFahrplan/
+  renderFahrplanMarkdown, dieselbe Funktion wie Web-App/Tests/Skripte
+  (Architektur-Antwort: MCP = Claude-Adapter, Logik existiert genau einmal;
+  deterministische Skripte importieren die src-Funktion direkt, ohne MCP).
+  Workflow-YAML: abschluss-Schritt ruft das Tool statt Prosa zu dichten.
+- **PLZ→Netzbetreiber** (src/apis/netzbetreiber.ts + MCP netzbetreiber_fuer_plz
+  + /api/fahrplan-Anreicherung + UI-Zeile): Heuristik über Anschluss-
+  Netzbetreiber registrierter MaStR-Einheiten je PLZ (DL-DE-BY-2.0, © BNetzA),
+  Verteilung + Stichprobe, ausdrücklich „vermutlich zuständig", Cache je PLZ
+  (Fehler werden NICHT gecacht — Advisor-Fund), Entity-/Fullwidth-
+  Normalisierung, injizierbares fetch. Live: 80331 → SWM Infrastruktur (17/17).
+  Engine bleibt pur — Anreicherung nur am Rand (Server/MCP).
+- **Claude-Code-KI-Pfad ohne API-Key live getestet:** synthetische
+  Beispiel-Unterlagen (docs/beispiel-unterlagen/: Angebot 42.000 €, R290,
+  Bestand 1994, Gas 1998 funktionstüchtig; Typenschild) → ingest → Extrakte
+  gelesen → Fall NUR aus Dokumenten gefüllt → Engine: kfw-458 55 %
+  (Einkommensbonus korrekt „unbekannt", nicht mitgezählt), 16.500 €.
+  **Fund dabei:** fehlende Bonus-Felder erschienen nicht in offene_fragen
+  (Matcher fragt nur Eligibility nach) → gefixt: Satz-Bedingungs-Felder der
+  passenden Programme werden gezielt nachgefragt („eine Angabe = +30 %").
+  Zweiter Fund: Intake-Test las das reale dokumente/ → Kontext-Sammlung
+  injizierbar gemacht.
+- **CLAUDE.md:** neuer Abschnitt „KI-Intake in Claude Code (ohne API-Key)"
+  (5-Schritte-Pfad, offene_fragen als einzige Rückfragen), foerderfahrplan im
+  Determinismus-Gebot, catala_de→catala_en korrigiert. Unterlagen-Skill:
+  Förderfall-Routing ergänzt. README: Beispiel-Quickstart.
+- **Entscheidungen (Johannes):** Team = 3 · Compare-Mode vs. Beck-Online
+  bleibt im Pitch („provokativ — schlimmstenfalls kaufen sie uns").
+- **Cato-Cross-Vendor-Audit (GPT-5.4, E4-Pflicht) — Verdikt „concerns", alle
+  Punkte umgesetzt:** CRITICAL: der neue fahrplan-Workflow-Schritt war ein
+  UNERREICHBARER Knoten (dokumente→abschluss übersprang ihn) und validate:data
+  merkte es nicht → Kante gefixt + Erreichbarkeits-Check im Validator
+  (CI-Gate; schützt künftig auch Pias YAML-Edits). MAJOR 1: Netzbetreiber-Cache
+  nebenläufigkeitsfest (In-Flight-Promise statt Ergebnis). MAJOR 2:
+  Bonus-Nachfragen nur noch für „unbekannt"-Sätze (semantisch statt
+  syntaktisch, kein Fragen-Spam). MINOR: Tool-Beschreibung
+  netzbetreiber_fuer_plz nennt Aufrufregel standort.plz.
+- **Forge-Audit: 2 echte Bugs in netzbetreiber.ts** (Phantom-Leername nach
+  HTML-Strip zählte zur Stichprobe; Data-Nicht-Array → roher TypeError statt
+  deutscher Meldung) — behoben + Regressionstests promoted.
+- **Verifiziert:** 113 Tests grün, typecheck, validate:data (inkl. neuem
+  Erreichbarkeits-Check), Benchmark 16/16, MCP-stdio-Smoke (4 Tools inkl.
+  foerderfahrplan), curl /api/fahrplan mit VNB-Anreicherung, Browser-DOM-Probe
+  der Netzbetreiber-Zeile, Advisor + Cato (E4) vollständig.
+- **Offen:** Recherche-Workflow „regionales Programm erfassen" (Phase C
+  Schritt 10), Ground-Truth-Fixtures (Phase D), Personas + Pitch (Phase E),
+  Compare-Mode-Screen.

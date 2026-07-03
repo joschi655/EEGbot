@@ -21,6 +21,7 @@ import { crossRefs, normAtDate, oeffneGraph } from "../src/graph/query.ts";
 import { resolveUebergangsrecht } from "../src/graph/uebergangsrecht.ts";
 import { sucheNormen } from "../src/rag/suche.ts";
 import { extrahiereFall } from "../src/rag/intake.ts";
+import { netzbetreiberFuerPlz } from "../src/apis/netzbetreiber.ts";
 import { erstelleFahrplan, renderFahrplanMarkdown } from "../src/rules/fahrplan.ts";
 
 const REPO = new URL("..", import.meta.url).pathname;
@@ -90,7 +91,14 @@ Bun.serve({
         const { fall } = (await req.json()) as { fall: Record<string, unknown> };
         if (!fall) return json({ fehler: "fall fehlt" }, 400);
         const fahrplan = await erstelleFahrplan(fall);
-        return json({ fahrplan, markdown: renderFahrplanMarkdown(fahrplan) });
+        // Rand-Anreicherung (Live-API bleibt außerhalb der puren Engine):
+        // vermutlich zuständiger Verteilnetzbetreiber aus offenen MaStR-Daten.
+        let netzbetreiber: unknown;
+        const plz = (fall as { standort?: { plz?: unknown } }).standort?.plz;
+        if (typeof plz === "string" && /^\d{5}$/.test(plz.trim())) {
+          netzbetreiber = await netzbetreiberFuerPlz(plz).catch((e) => ({ fehler: e instanceof Error ? e.message : String(e) }));
+        }
+        return json({ fahrplan, netzbetreiber, markdown: renderFahrplanMarkdown(fahrplan) });
       }
 
       if (p === "/api/norm") {

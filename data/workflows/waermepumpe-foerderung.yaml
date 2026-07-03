@@ -56,19 +56,31 @@ schritte:
       args_aus_fall: { fall: . }
       ergebnis_feld: ergebnisse.formulare
     weiter:
+      - zu: fahrplan
+
+  - id: fahrplan
+    titel: "Deterministischer Förderfahrplan"
+    typ: tool
+    tool:
+      server: eeg-foerder
+      name: foerderfahrplan
+      args_aus_fall: { fall: . }
+      ergebnis_feld: ergebnisse.fahrplan
+    weiter:
       - zu: abschluss
 
   - id: abschluss
-    titel: "Antrags-Fahrplan"
+    titel: "Fahrplan erklären"
     typ: agent
     agent_aufgabe:
       beschreibung: >
-        Erstelle den Fahrplan in Prozessreihenfolge: (1) BzA durch
-        Energieeffizienz-Experten/Fachunternehmen, (2) Antrag im KfW-Portal VOR
-        Vertragsschluss (bzw. Vertrag nur mit aufschiebender Bedingung),
-        (3) Umsetzung durch Fachunternehmen, (4) Verwendungsnachweis → Auszahlung.
-        Dokumente aus ergebnisse.formulare einbinden (human_only-Felder ausweisen).
-        Disclaimer anfügen.
+        Präsentiere ergebnisse.fahrplan (Markdown-Feld) — NICHT selbst dichten:
+        Empfehlung + Boni erklären, die Reihenfolge-Warnung (Antrag VOR
+        Vertragsschluss) hervorheben, human_only-Dokumentfelder als
+        Experten-Aufgaben ausweisen, offene_fragen als konkrete Rückfragen an
+        den Nutzer stellen. Bei standort.plz zusätzlich netzbetreiber_fuer_plz
+        (eeg-daten) aufrufen und als Heuristik gekennzeichnet ergänzen.
+        Disclaimer aus dem Fahrplan übernehmen.
     weiter:
       - zu: ende
 quellen:

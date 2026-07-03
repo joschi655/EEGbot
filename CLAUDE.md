@@ -12,8 +12,30 @@ Hooks erzwingen Guardrails.
 Niemals einen Wert schätzen oder „aus dem Kopf" berechnen, den ein deterministisches
 Tool liefern kann. Vergütungssätze, §52-Sanktionen, Fristen, Schwellenwerte und
 Fördersätze kommen IMMER aus dem `eeg-rechner`- bzw. `eeg-foerder`-MCP, nie aus dem
-Modellwissen. Gesetzestexte kommen IMMER versionsgenau aus dem `eeg-wissen`-MCP
+Modellwissen. **Förderfälle (Wärmepumpe & Co.) laufen über das
+`foerderfahrplan`-Tool** (eeg-foerder) — es liefert das komplette Artefakt
+(Empfehlung, Reihenfolge-Schritte, Dokumente, Entweder-oder, offene Fragen,
+Disclaimer); erkläre dessen Output, statt eigene Fahrpläne zu dichten.
+Gesetzestexte kommen IMMER versionsgenau aus dem `eeg-wissen`-MCP
 (`norm_at_date`), nie aus dem Trainingswissen — das EEG ändert sich mehrmals pro Jahr.
+
+## KI-Intake in Claude Code (ohne API-Key)
+
+Claude Code IST hier die KI — es braucht keinen zusätzlichen `ANTHROPIC_API_KEY`
+(der ist nur für die Web-App-Vorbefüllung, `/api/intake`). Der Weg:
+
+1. Nutzer legt Unterlagen in `dokumente/` → `bun run ingest:dokumente`.
+2. DU liest sie über den `eeg-dokumente`-MCP (Suche + Volltext-Extrakt; Pläne/
+   Fotos zusätzlich im Original per Read/Vision).
+3. DU füllst den strukturierten Fall NUR mit belegbaren Werten aus den
+   Unterlagen (je Feld: Quelle + Textstelle nennen); was fehlt, bleibt weg.
+4. `foerderfahrplan` (eeg-foerder) rechnet deterministisch; `offene_fragen`
+   sagt dir, was du den Nutzer noch fragen musst (nicht mehr!).
+5. Bei PLZ: `netzbetreiber_fuer_plz` (eeg-daten) — als Heuristik ausweisen.
+
+Zum Ausprobieren ohne eigene Unterlagen:
+`cp docs/beispiel-unterlagen/*.md dokumente/ && bun run ingest:dokumente`
+(synthetisches Wärmepumpen-Angebot + Typenschild).
 
 ## Harte Regeln (Guardrails)
 
@@ -45,7 +67,7 @@ dann ggf. Workflow-Entwurf vorschlagen.
 
 - bun/bunx, TypeScript. Keine zusätzlichen Runtimes für Endnutzer.
 - Geschäftslogik lebt in `data/`-Schemas (zod-validiert) und `src/rules/` bzw.
-  `rules/*.catala_de` — nie in Prompt-Prosa. (Agent-SDK-Portierbarkeit.)
+  `rules/*.catala_en` (Catala kennt nur en/fr/pl-Syntax) — nie in Prompt-Prosa. (Agent-SDK-Portierbarkeit.)
 - Datierte Parameter (`data/parameters/*.yaml`): Jede Änderung braucht `gueltig_von`
   und Quelle. Bestehende Zeiträume nie überschreiben — neuen Zeitraum anhängen
   (OpenFisca-Pattern).

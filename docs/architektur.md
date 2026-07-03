@@ -17,7 +17,7 @@ Schritt-Ebene, nicht auf Agenten-Ebene — jeder Workflow mischt Tool-Schritte
 |---|---|
 | Experience | Claude Code (Chat) — B2C-Frontend folgt später auf denselben Schemas |
 | Orchestrierung | Skills: `Intake` (Fall-Strukturierung + Routing) → `Workflow`-Runner (interpretiert `data/workflows/*.yaml` State-Machines) |
-| Deterministische Engines | `src/rules/` (TypeScript) + `rules/*.catala_de` (formale Spezifikation) — §52, Vergütung, §24, Fristen, Schwellen, Ü20, Förder-Matcher, Guardrail-Classifier |
+| Deterministische Engines | `src/rules/` (TypeScript) + `rules/*.catala_en` (formale Spezifikation) — §52, Vergütung, §24, Fristen, Schwellen, Ü20, Förder-Matcher, Guardrail-Classifier |
 | Agenten | `.claude/agents/`: intake, eligibility, process-navigator, document-prep, compliance-guardrail, eskalation, research |
 | Wissens-Layer | `knowledge/`: temporaler Normgraph (SQLite) + 4 BM25-Indizes (Normen, Clearingstelle, Rechtsprechung, Nutzer-Dokumente), gebaut aus QuantLaw-Snapshots, Clearingstelle, Open Legal Data und `dokumente/` |
 | Dokumente-Layer | `dokumente/` (privat, gitignored): PDF-Extraktion (unpdf), OCR (tesseract.js deu+eng), DOCX/TXT, Bilder/Pläne → Claude-Vision-Routing; MCP `eeg-dokumente` |

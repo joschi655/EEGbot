@@ -59,6 +59,9 @@ describe("KI-Intake — extrahiereFall (injizierte Inferenz, kein API-Key nötig
   test("weder Dokumente noch Freitext → leeres Ergebnis mit Handlungs-Hinweis, kein Inferenz-Aufruf", async () => {
     let aufgerufen = false;
     const e = await extrahiereFall({
+      // dokumente/ kann auf Nutzer-Maschinen gefüllt sein (z. B. Beispiel-Unterlagen) —
+      // der Test injiziert deshalb einen leeren Kontext statt das echte Verzeichnis zu lesen.
+      sammleKontext: async () => ({ kontext: "", verwendet: [] }),
       anfrage: async () => {
         aufgerufen = true;
         return "[]";

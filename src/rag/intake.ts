@@ -146,9 +146,14 @@ function baueSystemPrompt(): string {
 }
 
 export async function extrahiereFall(
-  opts: { freitext?: string; anfrage?: AnfrageFn } = {},
+  opts: {
+    freitext?: string;
+    anfrage?: AnfrageFn;
+    /** Testbarkeit: Dokument-Kontext-Sammlung injizierbar (Default liest dokumente/.extrakte). */
+    sammleKontext?: () => Promise<{ kontext: string; verwendet: string[] }>;
+  } = {},
 ): Promise<IntakeErgebnis> {
-  const { kontext, verwendet } = await sammleDokumentKontext().catch(() => ({ kontext: "", verwendet: [] as string[] }));
+  const { kontext, verwendet } = await (opts.sammleKontext ?? sammleDokumentKontext)().catch(() => ({ kontext: "", verwendet: [] as string[] }));
   const freitext = opts.freitext?.trim() ?? "";
   if (!kontext && !freitext) {
     return {

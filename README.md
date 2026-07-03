@@ -43,6 +43,17 @@ claude                    # Claude Code im Repo starten — MCPs & Hooks laden a
 Dann einfach fragen: *„Ich habe ein Balkonkraftwerk gekauft, was muss ich tun?"* —
 der Intake-Skill strukturiert den Fall und führt durch den Workflow.
 
+**Sofort ausprobieren (mit synthetischen Beispiel-Unterlagen):**
+
+```bash
+cp docs/beispiel-unterlagen/*.md dokumente/ && bun run ingest:dokumente
+claude   # dann: „Wir wollen eine Wärmepumpe — meine Unterlagen liegen in dokumente/"
+```
+
+Claude liest Angebot + Typenschild, füllt den Fall mit belegten Werten, ruft den
+deterministischen `foerderfahrplan` auf und fragt nur nach, was in den Unterlagen
+fehlt (im Beispiel: das Haushaltseinkommen für den +30-%-Bonus).
+
 Voraussetzungen: [bun](https://bun.sh), [Claude Code](https://claude.ai/code).
 Kein API-Key für die Wissensbasis nötig — alle Quellen sind offene Daten.
 Ausführliche Anleitung: **[docs/user-guide.md](docs/user-guide.md)**.

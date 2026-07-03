@@ -39,6 +39,23 @@ server.registerTool(
 );
 
 server.registerTool(
+  "netzbetreiber_fuer_plz",
+  {
+    description:
+      "Vermutlich zuständiger Verteilnetzbetreiber (VNB) für eine PLZ — Heuristik über die Anschluss-Netzbetreiber registrierter MaStR-Einheiten (DL-DE-BY-2.0, © BNetzA). Liefert Verteilung + Stichprobe, KEINE amtliche Gebietsauskunft. VERWENDEN, sobald standort.plz im Fall vorliegt (Fahrplan-Schritt 'Anmeldung beim Netzbetreiber'); Ergebnis im Output ausdrücklich als Heuristik ('vermutlich zuständig') ausweisen.",
+    inputSchema: { plz: z.string().describe("5-stellige Postleitzahl") },
+  },
+  async ({ plz }) => {
+    try {
+      const { netzbetreiberFuerPlz } = await import("../../src/apis/netzbetreiber.ts");
+      return json(await netzbetreiberFuerPlz(plz));
+    } catch (e) {
+      return fehler(e);
+    }
+  },
+);
+
+server.registerTool(
   "marktwerte",
   {
     description: "Jahres-/Monatsmarktwert Solar aus lokalen Parametern (data/parameters/markt.jahresmarktwert_solar.yaml) — Basis der Ü20-Anschlussvergütung.",

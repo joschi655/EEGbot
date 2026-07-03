@@ -100,12 +100,23 @@ function FpSchritt({ s }) {
   );
 }
 
-function FpErgebnis({ f }) {
+function FpErgebnis({ f, netzbetreiber }) {
   const { Card, Badge } = window.FinkDesignSystem_4f2014;
   const e = f.empfehlung;
+  const nb = netzbetreiber && !netzbetreiber.fehler && netzbetreiber.netzbetreiber?.length ? netzbetreiber : null;
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
       {f.warnungen.map((w, i) => <FpWarnung key={i} text={w} />)}
+
+      {nb && (
+        <div style={{ padding: '10px 16px', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)', font: 'var(--font-body)' }}>
+          <span style={{ color: 'var(--text-primary)' }}>
+            ⚡ Vermutlich zuständiger Netzbetreiber (PLZ {nb.plz}): <strong style={{ color: 'var(--klein-600)' }}>{nb.netzbetreiber[0].name}</strong>
+            {nb.netzbetreiber[0].anteil_prozent < 100 ? ` (${nb.netzbetreiber[0].anteil_prozent} % von ${nb.stichprobe} registrierten Anlagen)` : ''}
+          </span>
+          <p style={{ font: 'var(--font-caption)', color: 'var(--text-muted)', margin: '4px 0 0' }}>{nb.hinweis} Quelle: {nb.quelle}.</p>
+        </div>
+      )}
 
       {e ? (
         <Card title={`Passendes Programm: ${e.name}`} subtitle={`${e.traeger} · ${e.foerderart}`}>
@@ -211,6 +222,7 @@ function Fahrplan({ onNav }) {
     bundesland: '', plz: '', kommune: '', freitext: '',
   });
   const [ergebnis, setErgebnis] = React.useState(null);
+  const [netzbetreiber, setNetzbetreiber] = React.useState(null);
   const [laden, setLaden] = React.useState(false);
   const [fehler, setFehler] = React.useState(null);
   const [kiLaden, setKiLaden] = React.useState(false);
@@ -281,6 +293,7 @@ function Fahrplan({ onNav }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.fehler || `HTTP ${res.status}`);
       setErgebnis(data.fahrplan);
+      setNetzbetreiber(data.netzbetreiber ?? null);
     } catch (e) {
       setFehler(String(e.message || e));
     } finally {
@@ -358,7 +371,7 @@ function Fahrplan({ onNav }) {
 
           <div>
             {ergebnis ? (
-              <FpErgebnis f={ergebnis} />
+              <FpErgebnis f={ergebnis} netzbetreiber={netzbetreiber} />
             ) : (
               <Card title="Noch kein Fahrplan berechnet" subtitle="Links den Fall erfassen und berechnen">
                 <p style={{ font: 'var(--font-body)', color: 'var(--text-muted)' }}>

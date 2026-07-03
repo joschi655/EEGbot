@@ -38,3 +38,12 @@ description: Arbeit mit den eigenen Dokumenten des Nutzers (dokumente/) — Such
 
 Alles in `dokumente/` ist privat und gitignored. Inhalte daraus nie in
 committete Dateien, Issues oder externe Dienste kopieren.
+
+## Förderfälle: Unterlagen → Fahrplan (Auto-Intake)
+
+Bei Förder-/Wärmepumpen-Fällen ist das Ziel, dass der Nutzer **möglichst wenig
+selbst ausfüllt**: Fall-Felder (massnahme.*, gebaeude.*, antragsteller.*,
+eigentumsform, standort.*) aus den Unterlagen belegen — je Wert Quelle +
+Textstelle nennen, nichts raten — und dann `foerderfahrplan` (MCP `eeg-foerder`)
+aufrufen. Dessen `offene_fragen` sind die EINZIGEN Rückfragen an den Nutzer.
+Testmaterial: `cp docs/beispiel-unterlagen/*.md dokumente/ && bun run ingest:dokumente`.

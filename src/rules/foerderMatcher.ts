@@ -50,7 +50,7 @@ export interface ProgrammMatch {
 }
 
 /** Felder, die eine Bedingung referenziert (rekursiv). */
-function referenzierteFelder(b: unknown): string[] {
+export function referenzierteFelder(b: unknown): string[] {
   if (b == null || typeof b !== "object") return [];
   const o = b as Record<string, unknown>;
   if (typeof o.feld === "string") return [o.feld];

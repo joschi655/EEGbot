@@ -109,6 +109,18 @@ for (const pfad of dateien("workflows")) {
       if (s.typ === "hinweis" && !s.hinweis_text) fail(`workflows/${name}: Schritt '${s.id}' typ=hinweis ohne hinweis_text`);
       if (s.typ === "eskalation" && !s.eskalation_an) fail(`workflows/${name}: Schritt '${s.id}' typ=eskalation ohne eskalation_an`);
     }
+    // Erreichbarkeit: jeder Schritt muss vom Start aus über weiter-Kanten erreichbar sein
+    // (Cato-Fund 03.07.2026: eingefügter Schritt war verwaist, Schema-Check allein sah es nicht).
+    const erreicht = new Set<string>();
+    const offen = [w.start];
+    while (offen.length) {
+      const k = offen.pop()!;
+      if (erreicht.has(k) || k === "ende") continue;
+      erreicht.add(k);
+      offen.push(...(w.schritte.find((s) => s.id === k)?.weiter.map((t) => t.zu) ?? []));
+    }
+    for (const s of w.schritte)
+      if (!erreicht.has(s.id)) fail(`workflows/${name}: Schritt '${s.id}' ist vom Start aus unerreichbar`);
     ok(`workflows/${name}`);
   } catch (e) {
     fail(`workflows/${name}: ${e instanceof Error ? e.message : e}`);
