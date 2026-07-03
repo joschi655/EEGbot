@@ -1,11 +1,15 @@
-# Research-Brief — Pia (Stand 03.07.2026)
+# Research-Brief — Sophia (Stand 03.07.2026)
 
 Ziel: Legal Loves Tech Hackathon, **17.–21.08.2026, München**. Alles hier ist
 ohne Programmierkenntnisse machbar. Format je Fundstelle: **Aussage → Quelle
 (Dokument/URL) → Fundstelle (§/Seite) → Abrufdatum.** Rückgabe anfangs formlos
 (Doc/PDF/Mail), später direkt ins Repo (GitHub-Web-Editor, Anleitung folgt).
 
-## 1. iSFP & Förderpraxis aus erster Hand (dein Vater) — bis ~20.07.
+**Kein Zeitdruck und keine feste Reihenfolge** — nimm dir die Punkte vor, die
+dich interessieren oder wo du am schnellsten drankommst; du kannst so viel oder
+wenig recherchieren, wie du magst. Alles, was du findest, hilft uns.
+
+## 1. iSFP & Förderpraxis aus erster Hand (dein Vater)
 
 Unser unfairer Vorteil. Interview-Leitfaden:
 
@@ -21,7 +25,7 @@ Unser unfairer Vorteil. Interview-Leitfaden:
   Kommunalprogramme, Netzbetreiber-Eigenheiten)?
 - Bonus: Würde er unser Tool 30 Minuten testen und zerreißen?
 
-## 2. Rechtsgrundlagen-Dossier Wärmepumpe/BEG — bis ~27.07.
+## 2. Rechtsgrundlagen-Dossier Wärmepumpe/BEG
 
 - **BEG-EM-Richtlinie** (aktuelle Fassung, Fundstelle BAnz): Grundförderung,
   Klimageschwindigkeits-/Einkommens-/Effizienzbonus, 70-%-Deckel, förderfähige
@@ -32,7 +36,7 @@ Unser unfairer Vorteil. Interview-Leitfaden:
 - Je Aussage bitte Quelle + Fundstelle — die Werte landen wortwörtlich in
   unseren Daten-Dateien (`data/programs/*.json`, Feld `quellen`).
 
-## 3. Regionale Förderprogramme — bis ~03.08.
+## 3. Regionale Förderprogramme
 
 Je 1–2 belegte Programme aus BW, Bayern (+ Stadt München), NRW (+ eine
 Kommune), Berlin, Hamburg: Fördergegenstand, Satz/Betrag, Voraussetzungen,
@@ -49,18 +53,19 @@ Bitte je Programm zusätzlich (unser Datenformat kann das seit 03.07. direkt):
   Manche Richtlinien deckeln stattdessen in **Euro** („Gesamtförderung max.
   X €") — dann bitte den Betrag notieren (`kumulierung_gesamtbetrag_max_eur`).
   Und falls beides fehlt: explizit „kein Deckel genannt" vermerken.
+
 Vorsicht: Landesprogramme sind volatil — Stand unserer Recherche (Q2/2026):
 landesweite PV-Zuschüsse fast nur noch Berlin SolarPLUS; MV/Sachsen
 Balkonkraftwerk; Hamburg IFB Wärme. Bitte verifizieren und Kommunen ergänzen.
 
-## 4. Benchmark: Jura-Review + neue Goldantworten — bis ~10.08.
+## 4. Benchmark: Jura-Review + neue Goldantworten
 
 - Die 4 interpretativen Fragen **b17–b20** (Volltext im Onboarding-PDF)
   fachlich prüfen: Stimmen Goldantwort + Bewertungskriterien? Fehlt Rechtsprechung?
 - **10 neue Wärmepumpen-/BEG-Fragen** mit belegten Goldantworten formulieren
   (gleiches Format) — daraus wird der öffentliche Benchmark erweitert.
 
-## 5. Zwei Zahlen-Verifikationen (schnell, ~1 h)
+## 5. Zwei Zahlen-Verifikationen (schnell)
 
 - Anzulegende Werte ab 01.02.2026 (BNetzA-Tabelle, § 48 EEG): Teileinspeisung
   ≤10 kWp 7,78 ct? 10–40 kWp 6,73 oder 6,74? Volleinspeisung 12,34 oder 12,35?
@@ -79,3 +84,22 @@ Balkonkraftwerk; Hamburg IFB Wärme. Bitte verifizieren und Kommunen ergänzen.
   „Bestandsschutz bis 31.12.2028 (Quellen teils 2029 — verifizieren, sobald
   BGBl. veröffentlicht)". Zusätzlich brauchen wir eine **vierte, laientaugliche
   Story: Wärmepumpe/Förder-Fahrplan** (unsere Hackathon-Hauptstory).
+
+## 7. Kommentar-Fundstellen sammeln (Beck-Online & Co.)
+
+Wenn du über Beck-Online, juris oder eine andere Datenbank Zugang hast: sammle
+**so viele einschlägige Kommentarstellen wie möglich**, die für unsere Themen
+relevant sein könnten. Lieber zu viele als zu wenige — wir sichten und
+priorisieren dann gemeinsam. Interessant sind Kommentierungen zu:
+
+- **EEG** §§ 24 (Zusammenfassung von Anlagen), 52 (Sanktion/Verringerung),
+  100 (Übergangsrecht/Versteinerung), 48 (anzulegende Werte)
+- **EnWG** — Kundenanlage, § 42b (Gemeinschaftliche Gebäudeversorgung),
+  Mieterstrom
+- **RDG** § 2 (Begriff der Rechtsdienstleistung; „Smartlaw"-Linie)
+- **BEG / § 35c EStG** — Förderrecht, Doppelförderungsverbot
+
+Je Fundstelle bitte: **Werk** (z. B. BeckOK EEG, Säcker EnergieR, …) →
+**Bearbeiter** → **§ / Randnummer** → **Kernaussage in 1–2 Sätzen** →
+**Abrufdatum**. Auch Aufsätze/Urteilsanmerkungen (RdE, EnWZ, NVwZ, NJW) sind
+willkommen, wenn sie zu einem unserer §§ etwas Belastbares sagen.

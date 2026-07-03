@@ -1,4 +1,4 @@
-# fink / EEGbot — Onboarding & Research-Paket für Pia
+# fink / EEGbot — Onboarding & Research-Paket für Sophia
 
 Stand: 03.07.2026 · Von: Johannes · Für: Legal Loves Tech Hackathon 2026
 
@@ -33,11 +33,11 @@ Clearingstelle/Anwalt/Energieberater").
 - **Qualitätssicherung:** 40 automatische Tests + ein eigener Benchmark mit
   Goldantworten + eine formale Gesetz-als-Code-Verifikation (Catala)
 
-**Deine Rolle:** Du bist unser juristisches Gewissen und unsere
-Recherche-Instanz. Kein Code nötig — dein Output sind belegte Aussagen
-(Aussage → Quelle → Fundstelle → Datum), die wir 1:1 in Daten-Dateien und
-Demo-Inhalte übernehmen. Deine Mai-Recherche steckt übrigens schon im
-Klick-Dummy (die §-6- und Kundenanlage-Stories) — genau so weitermachen.
+**Deine Rolle:** Du bringst die juristische Perspektive und Recherche ins Team.
+Kein Code nötig — dein Output sind belegte Aussagen (Aussage → Quelle →
+Fundstelle → Datum), die wir 1:1 in Daten-Dateien und Demo-Inhalte übernehmen.
+Deine Mai-Recherche steckt übrigens schon im Klick-Dummy (die §-6- und
+Kundenanlage-Stories) — genau so weitermachen.
 
 ## 2 · Der Hackathon (aus unserer Recherche)
 
@@ -55,11 +55,13 @@ Klick-Dummy (die §-6- und Kundenanlage-Stories) — genau so weitermachen.
   und Beraterknappheit. Unser Prototyp macht daraus einen **persönlichen
   Fahrplan mit Quellenbeleg je Schritt** — Zugang zum Recht, wörtlich.
 
-## 3 · Dein Research-Brief (die Arbeitsliste)
+## 3 · Dein Research-Brief (die Themen)
 
-*(Identisch mit `docs/research-brief-pia.md` im Repo — dort immer aktuell.)*
+*(Identisch mit `docs/research-brief-sophia.md` im Repo — dort immer aktuell.
+Kein Zeitdruck und keine feste Reihenfolge: nimm dir vor, was dich interessiert
+oder wo du am schnellsten drankommst.)*
 
-### 3.1 iSFP & Förderpraxis aus erster Hand (dein Vater) — bis ~20.07.
+### 3.1 iSFP & Förderpraxis aus erster Hand (dein Vater)
 Interview-Leitfaden: Wie läuft ein iSFP real ab (Schritte, Dauer, Kosten,
 benötigte Zahlen/Unterlagen — wer macht die Heizlastberechnung womit)? Woran
 scheitern Anträge in der Praxis (Reihenfolge-Fehler, falsche Stelle BAFA/KfW,
@@ -67,29 +69,39 @@ Anzahlung zu früh, fehlende BzA)? Was ist schematisch abbildbar, wo braucht es
 zwingend den zertifizierten Energieeffizienz-Experten? Regionale Eigenheiten?
 Bonus: 30 Minuten unser Tool zerreißen lassen.
 
-### 3.2 Rechtsgrundlagen-Dossier Wärmepumpe/BEG — bis ~27.07.
+### 3.2 Rechtsgrundlagen-Dossier Wärmepumpe/BEG
 BEG-EM-Richtlinie (Boni, 70-%-Deckel, Höchstkosten, iSFP-Bonus-Mechanik),
 § 35c EStG-Abgrenzung (Doppelförderungsverbot), GEG § 71. Je Aussage Quelle +
 Fundstelle.
 
-### 3.3 Regionale Förderprogramme — bis ~03.08.
+### 3.3 Regionale Förderprogramme
 Je 1–2 belegte Programme aus BW, Bayern/München, NRW + Kommune, Berlin,
 Hamburg: Satz, Voraussetzungen, **Kumulierbarkeit mit BEG**, Antragsweg,
-Budget-Status. (Unser Stand Q2/2026: landesweit fast nur noch Berlin SolarPLUS;
+Budget-Status, exakter Geltungsbereich und (falls vorhanden) Gesamtquoten-/
+Betrags-Deckel. (Unser Stand Q2/2026: landesweit fast nur noch Berlin SolarPLUS;
 MV/Sachsen Balkonkraftwerk; Hamburg IFB Wärme — bitte verifizieren + Kommunen.)
 
-### 3.4 Benchmark — bis ~10.08.
+### 3.4 Benchmark
 Die 4 Fragen in Abschnitt 6 fachlich reviewen; 10 neue Wärmepumpen-/BEG-Fragen
 mit belegten Goldantworten im selben Format.
 
-### 3.5 Zwei Zahlen-Verifikationen (~1 h)
+### 3.5 Zwei Zahlen-Verifikationen
 (a) Anzulegende Werte ab 01.02.2026 (BNetzA, § 48 EEG): ≤10 kWp Teileinspeisung
 7,78 ct? 10–40 kWp 6,73 oder 6,74? Volleinspeisung 12,34 oder 12,35 ct?
 (b) Jahresmarktwert Solar 2023/2024 (netztransparenz.de) und: gilt für die
 Ü20-Anschlussvergütung die gesetzliche Vermarktungskostenpauschale 0,4 ct/kWh
 oder der ÜNB-Wert 0,715 ct/kWh — und wofür genau?
 
-### 3.6 Laufend
+### 3.6 Kommentar-Fundstellen sammeln (Beck-Online & Co.)
+Wenn du Zugang zu Beck-Online, juris o. Ä. hast: sammle **so viele
+einschlägige Kommentarstellen wie möglich**, die für unsere Themen relevant
+sein könnten — lieber zu viele als zu wenige, wir priorisieren zusammen.
+Interessant: EEG §§ 24, 52, 100, 48; EnWG (Kundenanlage, § 42b, Mieterstrom);
+RDG § 2 („Smartlaw"-Linie); BEG / § 35c EStG. Je Fundstelle: Werk (z. B. BeckOK
+EEG, Säcker) → Bearbeiter → § / Rn. → Kernaussage (1–2 Sätze) → Abrufdatum.
+Aufsätze/Urteilsanmerkungen (RdE, EnWZ, NVwZ, NJW) ebenfalls willkommen.
+
+### 3.7 Laufend
 Tool als „Kundin" testen und alles notieren, was juristisch schief oder
 unverständlich ist; Klick-Dummy-Stories aktualisieren (offene Marker wie
 „BGBl.-Veröffentlichung verifizieren" in der Kundenanlage-Story) + eine vierte,
@@ -134,7 +146,7 @@ Speicherpflicht, IBB); MV 500 € Balkonkraftwerk (nur Mieter), Sachsen 300 €;
 Hamburg IFB „Erneuerbare Wärme" (WP 20 %, max. 9.000 €/WE); BW/Hessen nur noch
 Darlehen; viele Kommunen (Köln, Düsseldorf, München…) dynamisch + schnell leer.
 
-## 5 · Wissens-Kompakt: die RDG-Leitplanke (dein Spezialgebiet)
+## 5 · Wissens-Kompakt: die RDG-Leitplanke
 
 Kern: **BGH „Smartlaw", 09.09.2021 — I ZR 113/20** (NJW 2021, 3125): Ein
 Generator, der aus typisierten Sachverhalten Dokumente erzeugt, ist **keine**
@@ -144,10 +156,10 @@ schematisches Matching, Formular-Ausfüllhilfe, Checklisten, Fristhinweise.
 **Verboten/riskant:** individuelle Einzelfall-Bewertung („Ist mein
 Ablehnungsbescheid rechtswidrig?"), Behördenvertretung, Widerspruchsbegründung.
 Steuern: nur allgemein erklären (StBerG). Unser Tool erzwingt das technisch
-(Ampel-Classifier vor jeder Antwort + Eskalationstexte). **Deine Aufgabe:**
-diese Einordnung kritisch prüfen — besonders, wo unser Fahrplan-Generator der
-Grenze am nächsten kommt (z. B. „lohnt sich der iSFP für Sie?" = noch Schema
-oder schon Einzelfallberatung?).
+(Ampel-Classifier vor jeder Antwort + Eskalationstexte). **Wo du magst,** schau
+kritisch drauf — besonders da, wo unser Fahrplan-Generator der Grenze am
+nächsten kommt (z. B. „lohnt sich der iSFP für Sie?" = noch Schema oder schon
+Einzelfallberatung?).
 
 Zusätzlich für später (nicht Hackathon-kritisch): EU AI Act — wir sind
 voraussichtlich „transparenzpflichtig" (Kennzeichnung, Doku, menschliche
@@ -192,7 +204,7 @@ Sind die Formulierungen RDG-sauber?*
 **Ab sofort:** formlos — Doc, PDF oder Mail an Johannes. Pro Fundstelle:
 **Aussage · Quelle (Titel/URL) · Fundstelle (§, Rn., Seite) · Abrufdatum.**
 
-**Ab Woche 2 (optional, 15-Minuten-Einführung):** direkt auf GitHub — im
+**Später (optional, 15-Minuten-Einführung):** direkt auf GitHub — im
 Browser, ohne Installation: Repo öffnen (github.com/joschi655/EEGbot, du
 bekommst eine Einladung per Mail) → Datei in `docs/` oder `data/` anklicken →
 Stift-Symbol („Edit in place") → ändern → „Propose changes". Das erzeugt einen

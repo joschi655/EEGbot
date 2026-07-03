@@ -63,6 +63,47 @@ Nutzeranliegen → `Intake`-Skill (strukturierter Fall) → passende State-Machi
 kein Code: neue Fälle = neue YAML-Datei. Kein Workflow passt → Recherche-Skill,
 dann ggf. Workflow-Entwurf vorschlagen.
 
+## Offene Hausberatung (kein vorgegebener Maßnahmen-Typ)
+
+Der Nutzer muss NICHT wissen, dass er „eine Wärmepumpe" oder „§ 52" braucht.
+Wenn er nur allgemein fragt (*„Was kann ich an meinem Haus machen / fördern
+lassen / verbessern?"*), führe eine **entdeckende Beratung**:
+
+1. **Nicht nach einem Maßnahmen-Typ fragen, sondern das Haus erfassen** —
+   Baujahr, Heizung (Typ/Alter), Dämmstand, Dach/Ausrichtung, Eigentum/
+   selbstgenutzt, ungefähres Einkommen, PLZ. So viel wie möglich aus den
+   Unterlagen (siehe unten), den Rest gezielt erfragen.
+2. **Breit matchen statt eng:** `foerderfahrplan` bzw. `programme_matchen`
+   über die plausiblen Maßnahmen (Heizungstausch, Dämmung, PV, Balkonkraftwerk,
+   Ü20-Weiterbetrieb …) laufen lassen und dem Nutzer die **Palette** zeigen —
+   „das kommt für dich in Frage, das lohnt sich vermutlich, das ist ausgeschlossen
+   weil …", jeweils mit Fördersatz und Quelle. Erst danach in den Detail-Fahrplan
+   der gewählten Maßnahme wechseln.
+3. Reihenfolge/Kumulierung über Maßnahmen hinweg mitdenken (z. B. Hülle vor
+   Heizung? iSFP zuerst?) — deterministisch aus den Programm-/Kumulierungsdaten.
+
+## Dokumente sind der Hebel — aktiv einfordern und Aufträge vergeben
+
+Gute Beratung braucht gute Unterlagen. Das Tool wartet nicht passiv, sondern
+**sagt dem Nutzer, was ihm noch fehlt und was helfen würde:**
+
+1. **Zuerst die vorhandenen Unterlagen ausschöpfen** (`eeg-dokumente`-MCP,
+   Skill `Unterlagen`): Fall-Felder daraus belegen, bevor du fragst.
+2. **Fehlende, aber entscheidungsrelevante Dokumente benennen** — konkret und
+   begründet: *„Für den Effizienzbonus brauche ich das Datenblatt der Wärmepumpe
+   (Kältemittel/Wärmequelle). Für den Einkommensbonus den Steuerbescheid (zvE).
+   Für die anwendbare EEG-Fassung die Inbetriebnahme-Bestätigung."* Nutze die
+   `offene_fragen` des Fahrplans + die `benoetigte_formulare`/`human_only`-Felder
+   als Grundlage — nichts erfinden.
+3. **Nutzer-Aufträge vergeben für alles, was das Tool NICHT selbst kann**, aber
+   die Beratung verbessern würde — als klare To-do-Liste: Angebot vom
+   Fachbetrieb einholen, iSFP beim gelisteten Energieberater beauftragen
+   (dena-Liste), Verbrauchsdaten der letzten Jahre heraussuchen, Netzbetreiber
+   der letzten Stromrechnung entnehmen, MaStR-Registrierung prüfen. Je Auftrag:
+   **warum** es gebraucht wird und **was es freischaltet** (welcher Bonus, welche
+   Frist, welche Fassung). Die RDG-/StBerG-Grenze bleibt: Aufträge sind
+   Besorgungs-/Beratungs-Hinweise, keine Rechts-/Steuerstrategie.
+
 ## Stack-Regeln
 
 - bun/bunx, TypeScript. Keine zusätzlichen Runtimes für Endnutzer.

@@ -80,12 +80,14 @@ Clearingstelle-Restbestand (FAQ ~198–330) per erneutem Pipeline-Lauf.
   (Zugang zum Recht); Lead-Story Wärmepumpe/iSFP-Förderfahrplan; fink als
   Produkt-Design (Klein-Blau, Gilmer), NormaGraph-Clickdummy nur als
   Inhalts-/Dramaturgie-Quelle. Plan: ~/.claude/plans/… (genehmigt 03.07.).
-- **Pia-Onboarding:** docs/research-brief-pia.md + docs/onboarding-pia.md
-  (+ PDF via make-pdf, 6 Seiten) — Projektüberblick, Arbeitsliste mit
-  Deadlines, kuratierte KB-Auszüge (Förderlandschaft Q2/2026, RDG/Smartlaw,
-  b17–b20), Rückgabe-Format. Erkenntnis: stories.js im Clickdummy basiert
-  bereits auf Pias Mai-Recherche (§6, EuGH C-293/23) — Auftrag ist
-  aktualisieren + vierte Wärmepumpen-Story, nicht neu füllen.
+- **Teammitglied-Onboarding (Sophia):** docs/research-brief-sophia.md +
+  docs/onboarding-sophia.md (+ PDF via make-pdf) — Projektüberblick,
+  Themenliste (ohne feste Deadlines), kuratierte KB-Auszüge (Förderlandschaft
+  Q2/2026, RDG/Smartlaw, b17–b20), Beck-Kommentar-Sammelauftrag, Rückgabe-Format.
+  Erkenntnis: stories.js im Clickdummy basiert bereits auf ihrer Mai-Recherche
+  (§6, EuGH C-293/23) — Auftrag ist aktualisieren + vierte Wärmepumpen-Story,
+  nicht neu füllen. (Ursprünglich als „Pia" angelegt, am 03.07. auf den echten
+  Namen Sophia umbenannt; „Spezialgebiet"-Zuweisung entfernt.)
 - **ui/:** fink Design System importiert (ui/fink/, ohne .mp4;
   Gilmer-.otf gitignored — kommerzielle Lizenz, Fallback-Stack dokumentiert);
   Clickdummy-Inhalte nach ui/content/ (stories.js, demo-dramaturgie.md).
