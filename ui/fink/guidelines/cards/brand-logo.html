@@ -1,0 +1,32 @@
+<!-- @dsCard group="Brand" viewport="700x240" name="Logo & lockups" subtitle="Outline wordmark — the fink logo, in its three uses" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  body { margin: 0; padding: 22px 26px; background: var(--surface-card); display:flex; gap: 18px; align-items:stretch; }
+  .cell { flex:1; display:flex; flex-direction:column; gap:14px; align-items:center; justify-content:center; border:1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 22px 16px; }
+  .cell.blue { background: var(--klein-600); border-color: transparent; }
+  .outline-white { font-family: var(--font-outline); font-size: 64px; line-height: .8; color: #fff; }
+  .outline-blue  { font-family: var(--font-outline); font-size: 64px; line-height: .8; color: var(--klein-600); }
+  .outline-sm    { font-family: var(--font-outline); font-size: 38px; line-height: .8; color: var(--klein-600); }
+  .tag { font: var(--font-caption); color: var(--text-muted); }
+  .tag.on-blue { color: rgba(255,255,255,.82); }
+</style>
+</head>
+<body>
+  <div class="cell blue">
+    <span class="outline-white">fink</span>
+    <span class="tag on-blue">Primary · Outline on Klein</span>
+  </div>
+  <div class="cell">
+    <span class="outline-blue">fink</span>
+    <span class="tag">Inverted · Klein outline on white</span>
+  </div>
+  <div class="cell">
+    <span class="outline-sm">fink</span>
+    <span class="tag">Small · UI chrome (nav, sidebar)</span>
+  </div>
+</body>
+</html>

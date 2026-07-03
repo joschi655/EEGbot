@@ -1,0 +1,58 @@
+/* fink — Webfonts
+   ----------------------------------------------------------------
+   Primary UI / display: Gilmer (geometric sans, self-hosted .otf)
+   Data / mono / legal references: JetBrains Mono (Google Fonts)
+
+   Gilmer is the brand face. Weights map:
+     Light 300 · Regular 400 · Medium 500 · Bold 700 · Heavy 800
+   "Gilmer Outline" is a separate display-only family for hero marks.
+
+   NOTE: JetBrains Mono is loaded from Google Fonts (the build
+   environment cannot fetch font binaries). Self-host it too before
+   shipping if you need offline / GDPR-safe delivery. */
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@font-face {
+  font-family: 'Gilmer';
+  src: url('../assets/fonts/Gilmer-Light.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Gilmer';
+  src: url('../assets/fonts/Gilmer-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Gilmer';
+  src: url('../assets/fonts/Gilmer-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Gilmer';
+  src: url('../assets/fonts/Gilmer-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Gilmer';
+  src: url('../assets/fonts/Gilmer-Heavy.otf') format('opentype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+/* Display-only outline cut — use deliberately, large sizes only */
+@font-face {
+  font-family: 'Gilmer Outline';
+  src: url('../assets/fonts/Gilmer-Outline.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}

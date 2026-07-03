@@ -1,0 +1,114 @@
+<!-- @template name="fink App Screen" description="Branded fink web-app shell — sidebar, topbar, KPI row and an Anlagen table, built from fink design-system components." -->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>fink — App Screen</title>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<script src="./ds-base.js"></script>
+<link rel="stylesheet" href="./app.css">
+<style> html,body{ margin:0; height:100%; } #root{ height:100vh; } </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+function mount() {
+  const NS = window.FinkDesignSystem_4f2014;
+  if (!NS || !window.React) { return setTimeout(mount, 30); }
+  const { Card, Stat, Badge, Button, Tag, Avatar } = NS;
+  const I = (n) => <i data-lucide={n}></i>;
+
+  // ---- Replace this demo data with your own ------------------------
+  const NAV = [
+    { icon: 'layout-dashboard', label: 'Übersicht', active: true },
+    { icon: 'panels-top-left', label: 'Anlagen' },
+    { icon: 'calendar-clock', label: 'Fristen' },
+    { icon: 'file-text', label: 'Berichte' },
+  ];
+  const ROWS = [
+    { ic: 'sun',  name: 'Solarpark Lausitz',    id: 'SEE901134', region: 'Brandenburg',   power: '12.480 kWp', status: 'compliant', label: 'Konform' },
+    { ic: 'wind', name: 'Windpark Nordsee II',  id: 'WEE774220', region: 'Niedersachsen', power: '24.000 kW',  status: 'overdue',   label: 'Überfällig' },
+    { ic: 'sun',  name: 'Solarpark Hochfranken',id: 'SEE552310', region: 'Bayern',        power: '8.900 kWp',  status: 'pending',   label: 'Frist offen' },
+  ];
+  // ------------------------------------------------------------------
+
+  function FinkMark({ size = 26, color = 'var(--klein-600)' }) {
+    return (
+      <span style={{ fontFamily: 'var(--font-outline)', fontSize: size, letterSpacing: '-0.01em', lineHeight: 1, color }} aria-label="fink">fink</span>
+    );
+  }
+
+  function Screen() {
+    React.useEffect(() => { setTimeout(() => window.lucide && lucide.createIcons(), 10); });
+    return (
+      <div className="t-app">
+        <aside className="t-side">
+          <div className="t-brand"><FinkMark size={26} /></div>
+          <nav className="t-nav">
+            {NAV.map((n) => (
+              <button key={n.label} className={`t-navitem ${n.active ? 't-navitem--active' : ''}`}>
+                <i data-lucide={n.icon}></i><span>{n.label}</span>
+              </button>
+            ))}
+          </nav>
+          <div className="t-side__foot">
+            <Avatar name="Lena Brandt" size="sm" accent />
+            <div><div className="t-uname">Lena Brandt</div><div className="t-urole">Klima Energie GmbH</div></div>
+          </div>
+        </aside>
+
+        <div className="t-main">
+          <header className="t-top">
+            <div><div className="t-title">Übersicht</div><div className="t-sub">Klima Energie GmbH · 48 Anlagen</div></div>
+            <div className="t-row" style={{ marginLeft: 'auto' }}>
+              <Button iconLeft={I('sparkles')}>fink fragen</Button>
+            </div>
+          </header>
+
+          <div className="t-screen">
+            <div className="t-inner">
+              <div className="t-grid-kpi">
+                <Card tight><Stat label="Konformität" value="94" unit="%" delta="+2,1 %" trend="up" foot="vs. Vormonat" /></Card>
+                <Card tight><Stat label="Offene Fristen" value="7" delta="3 neu" trend="down" /></Card>
+                <Card tight><Stat label="Anlagen" value="48" foot="PV · Wind · Biogas" /></Card>
+                <Card tight><Stat label="Leistung" value="186,4" unit="MW" foot="installiert" /></Card>
+              </div>
+
+              <Card title="Anlagen" subtitle="Status der Meldepflichten"
+                headerAction={<Button size="sm" variant="ghost" iconRight={I('arrow-right')}>Alle</Button>} noBody>
+                <table className="t-table">
+                  <thead><tr><th>Anlage</th><th>Leistung</th><th>Status</th></tr></thead>
+                  <tbody>
+                    {ROWS.map((r) => (
+                      <tr key={r.id}>
+                        <td>
+                          <div className="t-asset">
+                            <span className="t-asset__ic"><i data-lucide={r.ic}></i></span>
+                            <div><div className="t-asset__name">{r.name}</div><div className="t-asset__id">{r.id} · {r.region}</div></div>
+                          </div>
+                        </td>
+                        <td style={{ fontVariantNumeric: 'tabular-nums' }}>{r.power}</td>
+                        <td><Badge tone={r.status} dot>{r.label}</Badge></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById('root')).render(<Screen />);
+  setTimeout(() => window.lucide && lucide.createIcons(), 40);
+}
+window.addEventListener('DOMContentLoaded', mount);
+</script>
+</body>
+</html>

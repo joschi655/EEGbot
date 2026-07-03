@@ -1,0 +1,33 @@
+<!-- @dsCard group="Type" viewport="700x210" name="Weights & Outline" subtitle="Gilmer 300–800 + the Outline display cut" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  body { margin: 0; padding: 30px 32px; background: var(--surface-card); display:flex; flex-direction:column; gap: 20px; }
+  .weights { display: flex; align-items: baseline; gap: 28px; flex-wrap: wrap; }
+  .w { display: flex; flex-direction: column; gap: 4px; }
+  .w b { font-family: var(--font-sans); font-size: 34px; color: var(--text-primary); line-height: 1; }
+  .w span { font: var(--font-data); color: var(--text-muted); font-size: 11px; }
+  .w300 b { font-weight: 300; } .w400 b { font-weight: 400; }
+  .w500 b { font-weight: 500; } .w700 b { font-weight: 700; } .w800 b { font-weight: 800; }
+  .outline { font-family: var(--font-outline); font-size: 56px; color: var(--klein-600); line-height: 1; }
+  .o-wrap { display:flex; align-items:center; gap:18px; padding-top: 6px; border-top: 1px solid var(--border-subtle); }
+  .o-note { font: var(--font-caption); color: var(--text-muted); max-width: 280px; }
+</style>
+</head>
+<body>
+  <div class="weights">
+    <div class="w w300"><b>Aa</b><span>Light 300</span></div>
+    <div class="w w400"><b>Aa</b><span>Regular 400</span></div>
+    <div class="w w500"><b>Aa</b><span>Medium 500</span></div>
+    <div class="w w700"><b>Aa</b><span>Bold 700</span></div>
+    <div class="w w800"><b>Aa</b><span>Heavy 800</span></div>
+  </div>
+  <div class="o-wrap">
+    <span class="outline">fink</span>
+    <span class="o-note">Gilmer Outline — display only. Reserve for oversized hero marks where the wordmark reads as line art.</span>
+  </div>
+</body>
+</html>

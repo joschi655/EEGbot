@@ -1,0 +1,63 @@
+/* fink — Typography tokens
+   ================================================================
+   Gilmer (geometric sans) carries display + UI + body. JetBrains
+   Mono is reserved for data: meter IDs, §-references, case numbers,
+   figures in tables. Calm, technical, legal-grade.
+
+   --font-outline is the Gilmer Outline cut — display only, used for
+   oversized hero marks where the wordmark reads as line art.
+   ================================================================ */
+
+:root {
+  /* ---- Families ------------------------------------------------ */
+  --font-sans: 'Gilmer', ui-sans-serif, system-ui, -apple-system,
+               'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Roboto Mono',
+               Menlo, Consolas, monospace;
+  --font-outline: 'Gilmer Outline', var(--font-sans);
+
+  /* ---- Weights ------------------------------------------------- */
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+  --weight-heavy:    800;
+
+  /* ---- Type scale (px) — 1.2 minor-third-ish, tuned for UI ------ */
+  --text-2xs:  11px;
+  --text-xs:   12px;
+  --text-sm:   13px;
+  --text-base: 14px;   /* default product body */
+  --text-md:   15px;
+  --text-lg:   17px;
+  --text-xl:   20px;
+  --text-2xl:  24px;
+  --text-3xl:  30px;
+  --text-4xl:  38px;
+  --text-5xl:  48px;
+  --text-6xl:  64px;
+
+  /* ---- Line heights -------------------------------------------- */
+  --leading-tight:   1.15;
+  --leading-snug:    1.3;
+  --leading-normal:  1.5;
+  --leading-relaxed: 1.65;
+
+  /* ---- Letter spacing ------------------------------------------ */
+  --tracking-tighter: -0.02em;
+  --tracking-tight:   -0.011em;
+  --tracking-normal:  0;
+  --tracking-wide:    0.02em;
+  --tracking-caps:    0.06em;   /* for uppercase eyebrows / labels */
+
+  /* ---- Semantic roles ------------------------------------------ */
+  --font-display:  var(--weight-bold)     var(--text-5xl)/var(--leading-tight) var(--font-sans);
+  --font-h1:       var(--weight-bold)     var(--text-3xl)/var(--leading-tight) var(--font-sans);
+  --font-h2:       var(--weight-semibold) var(--text-2xl)/var(--leading-snug) var(--font-sans);
+  --font-h3:       var(--weight-semibold) var(--text-xl)/var(--leading-snug)  var(--font-sans);
+  --font-body:     var(--weight-regular)  var(--text-base)/var(--leading-normal) var(--font-sans);
+  --font-body-lg:  var(--weight-regular)  var(--text-md)/var(--leading-relaxed) var(--font-sans);
+  --font-label:    var(--weight-medium)   var(--text-sm)/var(--leading-snug)  var(--font-sans);
+  --font-caption:  var(--weight-regular)  var(--text-xs)/var(--leading-snug)  var(--font-sans);
+  --font-data:     var(--weight-medium)   var(--text-sm)/var(--leading-snug)  var(--font-mono);
+}

@@ -1,0 +1,56 @@
+/* fink — Spacing, radii, sizing, motion
+   ================================================================
+   4px base grid. Generous whitespace is a brand value (calm/minimal):
+   default to the larger step when unsure. Radii are moderate — soft
+   enough to feel modern, restrained enough to read as legal-grade.
+   ================================================================ */
+
+:root {
+  /* ---- Spacing scale (4px base) -------------------------------- */
+  --space-0:   0;
+  --space-1:   4px;
+  --space-2:   8px;
+  --space-3:   12px;
+  --space-4:   16px;
+  --space-5:   20px;
+  --space-6:   24px;
+  --space-7:   32px;
+  --space-8:   40px;
+  --space-9:   48px;
+  --space-10:  64px;
+  --space-11:  80px;
+  --space-12:  96px;
+  --space-13:  128px;
+
+  /* ---- Radii --------------------------------------------------- */
+  --radius-xs:   3px;
+  --radius-sm:   5px;
+  --radius-md:   8px;    /* default control / card radius */
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-2xl:  24px;
+  --radius-full: 9999px;
+
+  /* ---- Border widths ------------------------------------------- */
+  --border-thin:  1px;
+  --border-thick: 1.5px;
+
+  /* ---- Control sizing ------------------------------------------ */
+  --control-h-sm: 30px;
+  --control-h-md: 38px;
+  --control-h-lg: 46px;
+
+  /* ---- Layout -------------------------------------------------- */
+  --sidebar-w:     256px;
+  --topbar-h:      60px;
+  --container-max: 1280px;
+  --content-max:   720px;   /* readable measure for prose / reports */
+
+  /* ---- Motion -------------------------------------------------- */
+  --ease-standard: cubic-bezier(0.2, 0, 0.1, 1);   /* @kind other */
+  --ease-entrance: cubic-bezier(0.16, 1, 0.3, 1);  /* @kind other */
+  --ease-exit:     cubic-bezier(0.4, 0, 1, 1);     /* @kind other */
+  --dur-fast:   120ms;  /* @kind other */
+  --dur-base:   200ms;  /* @kind other */
+  --dur-slow:   320ms;  /* @kind other */
+}

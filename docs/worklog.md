@@ -73,3 +73,29 @@ Clearingstelle-Restbestand (FAQ ~198–330) per erneutem Pipeline-Lauf.
   Lokale Validierung via podman-Container (arm64, opam-Build).
 - Scope-Abgrenzung dokumentiert: Kappung/Verjährung/Monats-Iteration bewusst
   nur in TS; Catala deckt Satzbestimmung + Entscheidungsbaum.
+
+## 2026-07-03 — Hackathon-Vorbereitung Phase A (Team + UI-Fundament)
+
+- **Zielbild fixiert:** Legal Loves Tech Hackathon 17.–21.08.2026 München
+  (Zugang zum Recht); Lead-Story Wärmepumpe/iSFP-Förderfahrplan; fink als
+  Produkt-Design (Klein-Blau, Gilmer), NormaGraph-Clickdummy nur als
+  Inhalts-/Dramaturgie-Quelle. Plan: ~/.claude/plans/… (genehmigt 03.07.).
+- **Pia-Onboarding:** docs/research-brief-pia.md + docs/onboarding-pia.md
+  (+ PDF via make-pdf, 6 Seiten) — Projektüberblick, Arbeitsliste mit
+  Deadlines, kuratierte KB-Auszüge (Förderlandschaft Q2/2026, RDG/Smartlaw,
+  b17–b20), Rückgabe-Format. Erkenntnis: stories.js im Clickdummy basiert
+  bereits auf Pias Mai-Recherche (§6, EuGH C-293/23) — Auftrag ist
+  aktualisieren + vierte Wärmepumpen-Story, nicht neu füllen.
+- **ui/:** fink Design System importiert (ui/fink/, ohne .mp4;
+  Gilmer-.otf gitignored — kommerzielle Lizenz, Fallback-Stack dokumentiert);
+  Clickdummy-Inhalte nach ui/content/ (stories.js, demo-dramaturgie.md).
+- **ui/server.ts (bun):** fink-App + /api/status|frage|fahrplan|norm|cascade|
+  uebergangsrecht — dieselben Engine-Funktionen wie die MCPs. Verifiziert:
+  §100-Resolver (IBN 2005→EEG 2004-Kette), §24-Kaskade, Fahrplan-v1
+  (KfW 458, 60 % für Testfall 38k€/selbstnutzend), Statics 200.
+- **Offen (Plan B–E):** src/rules/fahrplan.ts (Reihenfolge-Logik, iSFP-Weiche),
+  Screens an /api verdrahten, Region-Feld data/programs, PLZ→Netzbetreiber im
+  Fahrplan, Ground-Truth-Fixtures KfW/BAFA, Personas P1–P6.
+- **Zahlen-Flag aus KB-Abgleich:** KB-Recherche nennt Volleinspeisung ≤10 kWp
+  12,34 ct (Param-Datei: 12,35 ZU VERIFIZIEREN) und Ü20-Vermarktungskosten
+  0,715 ct (Code: 0,4) — an Pia zur Klärung (Brief 3.5).

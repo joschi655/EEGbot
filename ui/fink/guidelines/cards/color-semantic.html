@@ -1,0 +1,37 @@
+<!-- @dsCard group="Colors" viewport="700x200" name="Semantic roles" subtitle="Surface, text & border aliases in context" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  body { margin: 0; padding: 24px 32px; background: var(--surface-page); display:flex; gap: 16px; }
+  .demo { flex: 1; background: var(--surface-card); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: 16px; box-shadow: var(--shadow-sm); }
+  .demo h4 { font: var(--font-h3); color: var(--text-primary); margin: 0 0 4px; }
+  .demo p { font: var(--font-body); color: var(--text-secondary); margin: 0 0 12px; }
+  .demo .muted { font: var(--font-caption); color: var(--text-muted); }
+  .demo hr { border: 0; border-top: 1px solid var(--border-subtle); margin: 12px 0; }
+  .swrow { display:flex; flex-direction:column; gap:7px; }
+  .tok { display:flex; align-items:center; gap:9px; font: var(--font-data); font-size: 11px; color: var(--text-secondary); }
+  .dot { width: 22px; height: 22px; border-radius: 6px; flex:0 0 auto; }
+</style>
+</head>
+<body>
+  <div class="demo">
+    <h4>surface-card</h4>
+    <p>text-secondary on a card sitting on the page surface.</p>
+    <span class="muted">text-muted · caption</span>
+    <hr>
+    <span class="muted">border-subtle divider above</span>
+  </div>
+  <div class="demo">
+    <div class="swrow">
+      <div class="tok"><span class="dot" style="background:var(--surface-page);border:1px solid var(--border-default)"></span>surface-page</div>
+      <div class="tok"><span class="dot" style="background:var(--surface-sunken)"></span>surface-sunken</div>
+      <div class="tok"><span class="dot" style="background:var(--surface-inverse)"></span>surface-inverse</div>
+      <div class="tok"><span class="dot" style="background:var(--color-accent)"></span>color-accent</div>
+      <div class="tok"><span class="dot" style="background:var(--color-accent-subtle);border:1px solid var(--color-accent-border)"></span>accent-subtle</div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,37 @@
+/* fink — Elevation & effects
+   ================================================================
+   Shadows are soft, cool-tinted (a hint of Klein in the shadow color)
+   and low-spread. fink uses borders + faint shadow for separation,
+   never heavy drop shadows. Most surfaces sit on a 1px border with an
+   xs/sm shadow; only floating layers (menus, dialogs, toasts) lift.
+   ================================================================ */
+
+:root {
+  /* Shadow color: desaturated Klein, very low alpha */
+  --shadow-color: 222 64% 18%;
+
+  --shadow-xs:
+    0 1px 2px hsl(var(--shadow-color) / 0.05);
+  --shadow-sm:
+    0 1px 2px hsl(var(--shadow-color) / 0.06),
+    0 1px 1px hsl(var(--shadow-color) / 0.04);
+  --shadow-md:
+    0 2px 4px hsl(var(--shadow-color) / 0.06),
+    0 4px 12px hsl(var(--shadow-color) / 0.08);
+  --shadow-lg:
+    0 4px 8px hsl(var(--shadow-color) / 0.06),
+    0 12px 28px hsl(var(--shadow-color) / 0.12);
+  --shadow-xl:
+    0 8px 16px hsl(var(--shadow-color) / 0.08),
+    0 24px 48px hsl(var(--shadow-color) / 0.16);
+
+  /* Inset for pressed / sunken wells */
+  --shadow-inset: inset 0 1px 2px hsl(var(--shadow-color) / 0.08);
+
+  /* Accent glow — for the focused primary action only, used sparingly */
+  --shadow-accent: 0 6px 20px hsl(222 100% 33% / 0.24);
+
+  /* Backdrop for dialogs / sheets */
+  --backdrop: hsl(222 40% 12% / 0.42);
+  --blur-backdrop: 6px;
+}

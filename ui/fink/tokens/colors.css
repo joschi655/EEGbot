@@ -1,0 +1,118 @@
+/* fink — Color tokens
+   ================================================================
+   The brand is anchored on fink ultramarine (#1213BE), used as a
+   primary ACCENT over predominantly neutral, cool-gray
+   surfaces. Neutrals carry a faint blue cast so the accent feels
+   native rather than applied. Status colors are tuned for a
+   compliance domain: compliant / pending / at-risk / overdue.
+   ================================================================ */
+
+:root {
+  /* ---- Brand: Klein blue scale --------------------------------- */
+  --klein-50:  #EEF1FB;
+  --klein-100: #DBE1F6;
+  --klein-200: #B6C2EC;
+  --klein-300: #8597E0;
+  --klein-400: #4D63CC;
+  --klein-500: #2E34C9;
+  --klein-600: #1213BE;   /* ◆ fink ultramarine — THE standard brand blue */
+  --klein-700: #0E0F96;
+  --klein-800: #0A0B70;
+  --klein-900: #07084D;
+
+  /* ---- Neutrals: cool, faintly blue-cast gray ------------------ */
+  --gray-0:   #FFFFFF;
+  --gray-25:  #FBFCFD;
+  --gray-50:  #F5F7FA;
+  --gray-100: #EDEFF4;
+  --gray-200: #DEE2EB;
+  --gray-300: #C7CDDA;
+  --gray-400: #9BA3B6;
+  --gray-500: #6C7488;   /* secondary text */
+  --gray-600: #4C5365;
+  --gray-700: #353B49;
+  --gray-800: #222732;
+  --gray-900: #11141C;   /* ink */
+
+  /* ---- Semantic status (compliance domain) -------------------- */
+  --green-50:  #E7F4EE;
+  --green-100: #C7E6D6;
+  --green-500: #128A5C;
+  --green-600: #0E7350;   /* compliant / submitted */
+  --green-700: #0B5A3F;
+
+  --amber-50:  #FBF1E2;
+  --amber-100: #F6E1BE;
+  --amber-500: #C9881C;
+  --amber-600: #A66E12;   /* pending / due soon */
+  --amber-700: #855810;
+
+  --red-50:    #FBECEA;
+  --red-100:   #F6D2cd;
+  --red-500:   #D14034;
+  --red-600:   #B5301F;   /* overdue / non-compliant */
+  --red-700:   #8F2418;
+
+  /* ================================================================
+     Semantic aliases — reference THESE in product code, not raw scale
+     ================================================================ */
+
+  /* Brand / accent */
+  --color-accent:          var(--klein-600);
+  --color-accent-hover:    var(--klein-700);
+  --color-accent-pressed:  var(--klein-800);
+  --color-accent-subtle:   var(--klein-50);
+  --color-accent-border:   var(--klein-200);
+  --color-on-accent:       var(--gray-0);
+
+  /* Text */
+  --text-primary:    var(--gray-900);
+  --text-secondary:  var(--gray-600);
+  --text-muted:      var(--gray-500);
+  --text-disabled:   var(--gray-400);
+  --text-accent:     var(--klein-600);
+  --text-on-accent:  var(--gray-0);
+
+  /* Surfaces */
+  --surface-page:    var(--gray-50);
+  --surface-card:    var(--gray-0);
+  --surface-sunken:  var(--gray-100);
+  --surface-raised:  var(--gray-0);
+  --surface-inverse: var(--gray-900);
+  --surface-accent:  var(--klein-600);
+
+  /* Borders */
+  --border-subtle:   var(--gray-100);
+  --border-default:  var(--gray-200);
+  --border-strong:   var(--gray-300);
+  --border-accent:   var(--klein-600);
+  --border-focus:    var(--klein-500);
+
+  /* ----------------------------------------------------------------
+     Status — restrained palette.
+     The system is led by WHITE + Klein blue. "Konform" (the dominant
+     state) is rendered in Klein blue, so a healthy portfolio reads as
+     mostly blue. Pending / draft fall back to neutral gray. RED is the
+     only true accent beyond blue, reserved strictly for OVERDUE/alarm.
+     (--green-* / --amber-* scales remain defined for charts/edge cases
+     but are intentionally NOT used in the core product surfaces.)
+     ---------------------------------------------------------------- */
+  --status-compliant-fg:  var(--klein-700);
+  --status-compliant-bg:  var(--klein-50);
+  --status-compliant-bd:  var(--klein-100);
+
+  --status-pending-fg:    var(--gray-700);
+  --status-pending-bg:    var(--gray-100);
+  --status-pending-bd:    var(--gray-300);
+
+  --status-overdue-fg:    var(--red-700);
+  --status-overdue-bg:    var(--red-50);
+  --status-overdue-bd:    var(--red-100);
+
+  --status-neutral-fg:    var(--gray-500);
+  --status-neutral-bg:    var(--gray-50);
+  --status-neutral-bd:    var(--gray-200);
+
+  /* Focus ring */
+  --ring-accent: 0 0 0 3px color-mix(in srgb, var(--klein-500) 28%, transparent);
+}

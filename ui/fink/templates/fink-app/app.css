@@ -1,0 +1,36 @@
+/* fink app screen — template chrome (sidebar, topbar, content scaffolding).
+   Self-contained so the template folder copies cleanly into a new project. */
+
+.t-app{ display:grid; grid-template-columns:256px 1fr; height:100vh; background:var(--surface-page); color:var(--text-primary); font:var(--font-body); }
+
+.t-side{ background:var(--surface-card); border-right:1px solid var(--border-default); display:flex; flex-direction:column; }
+.t-brand{ display:flex; align-items:center; gap:10px; padding:18px 18px 16px; }
+.t-wm{ font-family:var(--font-sans); font-weight:800; font-size:22px; letter-spacing:-0.02em; color:var(--klein-600); }
+.t-nav{ display:flex; flex-direction:column; gap:2px; padding:8px 12px; flex:1; }
+.t-navitem{ display:flex; align-items:center; gap:11px; padding:9px 10px; border-radius:var(--radius-md); font:var(--font-label); color:var(--text-secondary); cursor:pointer; border:none; background:none; text-align:left; width:100%; }
+.t-navitem:hover{ background:var(--gray-50); color:var(--text-primary); }
+.t-navitem svg{ width:18px; height:18px; stroke-width:1.9; }
+.t-navitem--active{ background:var(--klein-50); color:var(--klein-700); }
+.t-navitem--active svg{ stroke:var(--klein-600); }
+.t-side__foot{ border-top:1px solid var(--border-subtle); padding:12px; display:flex; align-items:center; gap:10px; }
+.t-uname{ font:var(--font-label); color:var(--text-primary); }
+.t-urole{ font:var(--font-caption); color:var(--text-muted); }
+
+.t-main{ display:flex; flex-direction:column; min-width:0; }
+.t-top{ height:60px; flex:0 0 auto; display:flex; align-items:center; gap:16px; padding:0 24px; border-bottom:1px solid var(--border-default); background:var(--surface-card); }
+.t-title{ font:var(--font-h3); color:var(--text-primary); }
+.t-sub{ font:var(--font-caption); color:var(--text-muted); margin-top:1px; }
+.t-screen{ flex:1; overflow:auto; padding:24px; }
+.t-inner{ max-width:1280px; margin:0 auto; display:flex; flex-direction:column; gap:20px; }
+.t-grid-kpi{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+.t-table{ width:100%; border-collapse:collapse; font:var(--font-body); }
+.t-table th{ text-align:left; font:var(--weight-semibold) var(--text-xs)/1 var(--font-sans); letter-spacing:.04em; text-transform:uppercase; color:var(--text-muted); padding:0 14px 10px; border-bottom:1px solid var(--border-default); }
+.t-table td{ padding:13px 14px; border-bottom:1px solid var(--border-subtle); color:var(--text-secondary); }
+.t-table tr:last-child td{ border-bottom:none; }
+.t-asset{ display:flex; align-items:center; gap:11px; }
+.t-asset__ic{ width:34px; height:34px; border-radius:var(--radius-md); background:var(--klein-50); color:var(--klein-600); display:flex; align-items:center; justify-content:center; }
+.t-asset__ic svg{ width:18px; height:18px; stroke-width:1.9; }
+.t-asset__name{ font:var(--font-label); color:var(--text-primary); }
+.t-asset__id{ font:var(--font-data); font-size:11px; color:var(--text-muted); }
+.t-spread{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.t-row{ display:flex; align-items:center; gap:10px; }

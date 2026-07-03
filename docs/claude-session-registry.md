@@ -17,3 +17,8 @@ Vor längeren Läufen prüfen, ob eine bestehende Session fortgesetzt werden kan
 - Befund: kein catala_de — Spezifikationen auf catala_en portiert (§52 neu, §24 ersetzt)
 - Cross-Check evals/catala-crosscheck.ts: 24/24 im arm64-Container verifiziert (clerk run)
 - CI-Job catala (setup-ocaml@v3, opam catala.1.2.0); clerk-Artefakte gitignored
+
+## Session 2026-07-03 — Hackathon Phase A
+- Onboarding-PDF Pia (make-pdf), Research-Brief mit Deadlines bis 17.08.
+- fink-DS → ui/fink (Fonts gitignored), Clickdummy-Stories → ui/content
+- ui/server.ts: echte Engine-API + App-Serving, alle Endpunkte curl-verifiziert

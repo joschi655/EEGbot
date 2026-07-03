@@ -1,0 +1,35 @@
+<!-- @dsCard group="Brand" viewport="700x170" name="Iconography — Lucide" subtitle="1.75px stroke, rounded joins, Klein on interaction" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  body { margin: 0; padding: 26px 32px; background: var(--surface-card); }
+  .icons { display:flex; gap: 22px; flex-wrap: wrap; }
+  .ic { display:flex; flex-direction:column; gap:8px; align-items:center; }
+  .ic svg { width: 26px; height: 26px; stroke: var(--gray-700); stroke-width: 1.75; }
+  .ic.accent svg { stroke: var(--klein-600); }
+  .ic span { font: var(--font-caption); color: var(--text-muted); }
+  .note { margin-top: 18px; font: var(--font-caption); color: var(--text-muted); }
+  .note b { color: var(--text-secondary); font-weight: 600; }
+</style>
+</head>
+<body>
+  <div class="icons">
+    <div class="ic"><i data-lucide="layout-dashboard"></i><span>dashboard</span></div>
+    <div class="ic"><i data-lucide="sun"></i><span>solar</span></div>
+    <div class="ic"><i data-lucide="wind"></i><span>wind</span></div>
+    <div class="ic accent"><i data-lucide="shield-check"></i><span>compliant</span></div>
+    <div class="ic"><i data-lucide="calendar-clock"></i><span>frist</span></div>
+    <div class="ic"><i data-lucide="file-text"></i><span>report</span></div>
+    <div class="ic"><i data-lucide="scale"></i><span>legal</span></div>
+    <div class="ic"><i data-lucide="sparkles"></i><span>fink AI</span></div>
+    <div class="ic"><i data-lucide="search"></i><span>search</span></div>
+    <div class="ic"><i data-lucide="bell"></i><span>alerts</span></div>
+  </div>
+  <div class="note"><b>Lucide</b> at 1.75px stroke. Neutral gray by default; Klein blue only to signal state or interaction. No emoji in product UI.</div>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

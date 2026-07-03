@@ -1,0 +1,30 @@
+<!-- @dsCard group="Colors" viewport="700x170" name="Klein blue scale" subtitle="International Klein Blue — 600 is the brand" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  body { margin: 0; padding: 26px 32px; background: var(--surface-card); }
+  .scale { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; }
+  .sw { height: 76px; border-radius: var(--radius-sm); display: flex; flex-direction: column; justify-content: flex-end; padding: 7px 8px; position: relative; border: 1px solid rgba(0,0,0,.05); }
+  .sw .n { font: var(--font-data); font-size: 11px; }
+  .sw .hex { font: var(--font-data); font-size: 9px; opacity: .8; }
+  .sw.brand::after { content: "BRAND"; position: absolute; top: 7px; left: 8px; font: var(--weight-bold) 8px/1 var(--font-sans); letter-spacing: .08em; color: #fff; }
+</style>
+</head>
+<body>
+  <div class="scale">
+    <div class="sw" style="background:var(--klein-50);color:#1a2a5e"><span class="n">50</span></div>
+    <div class="sw" style="background:var(--klein-100);color:#1a2a5e"><span class="n">100</span></div>
+    <div class="sw" style="background:var(--klein-200);color:#1a2a5e"><span class="n">200</span></div>
+    <div class="sw" style="background:var(--klein-300);color:#13235c"><span class="n">300</span></div>
+    <div class="sw" style="background:var(--klein-400);color:#fff"><span class="n">400</span></div>
+    <div class="sw" style="background:var(--klein-500);color:#fff"><span class="n">500</span></div>
+    <div class="sw brand" style="background:var(--klein-600);color:#fff"><span class="n">600</span><span class="hex">#1213BE</span></div>
+    <div class="sw" style="background:var(--klein-700);color:#fff"><span class="n">700</span></div>
+    <div class="sw" style="background:var(--klein-800);color:#fff"><span class="n">800</span></div>
+    <div class="sw" style="background:var(--klein-900);color:#fff"><span class="n">900</span></div>
+  </div>
+</body>
+</html>

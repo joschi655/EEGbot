@@ -29,3 +29,6 @@ rules/clerk.toml
 # Catala/clerk Build-Artefakte (Projekt-Root)
 _build/
 clerk.toml
+
+# Kommerzielle Fonts (Gilmer) — Lizenz erlaubt keine Redistribution; lokal behalten
+ui/fink/assets/fonts/*.otf

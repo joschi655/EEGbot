@@ -1,0 +1,24 @@
+<!-- @dsCard group="Spacing" viewport="700x170" name="Radii" subtitle="Moderate — modern but legal-grade" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  body { margin: 0; padding: 26px 32px; background: var(--surface-card); display:flex; gap: 18px; align-items:flex-end; }
+  .r { display:flex; flex-direction:column; gap:8px; align-items:center; }
+  .box { width: 74px; height: 56px; background: var(--klein-50); border: 1.5px solid var(--klein-300); border-bottom: none; }
+  .lbl { font: var(--font-data); font-size: 10px; color: var(--text-muted); text-align:center; }
+  .lbl b { display:block; color: var(--text-primary); font-size: 11px; }
+</style>
+</head>
+<body>
+  <div class="r"><div class="box" style="border-radius:var(--radius-xs) var(--radius-xs) 0 0"></div><div class="lbl"><b>xs</b>3</div></div>
+  <div class="r"><div class="box" style="border-radius:var(--radius-sm) var(--radius-sm) 0 0"></div><div class="lbl"><b>sm</b>5</div></div>
+  <div class="r"><div class="box" style="border-radius:var(--radius-md) var(--radius-md) 0 0"></div><div class="lbl"><b>md</b>8</div></div>
+  <div class="r"><div class="box" style="border-radius:var(--radius-lg) var(--radius-lg) 0 0"></div><div class="lbl"><b>lg</b>12</div></div>
+  <div class="r"><div class="box" style="border-radius:var(--radius-xl) var(--radius-xl) 0 0"></div><div class="lbl"><b>xl</b>16</div></div>
+  <div class="r"><div class="box" style="border-radius:var(--radius-2xl) var(--radius-2xl) 0 0"></div><div class="lbl"><b>2xl</b>24</div></div>
+  <div class="r"><div class="box" style="border-radius:var(--radius-full) var(--radius-full) 0 0"></div><div class="lbl"><b>full</b>pill</div></div>
+</body>
+</html>

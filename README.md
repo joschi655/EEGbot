@@ -144,9 +144,23 @@ und nicht eingecheckt.
 - **B2B-Ausbau** (gehostet, Agent-SDK): Kanzlei-Dashboards, Portfolio-§52-Batch für
   Stadtwerke, Kundenanlage-Migrations-Assessments — auf denselben `data/`-Schemas
 
+## Web-App (fink)
+
+`bun ui/server.ts` startet die fink-Web-App (Design-System in `ui/fink/`) samt
+REST-API auf http://localhost:3475 — die `/api/*`-Endpunkte rufen **dieselben
+Engine-Funktionen wie die MCP-Server** auf (Normsuche, §100-Resolver,
+Querverweis-Kaskade, Förder-Matcher). Nichts ist gemockt. Hinweis: die
+Gilmer-Fonts sind kommerziell lizenziert und nicht im Repo
+(`ui/fink/assets/fonts/README.md`).
+
 ## Mitmachen
 
 Der wertvollste Beitrag ist **Daten-Kuratierung**: Parameter verifizieren
 (`ZU VERIFIZIEREN`-Hinweise), Förderprogramme ergänzen, Benchmark-Fragen mit
 Quellen einreichen, Workflows für neue Fall-Typen schreiben. Jede Daten-Änderung
 braucht eine Quelle und muss `bun run validate:data` bestehen.
+
+**Ohne Git-Kenntnisse:** Dateien in `docs/` und `data/` lassen sich direkt im
+GitHub-Web-Editor bearbeiten (Datei öffnen → Stift-Symbol → „Propose changes"
+erzeugt einen Pull Request). Format je Fundstelle: Aussage · Quelle · Fundstelle
+· Abrufdatum.
