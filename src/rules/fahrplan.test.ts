@@ -1,0 +1,292 @@
+import { describe, expect, test } from "bun:test";
+import { baueSchritte, erstelleFahrplan, renderFahrplanMarkdown, FAHRPLAN_DISCLAIMER } from "./fahrplan.ts";
+import { Foerderprogramm } from "../schemas/program.ts";
+
+const standardFall = () => ({
+  massnahme: {
+    typ: "waermepumpe",
+    begonnen: false,
+    ersetzt_fossile_heizung: true,
+    wp_effizienzbonus_qualifiziert: true,
+    kosten_eur: 42000,
+    bereits_gefoerdert: false,
+  },
+  gebaeude: { bestandsgebaeude: true, alter_jahre: 30 },
+  antragsteller: { selbstnutzend: true, haushaltseinkommen_eur: 38000, isfp_vorhanden: false },
+  eigentumsform: "eigentum",
+});
+
+describe("erstelleFahrplan — Standardfall Wärmepumpe (Lead-Story)", () => {
+  test("empfiehlt KfW 458 mit 70 % (Kappung aus 85) und 21.000 € am Höchstkosten-Deckel", async () => {
+    const f = await erstelleFahrplan(standardFall());
+    expect(f.empfehlung?.programm_id).toBe("kfw-458");
+    expect(f.empfehlung?.foerdersatz_prozent).toBe(70);
+    expect(f.empfehlung?.kosten_angesetzt_eur).toBe(30000); // 42.000 € gekappt
+    expect(f.empfehlung?.betrag_eur_geschaetzt).toBe(21000);
+  });
+
+  test("Schritte sind lückenlos nummeriert und in Reihenfolge Vorbereitung → Antrag → Umsetzung → Nachweis", async () => {
+    const f = await erstelleFahrplan(standardFall());
+    expect(f.schritte.map((s) => s.nr)).toEqual([1, 2, 3, 4]);
+    const phasen = f.schritte.map((s) => s.phase);
+    expect(phasen.indexOf("antrag")).toBeGreaterThan(phasen.indexOf("vorbereitung"));
+    expect(phasen.indexOf("umsetzung")).toBeGreaterThan(phasen.indexOf("antrag"));
+    expect(phasen.indexOf("nachweis")).toBeGreaterThan(phasen.indexOf("umsetzung"));
+  });
+
+  test("BzA-Dokument hängt am Vorbereitungs-Schritt VOR dem Antrag; human_only-Felder ausgewiesen", async () => {
+    const f = await erstelleFahrplan(standardFall());
+    const vorbereitung = f.schritte.find((s) => s.phase === "vorbereitung");
+    const bza = vorbereitung?.dokumente.find((d) => d.id === "kfw-bza");
+    expect(bza).toBeDefined();
+    expect(bza!.human_only_felder.length).toBeGreaterThan(0);
+  });
+
+  test("jeder Schritt trägt mindestens eine Quelle", async () => {
+    const f = await erstelleFahrplan(standardFall());
+    for (const s of f.schritte) expect(s.quellen.length).toBeGreaterThanOrEqual(1);
+  });
+
+  test("Antrag-Schritt trägt die Antrag-vor-Beginn-Warnung aus den Programmdaten", async () => {
+    const f = await erstelleFahrplan(standardFall());
+    const antrag = f.schritte.find((s) => s.phase === "antrag");
+    expect(antrag?.warnung).toMatch(/VOR Vorhabensbeginn/i);
+  });
+
+  test("Entweder-oder KfW 458 vs. § 35c mit Normzitat; Anti: kein iSFP-Bonus versprochen", async () => {
+    const f = await erstelleFahrplan(standardFall());
+    const eo = f.entweder_oder.find((e) => e.programme.includes("kfw-458") && e.programme.includes("estg-35c"));
+    expect(eo?.hinweis).toContain("§ 35c");
+    // Anti-ISC: KfW 458 kennt keinen iSFP-Bonus — Weiche darf ihn nicht versprechen.
+    expect(f.empfehlung?.saetze.some((s) => /isfp/i.test(s.bezeichnung))).toBe(false);
+    expect(f.isfp_weiche?.relevant).toBe(false);
+    expect(f.isfp_weiche?.hinweis).toContain("keinen iSFP-Bonus");
+  });
+});
+
+describe("erstelleFahrplan — Abweichler-Szenarien", () => {
+  test("Maßnahme schon beauftragt → KfW 458 raus (mit Grund), § 35c als verbleibender Pfad, Warnung gesetzt", async () => {
+    const fall = standardFall();
+    fall.massnahme.begonnen = true;
+    const f = await erstelleFahrplan(fall);
+    expect(f.empfehlung?.programm_id).toBe("estg-35c");
+    expect(f.nicht_passend.some((n) => n.programm_id === "kfw-458")).toBe(true);
+    expect(f.warnungen.some((w) => /begonnen|beauftragt/i.test(w))).toBe(true);
+    // Steuerlicher Pfad: Umsetzung vor Nachweis vor Steuererklärung
+    const phasen = f.schritte.map((s) => s.phase);
+    expect(phasen).toEqual(["umsetzung", "nachweis", "steuer"]);
+  });
+
+  test("Vermieter (nicht selbstnutzend) → nur 30 % Grundförderung, § 35c nicht passend", async () => {
+    const fall = standardFall();
+    fall.antragsteller.selbstnutzend = false;
+    const f = await erstelleFahrplan(fall);
+    expect(f.empfehlung?.programm_id).toBe("kfw-458");
+    expect(f.empfehlung?.foerdersatz_prozent).toBe(35); // 30 Grund + 5 Effizienz, keine personengebundenen Boni
+    expect(f.empfehlung?.saetze.find((s) => /Klimageschwindigkeit/i.test(s.bezeichnung))?.zutreffend).toBe(false);
+    expect(f.empfehlung?.saetze.find((s) => /Einkommensbonus/i.test(s.bezeichnung))?.zutreffend).toBe(false);
+    expect([f.empfehlung?.programm_id, ...f.alternativen.map((a) => a.programm_id)]).not.toContain("estg-35c");
+  });
+
+  test("Neubau → KfW 458 mit benanntem Ausschlussgrund", async () => {
+    const fall = standardFall();
+    fall.gebaeude.bestandsgebaeude = false;
+    const f = await erstelleFahrplan(fall);
+    const kfw = f.nicht_passend.find((n) => n.programm_id === "kfw-458");
+    expect(kfw?.gruende.join(" ")).toMatch(/Neubau/i);
+  });
+
+  test("leerer Fall → kein Crash, keine Empfehlung, offene Fragen mit Klartext-Fragen", async () => {
+    const f = await erstelleFahrplan({});
+    expect(f.empfehlung).toBeNull();
+    expect(f.schritte).toEqual([]);
+    expect(f.offene_fragen.length).toBeGreaterThan(3);
+    expect(f.offene_fragen.every((o) => o.frage.length > 5)).toBe(true);
+  });
+
+  test("Dämmung ohne iSFP → BAFA BEG EM empfohlen, iSFP-Weiche relevant mit dena-Grenze", async () => {
+    const fall = {
+      massnahme: { typ: "daemmung", begonnen: false, kosten_eur: 20000, bereits_gefoerdert: false },
+      gebaeude: { bestandsgebaeude: true, alter_jahre: 30 },
+      antragsteller: { selbstnutzend: true, isfp_vorhanden: false },
+      eigentumsform: "eigentum",
+    };
+    const f = await erstelleFahrplan(fall);
+    expect(f.empfehlung?.programm_id).toBe("bafa-beg-em");
+    expect(f.isfp_weiche?.relevant).toBe(true);
+    expect(f.isfp_weiche?.hinweis).toContain("5");
+    expect(f.isfp_weiche?.quellen.some((q) => q.url?.includes("energie-effizienz-experten"))).toBe(true);
+  });
+});
+
+describe("renderFahrplanMarkdown", () => {
+  test("Markdown enthält nummerierte Schritte, Quellen und den RDG-Disclaimer", async () => {
+    const f = await erstelleFahrplan(standardFall());
+    const md = renderFahrplanMarkdown(f);
+    expect(md).toContain("### Schritt 1:");
+    expect(md).toContain("### Schritt 4:");
+    expect(md).toContain("*Quellen:");
+    expect(md).toContain(FAHRPLAN_DISCLAIMER);
+    expect(f.disclaimer).toBe(FAHRPLAN_DISCLAIMER);
+  });
+});
+
+describe("erstelleFahrplan — adversariale Szenarien (Forge)", () => {
+  test("Kosten unter Höchstkosten (12.000 €) → angesetzt = 12.000 €, Betrag 8.400 € bei 70 %", async () => {
+    const fall = standardFall();
+    fall.massnahme.kosten_eur = 12000;
+
+    const f = await erstelleFahrplan(fall);
+    const md = renderFahrplanMarkdown(f);
+
+    expect(f.empfehlung?.programm_id).toBe("kfw-458");
+    expect(f.empfehlung?.foerdersatz_prozent).toBe(70);
+    expect(f.empfehlung?.hoechstkosten_eur).toBe(30000);
+    expect(f.empfehlung?.kosten_angesetzt_eur).toBe(12000);
+    expect(f.empfehlung?.betrag_eur_geschaetzt).toBe(8400);
+    expect(md).toContain("Geschätzt:");
+  });
+
+  test("kosten_eur = 0 oder negativ → kein erfundener Betrag, kein NaN", async () => {
+    const nullKostenFall = standardFall();
+    nullKostenFall.massnahme.kosten_eur = 0;
+
+    const mitNullKosten = await erstelleFahrplan(nullKostenFall);
+    const md = renderFahrplanMarkdown(mitNullKosten);
+
+    expect(mitNullKosten.empfehlung?.programm_id).toBe("kfw-458");
+    expect(mitNullKosten.empfehlung?.foerdersatz_prozent).toBe(70);
+    expect(mitNullKosten.empfehlung?.kosten_angesetzt_eur).toBeUndefined();
+    expect(mitNullKosten.empfehlung?.betrag_eur_geschaetzt).toBeUndefined();
+    expect(md).not.toContain("Geschätzt:");
+
+    const negativeKostenFall = standardFall();
+    negativeKostenFall.massnahme.kosten_eur = -5000;
+
+    const mitNegativenKosten = await erstelleFahrplan(negativeKostenFall);
+
+    expect(mitNegativenKosten.empfehlung?.programm_id).toBe("kfw-458");
+    expect(mitNegativenKosten.empfehlung?.foerdersatz_prozent).toBe(70);
+    expect(mitNegativenKosten.empfehlung?.kosten_angesetzt_eur).toBeUndefined();
+    expect(mitNegativenKosten.empfehlung?.betrag_eur_geschaetzt).toBeUndefined();
+  });
+
+  test("Einkommensbonus an der lte-Grenze: 40.000 € greift (70 %), 40.001 € fällt weg (55 %)", async () => {
+    const grenzfall = standardFall();
+    grenzfall.antragsteller.haushaltseinkommen_eur = 40000;
+
+    const mitBonus = await erstelleFahrplan(grenzfall);
+
+    expect(mitBonus.empfehlung?.saetze.find((s) => /Einkommensbonus/i.test(s.bezeichnung))?.zutreffend).toBe(true);
+    expect(mitBonus.empfehlung?.foerdersatz_prozent).toBe(70);
+
+    const knappDrueber = standardFall();
+    knappDrueber.antragsteller.haushaltseinkommen_eur = 40001;
+
+    const ohneBonus = await erstelleFahrplan(knappDrueber);
+
+    expect(ohneBonus.empfehlung?.saetze.find((s) => /Einkommensbonus/i.test(s.bezeichnung))?.zutreffend).toBe(false);
+    expect(ohneBonus.empfehlung?.foerdersatz_prozent).toBe(55);
+  });
+
+  test("unbekannter Maßnahmentyp 'pool' → keine Empfehlung, kein Crash (§ 35c-Typ-Gate aus Abs. 1 S. 3 greift)", async () => {
+    const fall = standardFall();
+    fall.massnahme.typ = "pool";
+
+    const f = await erstelleFahrplan(fall);
+    const ids = [f.empfehlung?.programm_id, ...f.alternativen.map((a) => a.programm_id)];
+
+    // Forge-Fund: estg-35c.json hatte kein eligibility-Typ-Gate — ein Pool bekam
+    // 20 % Steuerermäßigung empfohlen. Behoben per Maßnahmenliste (§ 35c Abs. 1 S. 3 EStG).
+    expect(f.empfehlung).toBeNull();
+    expect(ids).not.toContain("kfw-458");
+    expect(ids).not.toContain("bafa-beg-em");
+    expect(ids).not.toContain("estg-35c");
+  });
+
+  test("bereits_gefoerdert=true → § 35c wegen Doppelförderung ausgeschlossen, KfW 458 bleibt Empfehlung", async () => {
+    const fall = standardFall();
+    fall.massnahme.bereits_gefoerdert = true;
+
+    const f = await erstelleFahrplan(fall);
+    const estg = f.nicht_passend.find((n) => n.programm_id === "estg-35c");
+
+    expect(f.empfehlung?.programm_id).toBe("kfw-458");
+    expect(estg).toBeDefined();
+    expect(estg?.gruende.join(" ")).toMatch(/Doppelförderung|§ 35c Abs\. 3/i);
+  });
+
+  test("nur massnahme.typ gesetzt → keine Empfehlung, offene_fragen nennen die fehlenden Felder mit Klartext", async () => {
+    const f = await erstelleFahrplan({ massnahme: { typ: "waermepumpe" } });
+    const offeneFelder = f.offene_fragen.map((o) => o.feld);
+
+    expect(f.empfehlung).toBeNull();
+    expect(f.schritte).toEqual([]);
+    expect(offeneFelder).toContain("gebaeude.bestandsgebaeude");
+    expect(offeneFelder).toContain("massnahme.begonnen");
+    expect(offeneFelder).toContain("antragsteller.selbstnutzend");
+    expect(offeneFelder).toContain("eigentumsform");
+    expect(offeneFelder).toContain("gebaeude.alter_jahre");
+    expect(offeneFelder).toContain("massnahme.kosten_eur");
+    expect(offeneFelder).not.toContain("massnahme.typ");
+    expect(f.offene_fragen.find((o) => o.feld === "gebaeude.bestandsgebaeude")?.frage).toBe("Bestandsgebäude oder Neubau?");
+    expect(f.offene_fragen.find((o) => o.feld === "eigentumsform")?.frage).toBe(
+      "Sind Sie Eigentümer:in (Eigentum / Miete / WEG)?",
+    );
+  });
+
+  test("renderFahrplanMarkdown bei leerem Fall → Disclaimer und 'Keine Zuschuss-Empfehlung', keine Schritte", async () => {
+    const f = await erstelleFahrplan({});
+    const md = renderFahrplanMarkdown(f);
+
+    expect(md).toContain("## Kein passendes Programm gefunden");
+    expect(md).toContain(FAHRPLAN_DISCLAIMER);
+    expect(md).not.toContain("### Schritt 1:");
+  });
+
+  test("Maßnahme begonnen UND bereits gefördert → Warnung nennt § 35c NICHT als verbleibenden Weg (Forge-Fund, behoben)", async () => {
+    const fall = standardFall();
+    fall.massnahme.begonnen = true;
+    fall.massnahme.bereits_gefoerdert = true;
+
+    const f = await erstelleFahrplan(fall);
+
+    // Korrekt wäre: nur ein steuerlicher Match mit passt=true darf als verbleibender Weg erwähnt werden.
+    expect(f.nicht_passend.some((n) => n.programm_id === "estg-35c")).toBe(true);
+    expect(f.warnungen.some((w) => /§\s?35c|Verbleibender Weg/i.test(w))).toBe(false);
+  });
+});
+
+describe("Generischer Schema-Interpreter — trägt regionale Programme (Phase-C-Vorgriff)", () => {
+  test("synthetisches Landesprogramm (Bayern/München) → valides Schema + vollständiger 4-Schritte-Fahrplan ohne Codeänderung", () => {
+    // De-Risking laut Advisor: Wenn ein regionales Programm Schema-Erweiterungen
+    // bräuchte, wollen wir das VOR Phase C wissen. Regionale Gates (Bundesland),
+    // Antragsfenster (fristen.datum) und Budget-Stopp (status: "ausgesetzt")
+    // drückt das bestehende Schema bereits aus.
+    const synthetisch = Foerderprogramm.parse({
+      id: "by-muenchen-waerme-synthetisch",
+      name: "SYNTHETISCH — Landeshauptstadt München Wärmewende-Zuschuss (Test-Fixture)",
+      traeger: "Landeshauptstadt München",
+      foerderart: "zuschuss",
+      status: "aktiv",
+      beschreibung: "Synthetische Test-Fixture für den Phase-C-Vorgriff — kein echtes Programm.",
+      eligibility: {
+        alle: [
+          { feld: "standort.bundesland", op: "eq", wert: "BY" },
+          { feld: "massnahme.typ", op: "eq", wert: "waermepumpe" },
+        ],
+      },
+      foerdersaetze: [{ bezeichnung: "Grundförderung", satz_prozent: 10 }],
+      antragsweg: { kanal: "online-portal", antrag_vor_massnahmenbeginn: true, fachunternehmer_pflicht: false, benoetigte_formulare: [] },
+      fristen: [{ bezeichnung: "Antragsfenster", beschreibung: "Antrag bis Stichtag einreichen.", datum: "2026-12-31" }],
+      quellen: [{ bezeichnung: "synthetische Test-Fixture (Phase-C-Vorgriff)" }],
+      zuletzt_geprueft: "2026-07-03",
+    });
+
+    const schritte = baueSchritte(synthetisch, []);
+    expect(schritte.map((s) => s.phase)).toEqual(["vorbereitung", "antrag", "umsetzung", "nachweis"]);
+    expect(schritte.map((s) => s.nr)).toEqual([1, 2, 3, 4]);
+    expect(schritte.every((s) => s.quellen.length >= 1)).toBe(true);
+    expect(schritte.find((s) => s.phase === "antrag")?.warnung).toMatch(/VOR Maßnahmenbeginn/i);
+  });
+});

@@ -7,6 +7,7 @@
   "beschreibung": "Steuerermäßigung 20 % der Aufwendungen (max. 40.000 € je Objekt), verteilt über 3 Jahre (7 %/7 %/6 %), für energetische Maßnahmen am selbstgenutzten Wohneigentum (Gebäude älter als 10 Jahre). Alternative zu KfW/BAFA — keine Antragstellung vor Beginn nötig, läuft über die Steuererklärung.",
   "eligibility": {
     "alle": [
+      { "feld": "massnahme.typ", "op": "in", "wert": ["waermepumpe", "biomasseheizung", "solarthermie", "fernwaermeanschluss", "heizungsoptimierung", "daemmung", "fenster", "tueren", "lueftung", "anlagentechnik"] },
       { "feld": "antragsteller.selbstnutzend", "op": "eq", "wert": true },
       { "feld": "eigentumsform", "op": "eq", "wert": "eigentum" },
       { "feld": "gebaeude.alter_jahre", "op": "gt", "wert": 10 }
@@ -33,7 +34,7 @@
   },
   "fristen": [],
   "quellen": [
-    { "bezeichnung": "§ 35c EStG", "fundstelle": "§ 35c EStG" },
+    { "bezeichnung": "§ 35c EStG (förderfähige Maßnahmen abschließend in Abs. 1 Satz 3)", "fundstelle": "§ 35c Abs. 1 EStG" },
     {
       "bezeichnung": "Bescheinigung des Fachunternehmens (BMF-Muster)",
       "url": "https://www.bundesfinanzministerium.de",

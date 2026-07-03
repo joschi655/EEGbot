@@ -99,3 +99,42 @@ Clearingstelle-Restbestand (FAQ ~198–330) per erneutem Pipeline-Lauf.
 - **Zahlen-Flag aus KB-Abgleich:** KB-Recherche nennt Volleinspeisung ≤10 kWp
   12,34 ct (Param-Datei: 12,35 ZU VERIFIZIEREN) und Ü20-Vermarktungskosten
   0,715 ct (Code: 0,4) — an Pia zur Klärung (Brief 3.5).
+
+## 2026-07-03 — Hackathon Phase B: Förderfahrplan-Generator + fink-Screen live
+
+- **src/rules/fahrplan.ts (Lead-Feature):** deterministischer Fahrplan-Generator
+  als GENERISCHER Interpreter über dem Programm-Schema — Reihenfolge aus
+  `antrag_vor_massnahmenbeginn` (Vorbereitung→Antrag→Umsetzung→Nachweis bzw.
+  steuerlich Umsetzung→Nachweis→Steuererklärung), Warntexte aus `ausschluesse`,
+  Dokumente aus `benoetigte_formulare` (human_only ausgewiesen), iSFP-Weiche
+  rein datengetrieben (kein falsches Bonus-Versprechen bei KfW 458),
+  Entweder-oder aus Kumulierungsregeln, Markdown-Render mit Quelle je Schritt,
+  RDG/StBerG-Disclaimer. Neue Programme (auch regionale) bekommen Fahrpläne
+  ohne Codeänderung — per synthetischer Bayern-Fixture getestet.
+- **Empfehlungsregel dokumentiert:** direkter Zuschuss vor Steuerermäßigung
+  (§ 35c ist laut eigener Programmbeschreibung die „Alternative"); Wortwahl
+  im UI/MD „Passendes Programm" statt „Empfehlung" (StBerG-vorsichtig,
+  Advisor-Hinweis).
+- **Daten:** kfw-458.json + Schema um `foerderfaehige_hoechstkosten_eur`
+  (30 000 €) erweitert — Zuschuss-Schätzung kappt korrekt (42 T€ → 21 000 €).
+- **Forge-Audit (GPT-5.4) fand 2 echte Bugs, beide behoben + Regressionstests:**
+  (1) estg-35c.json ohne Maßnahmen-Typ-Gate — ein „Pool" bekam 20 %
+  Steuerermäßigung empfohlen; Fix: Maßnahmenliste nach § 35c Abs. 1 S. 3 EStG.
+  (2) begonnen-Warnung nannte § 35c als „verbleibenden Weg" auch wenn § 35c
+  selbst ausgeschlossen war (Doppelförderung); Fix: nur passende steuerliche
+  Programme nennen.
+- **fink-App:** neuer Screen „Förder-Fahrplan" (ui/fink/ui_kits/app/Fahrplan.jsx,
+  Sidebar-Eintrag) — POSTet live an /api/fahrplan, rendert Fördersatz+Boni,
+  Entweder-oder-Banner, iSFP-Weiche, nummerierte Schritte mit roter
+  Antrag-vor-Auftrag-Warnung (einzige Rot-Nutzung, Farbregel eingehalten),
+  offene Fragen, Disclaimer. Erster Screen ohne FINK_DATA-Mocks (Plan-Todo 5
+  für den Fahrplan-Flow erledigt; Dashboard/Assets bleiben Mock).
+- **Verifiziert:** 61 Tests grün (12 Basis + 8 Forge-adversarial + Fixture),
+  typecheck, validate:data, Benchmark 16/16; curl-Proben /api/fahrplan
+  (Standard + leerer Fall + Regression status/uebergangsrecht); Browser-Proben
+  Happy-Path (70 %/21 000 €/4 Schritte) und Ausschlussfall (begonnen=true →
+  rote Warnung, § 35c-Pfad 20 %/8 400 €) per Playwright-Screenshot.
+- **Offen (Plan C–E):** Region-Feld + PLZ→Netzbetreiber (Advisor: Deckelung
+  der GESAMTförderquote über Programme hinweg fehlt im Schema — vor Phase C
+  entscheiden), Ground-Truth-Fixtures KfW/BAFA, Freitext-KI-Endpoint,
+  Compare-Mode-Screen, Personas P1–P6.

@@ -51,6 +51,7 @@
     }
   ],
   "max_foerdersatz_prozent": 70,
+  "foerderfaehige_hoechstkosten_eur": 30000,
   "kumulierung": [
     { "programm_id": "estg-35c", "kombinierbar": false, "hinweis": "Keine Doppelförderung derselben Maßnahme (§ 35c Abs. 3 EStG)." },
     { "programm_id": "bafa-beg-em", "kombinierbar": true, "hinweis": "Andere Maßnahmen (z. B. Dämmung über BAFA) parallel möglich; je Maßnahme nur ein Programm." },

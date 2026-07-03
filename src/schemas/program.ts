@@ -29,6 +29,8 @@ export const Foerderprogramm = z.object({
     }),
   ),
   max_foerdersatz_prozent: z.number().optional(),
+  /** Förderfähige Höchstkosten in € (z. B. KfW 458: 30.000 € erste Wohneinheit) — kappt die Zuschuss-Schätzung. */
+  foerderfaehige_hoechstkosten_eur: z.number().optional(),
 
   /** Kumulierbarkeit: Programm-IDs + ob kombinierbar. Matrix wird daraus abgeleitet. */
   kumulierung: z.array(

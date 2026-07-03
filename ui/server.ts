@@ -10,7 +10,7 @@
  * Endpunkte:
  *   GET  /api/status                          Wissensbasis-/Index-Status
  *   POST /api/frage        {frage, stichtag?} BM25-Normsuche (+ Clearingstelle/Rechtsprechung falls Indizes da)
- *   POST /api/fahrplan     {fall}             Förder-Matcher + Kumulierung + Formulare (v1 des Fahrplans)
+ *   POST /api/fahrplan     {fall}             Deterministischer Förderfahrplan (src/rules/fahrplan.ts) + Markdown
  *   GET  /api/norm         ?slug&enbez&datum  Norm-Fassung zum Stichtag
  *   GET  /api/cascade      ?slug&enbez&datum&tiefe   Querverweis-Kaskade
  *   GET  /api/uebergangsrecht ?ibn            §100-Resolver (Versteinerung)
@@ -19,7 +19,7 @@ import { join } from "node:path";
 import { crossRefs, normAtDate, oeffneGraph } from "../src/graph/query.ts";
 import { resolveUebergangsrecht } from "../src/graph/uebergangsrecht.ts";
 import { sucheNormen } from "../src/rag/suche.ts";
-import { matcheProgramme, formulareFuerFall } from "../src/rules/foerderMatcher.ts";
+import { erstelleFahrplan, renderFahrplanMarkdown } from "../src/rules/fahrplan.ts";
 
 const REPO = new URL("..", import.meta.url).pathname;
 const APP_DIR = join(REPO, "ui", "fink", "ui_kits", "app");
@@ -78,14 +78,8 @@ Bun.serve({
       if (p === "/api/fahrplan" && req.method === "POST") {
         const { fall } = (await req.json()) as { fall: Record<string, unknown> };
         if (!fall) return json({ fehler: "fall fehlt" }, 400);
-        const [programme, formulare] = await Promise.all([matcheProgramme(fall), formulareFuerFall(fall)]);
-        return json({
-          fall,
-          programme,
-          formulare,
-          hinweis:
-            "v1: Matcher + Formularinventar. Der vollständige Fahrplan-Generator (Reihenfolge-Logik, iSFP-Weiche, PDF) folgt in src/rules/fahrplan.ts.",
-        });
+        const fahrplan = await erstelleFahrplan(fall);
+        return json({ fahrplan, markdown: renderFahrplanMarkdown(fahrplan) });
       }
 
       if (p === "/api/norm") {

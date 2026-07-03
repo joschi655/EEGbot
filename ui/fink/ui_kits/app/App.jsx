@@ -15,6 +15,7 @@ function App() {
     case 'assets':    return <Assets onNav={nav} onOpenAsset={openAsset} />;
     case 'asset':     return <AssetDetail asset={asset} onNav={nav} onBack={() => setScreen('assets')} onDraft={() => setScreen('reports')} />;
     case 'deadlines': return <Deadlines onNav={nav} />;
+    case 'fahrplan':  return <Fahrplan onNav={nav} />;
     case 'reports':   return <Reports onNav={nav} />;
     case 'dashboard':
     default:          return <Dashboard onNav={nav} onOpenAsset={openAsset} />;
