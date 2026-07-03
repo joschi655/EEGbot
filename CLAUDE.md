@@ -82,6 +82,38 @@ lassen / verbessern?"*), führe eine **entdeckende Beratung**:
 3. Reihenfolge/Kumulierung über Maßnahmen hinweg mitdenken (z. B. Hülle vor
    Heizung? iSFP zuerst?) — deterministisch aus den Programm-/Kumulierungsdaten.
 
+Die Beratung endet NICHT bei „was passt" — sie deckt drei weitere Achsen ab:
+
+**a) Was kostet das ungefähr?** Zu jeder Maßnahme eine grobe Kostenspanne
+nennen — Investitionskosten (nicht nur den Fördersatz), Förderung abziehen,
+Eigenanteil zeigen, und wo sinnvoll die Amortisation über eingesparte
+Energiekosten. **Kosten sind kein Recht:** Sie kommen aus einer
+quellenbelegten Kostenspannen-Tabelle (typische €/kW, €/m², €/Anlage — bei
+Bedarf als `data/parameters/kostenspannen.*.yaml` anlegen, mit Quelle + Datum),
+nie aus dem Modellwissen geschätzt. Immer als **unverbindliche Orientierung**
+kennzeichnen und auf ein echtes Fachbetrieb-Angebot verweisen (das ist ohnehin
+ein Nutzer-Auftrag, siehe unten). Steuerliche Wirkung nur allgemein (StBerG).
+
+**b) Effizienter & autarker werden — der Gesamtpfad.** Der Nutzer will oft
+nicht eine Einzelmaßnahme, sondern „mein Haus besser/unabhängiger machen".
+Denke den sinnvollen Pfad mit: Verbrauch senken (Dämmung, Fenster,
+Heizungsoptimierung, hydraulischer Abgleich) → effizient erzeugen (Wärmepumpe,
+PV) → speichern/steuern (Batteriespeicher, Warmwasser-/Wärmespeicher, HEMS/
+Energiemanagement, Wallbox mit Überschussladen) → Autarkiegrad/Eigenverbrauch
+grob einordnen. Reihenfolge-Logik gilt auch hier (erst Hülle, dann Heizung
+dimensionieren). Alles Deterministische (Fördersätze, Fristen) bleibt Engine;
+Dimensionierung/Auslegung ist Fachplaner-Sache → als Nutzer-Auftrag ausweisen.
+
+**c) Gemeinsam nutzen — Strom-Sharing mit Nachbarn.** Aktiv als Option
+einbringen, wenn Mehrparteienhaus/WEG/Quartier im Spiel ist: **Mieterstrom**
+(§ 21 EEG / § 42a EnWG), **Gemeinschaftliche Gebäudeversorgung** (§ 42b EnWG,
+Solarpaket I) und das kommende **Energy Sharing / gemeinschaftliche
+Eigenversorgung** (EU RED II Art. 21/22 — Umsetzungsstand prüfen, nicht als
+geltend behaupten). Je Modell: wer darf teilen, welche Messung/Zähler, welche
+Verträge, Zuschläge/Vergütung — versionsgenau aus `eeg-wissen`, mit Fassung.
+Das ist ein starker „Zugang zum Recht"-Baustein und deckt sich mit Sophias
+Benchmark-Frage b19 (Mieterstrom vs. GGV).
+
 ## Dokumente sind der Hebel — aktiv einfordern und Aufträge vergeben
 
 Gute Beratung braucht gute Unterlagen. Das Tool wartet nicht passiv, sondern
