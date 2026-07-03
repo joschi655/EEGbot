@@ -18,6 +18,32 @@ const FP_EIGENTUM = [
   ['miete', 'Miete'],
 ];
 
+const FP_BUNDESLAENDER = [
+  ['', 'Keine Angabe'],
+  ['BW', 'Baden-Württemberg'], ['BY', 'Bayern'], ['BE', 'Berlin'], ['BB', 'Brandenburg'],
+  ['HB', 'Bremen'], ['HH', 'Hamburg'], ['HE', 'Hessen'], ['MV', 'Mecklenburg-Vorpommern'],
+  ['NI', 'Niedersachsen'], ['NW', 'Nordrhein-Westfalen'], ['RP', 'Rheinland-Pfalz'], ['SL', 'Saarland'],
+  ['SN', 'Sachsen'], ['ST', 'Sachsen-Anhalt'], ['SH', 'Schleswig-Holstein'], ['TH', 'Thüringen'],
+];
+
+/* Pfad der KI-Vorschläge (/api/intake) → Formular-Feld */
+const FP_INTAKE_MAP = {
+  'massnahme.typ': ['typ', String],
+  'massnahme.kosten_eur': ['kosten', String],
+  'massnahme.begonnen': ['begonnen', Boolean],
+  'massnahme.ersetzt_fossile_heizung': ['ersetztFossil', Boolean],
+  'massnahme.wp_effizienzbonus_qualifiziert': ['effizienz', Boolean],
+  'gebaeude.bestandsgebaeude': ['bestand', Boolean],
+  'gebaeude.alter_jahre': ['alter', String],
+  'antragsteller.selbstnutzend': ['selbst', Boolean],
+  'antragsteller.haushaltseinkommen_eur': ['einkommen', String],
+  'antragsteller.isfp_vorhanden': ['isfp', Boolean],
+  'eigentumsform': ['eigentum', String],
+  'standort.bundesland': ['bundesland', String],
+  'standort.kommune': ['kommune', String],
+  'standort.plz': ['plz', String],
+};
+
 const fpEur = (n) => `${Number(n).toLocaleString('de-DE')} €`;
 
 function FpQuellen({ quellen }) {
@@ -122,6 +148,16 @@ function FpErgebnis({ f }) {
         </div>
       ))}
 
+      {f.kombinationen.map((k, i) => (
+        <div key={i} style={{ padding: '12px 16px', border: '1px solid var(--klein-600)', borderRadius: 'var(--radius-md)' }}>
+          <span style={{ font: 'var(--weight-bold) var(--text-sm)/1.4 var(--font-sans)', color: 'var(--klein-600)' }}>
+            Kombinierbar: {k.programme[0]} + {k.programme[1]} — zusammen {k.kombinierte_quote_prozent} %
+            {k.kombinierte_quote_prozent < k.quote_summe_prozent ? ` statt ${k.quote_summe_prozent} %` : ''}
+          </span>
+          {k.hinweis && <p style={{ font: 'var(--font-caption)', color: 'var(--text-muted)', margin: '4px 0 0' }}>{k.hinweis}</p>}
+        </div>
+      ))}
+
       {f.isfp_weiche && (
         <div style={{ padding: '12px 16px', border: '1px solid var(--border-subtle)', borderLeft: '3px solid var(--klein-600)', borderRadius: 'var(--radius-md)' }}>
           <span style={{ font: 'var(--weight-bold) var(--text-sm)/1.4 var(--font-sans)', color: 'var(--klein-600)' }}>iSFP-Weiche</span>
@@ -172,10 +208,14 @@ function Fahrplan({ onNav }) {
   const [form, setForm] = React.useState({
     typ: 'waermepumpe', kosten: '42000', einkommen: '38000', alter: '30', eigentum: 'eigentum',
     bestand: true, selbst: true, ersetztFossil: true, effizienz: true, isfp: false, begonnen: false,
+    bundesland: '', plz: '', kommune: '', freitext: '',
   });
   const [ergebnis, setErgebnis] = React.useState(null);
   const [laden, setLaden] = React.useState(false);
   const [fehler, setFehler] = React.useState(null);
+  const [kiLaden, setKiLaden] = React.useState(false);
+  const [kiErgebnis, setKiErgebnis] = React.useState(null);
+  const [kiFehler, setKiFehler] = React.useState(null);
   React.useEffect(() => { setTimeout(() => window.lucide && lucide.createIcons(), 10); });
 
   const set = (k) => (ev) => setForm({ ...form, [k]: ev.target.type === 'checkbox' ? ev.target.checked : ev.target.value });
@@ -196,7 +236,38 @@ function Fahrplan({ onNav }) {
     if (form.kosten !== '') fall.massnahme.kosten_eur = Number(form.kosten);
     if (form.einkommen !== '') fall.antragsteller.haushaltseinkommen_eur = Number(form.einkommen);
     if (form.alter !== '') fall.gebaeude.alter_jahre = Number(form.alter);
+    if (form.bundesland || form.plz || form.kommune) {
+      fall.standort = {};
+      if (form.bundesland) fall.standort.bundesland = form.bundesland;
+      if (form.plz) fall.standort.plz = form.plz;
+      if (form.kommune) fall.standort.kommune = form.kommune;
+    }
     return fall;
+  };
+
+  const kiVorbefuellen = async () => {
+    setKiLaden(true); setKiFehler(null); setKiErgebnis(null);
+    try {
+      const res = await fetch('/api/intake', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ freitext: form.freitext }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.fehler || `HTTP ${res.status}`);
+      const neu = {};
+      for (const v of data.felder) {
+        const ziel = FP_INTAKE_MAP[v.feld];
+        if (!ziel) continue;
+        neu[ziel[0]] = ziel[1] === Boolean ? v.wert === true : String(v.wert);
+      }
+      setForm((f) => ({ ...f, ...neu }));
+      setKiErgebnis(data);
+    } catch (e) {
+      setKiFehler(String(e.message || e));
+    } finally {
+      setKiLaden(false);
+    }
   };
 
   const berechnen = async () => {
@@ -223,6 +294,37 @@ function Fahrplan({ onNav }) {
         <div className="fk-screen__inner" style={{ display: 'grid', gridTemplateColumns: '380px minmax(0, 1fr)', gap: 24, alignItems: 'start' }}>
           <Card title="Ihr Vorhaben" subtitle="Angaben bestimmen Programme, Boni und Reihenfolge">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div style={{ padding: '12px 14px', border: '1px dashed var(--klein-600)', borderRadius: 'var(--radius-md)', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <span style={{ font: 'var(--weight-bold) var(--text-sm)/1.3 var(--font-sans)', color: 'var(--klein-600)' }}>
+                  Weniger tippen: KI-Vorbefüllung
+                </span>
+                <span style={{ font: 'var(--font-caption)', color: 'var(--text-muted)' }}>
+                  Legen Sie Angebote, Bescheide, Datenblätter in <code>dokumente/</code> ab (<code>bun run ingest:dokumente</code>) und/oder
+                  beschreiben Sie Ihr Vorhaben — die KI schlägt Feldwerte mit Beleg vor, Sie prüfen, die Engine rechnet.
+                </span>
+                <textarea
+                  value={form.freitext}
+                  onChange={set('freitext')}
+                  placeholder="z. B.: Wir tauschen die Gasheizung von 1998 gegen eine Wärmepumpe, Angebot 38.000 €, Haus in München, wir wohnen selbst darin…"
+                  rows={3}
+                  style={{ width: '100%', resize: 'vertical', font: 'var(--font-body)', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)', padding: '8px 10px', background: 'transparent' }}
+                />
+                <Button variant="secondary" fullWidth onClick={kiVorbefuellen} disabled={kiLaden} iconLeft={<i data-lucide="sparkles"></i>}>
+                  {kiLaden ? 'KI liest…' : 'Felder automatisch vorbefüllen'}
+                </Button>
+                {kiFehler && <FpWarnung text={kiFehler} />}
+                {kiErgebnis && (
+                  <div style={{ font: 'var(--font-caption)', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <span style={{ color: 'var(--klein-600)', fontWeight: 600 }}>
+                      {kiErgebnis.felder.length} Feld(er) vorbefüllt{kiErgebnis.dokumente_verwendet.length ? ` aus ${kiErgebnis.dokumente_verwendet.length} Dokument(en)` : ''} — bitte prüfen:
+                    </span>
+                    {kiErgebnis.felder.map((v) => (
+                      <span key={v.feld}>• {v.feld} = <strong>{String(v.wert)}</strong> <em>({v.beleg.quelle}: „{v.beleg.zitat.slice(0, 60)}…“)</em></span>
+                    ))}
+                    {kiErgebnis.hinweis && <span>{kiErgebnis.hinweis}</span>}
+                  </div>
+                )}
+              </div>
               <Select label="Maßnahme" value={form.typ} onChange={set('typ')}>
                 {FP_MASSNAHMEN.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
               </Select>
@@ -232,6 +334,13 @@ function Fahrplan({ onNav }) {
               <Select label="Eigentumsform" value={form.eigentum} onChange={set('eigentum')}>
                 {FP_EIGENTUM.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
               </Select>
+              <Select label="Bundesland (für regionale Programme)" value={form.bundesland} onChange={set('bundesland')}>
+                {FP_BUNDESLAENDER.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+              </Select>
+              <div className="fk-row" style={{ gap: 10 }}>
+                <Input label="PLZ" type="text" value={form.plz} onChange={set('plz')} />
+                <Input label="Stadt/Gemeinde" type="text" value={form.kommune} onChange={set('kommune')} />
+              </div>
               <Switch label="Bestandsgebäude (kein Neubau)" checked={form.bestand} onChange={set('bestand')} />
               <Switch label="Ich wohne selbst im Gebäude" checked={form.selbst} onChange={set('selbst')} />
               <Switch label="Ersetzt funktionstüchtige fossile Heizung" checked={form.ersetztFossil} onChange={set('ersetztFossil')} />

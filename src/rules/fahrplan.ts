@@ -62,6 +62,18 @@ export interface FoerderEmpfehlung {
   hinweis?: string;
 }
 
+export interface FoerderKombination {
+  programme: [string, string];
+  quote_summe_prozent: number;
+  /** Bindender Richtlinien-Deckel (Minimum der beteiligten Programme), falls vorhanden. */
+  gesamtquote_deckel_prozent?: number;
+  deckel_aus_programm?: string;
+  kombinierte_quote_prozent: number;
+  /** Betragsdeckel (€) aus einer der Richtlinien — wird ausgewiesen, nicht verrechnet (Kosten oft unbekannt). */
+  gesamtbetrag_deckel_eur?: number;
+  hinweis?: string;
+}
+
 export interface Fahrplan {
   erstellt_am: string;
   fall: Record<string, unknown>;
@@ -69,6 +81,8 @@ export interface Fahrplan {
   alternativen: FoerderEmpfehlung[];
   nicht_passend: { programm_id: string; name: string; gruende: string[] }[];
   entweder_oder: { programme: [string, string]; hinweis: string }[];
+  /** Kombinierbare Zuschuss-Paare mit Gesamtquoten-Deckelung (Min-Deckel-Regel). */
+  kombinationen: FoerderKombination[];
   isfp_weiche: { relevant: boolean; hinweis: string; quellen: FahrplanQuelle[] } | null;
   schritte: FahrplanSchritt[];
   offene_fragen: { feld: string; frage: string }[];
@@ -84,7 +98,7 @@ export const FAHRPLAN_DISCLAIMER =
   "Programm-Merkblätter der Träger; bei streitigen Fragen: Clearingstelle EEG|KWKG, Fachanwalt oder Steuerberater.";
 
 /** Fragen zu bekannten Fall-Feldern (Wortlaut aus data/workflows). */
-const FELD_FRAGEN: Record<string, string> = {
+export const FELD_FRAGEN: Record<string, string> = {
   "massnahme.typ": "Welche Maßnahme ist geplant (Wärmepumpe, Dämmung, …)?",
   "massnahme.begonnen": "Wurde schon ein Liefer-/Leistungsvertrag unterschrieben oder mit der Umsetzung begonnen?",
   "massnahme.ersetzt_fossile_heizung": "Ersetzt die Maßnahme eine funktionstüchtige Öl-/Gas-/Kohle-/Nachtspeicherheizung?",
@@ -97,6 +111,9 @@ const FELD_FRAGEN: Record<string, string> = {
   "antragsteller.haushaltseinkommen_eur": "Wie hoch ist das zu versteuernde Haushaltseinkommen (relevant für den Einkommensbonus)?",
   "antragsteller.isfp_vorhanden": "Liegt ein individueller Sanierungsfahrplan (iSFP) vor?",
   eigentumsform: "Sind Sie Eigentümer:in (Eigentum / Miete / WEG)?",
+  "standort.bundesland": "In welchem Bundesland liegt das Gebäude? (für regionale Programme)",
+  "standort.kommune": "In welcher Stadt/Gemeinde liegt das Gebäude? (für kommunale Programme)",
+  "standort.plz": "Wie lautet die Postleitzahl? (für regionale Programme)",
 };
 
 const DENA_QUELLE: FahrplanQuelle = {
@@ -238,6 +255,54 @@ export function baueSchritte(prog: Foerderprogramm, formulare: Formular[]): Fahr
   return schritte;
 }
 
+/**
+ * Gesamtquoten-Deckelung bei Kumulierung (pure, testbar): Summe der Quoten,
+ * gedeckelt am Minimum der vorhandenen Richtlinien-Deckel
+ * (`kumulierung_gesamtquote_max_prozent`). Nur für addierbare Zuschussquoten —
+ * steuerliche Programme und Kredite bilden keine Quoten-Kombination.
+ */
+export function berechneKombination(
+  a: { programm_id: string; quote_prozent?: number; deckel_prozent?: number; deckel_betrag_eur?: number; foerderart: string },
+  b: { programm_id: string; quote_prozent?: number; deckel_prozent?: number; deckel_betrag_eur?: number; foerderart: string },
+): FoerderKombination | null {
+  const addierbar = (x: typeof a) =>
+    (x.foerderart === "zuschuss" || x.foerderart === "bonus") && typeof x.quote_prozent === "number" && x.quote_prozent > 0;
+  if (!addierbar(a) || !addierbar(b)) return null;
+
+  const summe = (a.quote_prozent as number) + (b.quote_prozent as number);
+  const deckelKandidaten = [
+    { wert: a.deckel_prozent, aus: a.programm_id },
+    { wert: b.deckel_prozent, aus: b.programm_id },
+  ].filter((d): d is { wert: number; aus: string } => typeof d.wert === "number");
+  const bindend = deckelKandidaten.length ? deckelKandidaten.reduce((m, d) => (d.wert < m.wert ? d : m)) : undefined;
+  const kombiniert = bindend ? Math.min(summe, bindend.wert) : summe;
+
+  // Betragsdeckel (€) wird ausgewiesen statt verrechnet — die tatsächlichen
+  // Kosten sind hier nicht bekannt; stilles Weglassen wäre eine falsche Zahl.
+  const betragKandidaten = [
+    { wert: a.deckel_betrag_eur, aus: a.programm_id },
+    { wert: b.deckel_betrag_eur, aus: b.programm_id },
+  ].filter((d): d is { wert: number; aus: string } => typeof d.wert === "number");
+  const betragsdeckel = betragKandidaten.length ? betragKandidaten.reduce((m, d) => (d.wert < m.wert ? d : m)) : undefined;
+
+  const hinweise: string[] = [];
+  if (bindend && kombiniert < summe) hinweise.push(`Richtlinien-Deckel: Gesamtförderquote max. ${bindend.wert} % (${bindend.aus}).`);
+  if (betragsdeckel)
+    hinweise.push(
+      `Zusätzlich Betragsdeckel: Gesamtförderung max. ${betragsdeckel.wert.toLocaleString("de-DE")} € (${betragsdeckel.aus}) — bei der Zuschuss-Schätzung berücksichtigen.`,
+    );
+
+  return {
+    programme: [a.programm_id, b.programm_id],
+    quote_summe_prozent: summe,
+    gesamtquote_deckel_prozent: bindend?.wert,
+    deckel_aus_programm: bindend?.aus,
+    kombinierte_quote_prozent: kombiniert,
+    gesamtbetrag_deckel_eur: betragsdeckel?.wert,
+    hinweis: hinweise.length ? hinweise.join(" ") : undefined,
+  };
+}
+
 /** iSFP-Weiche: rein datengetrieben — gibt es ein erreichbares Programm mit iSFP-konditioniertem Bonus-Satz? */
 function baueIsfpWeiche(
   matches: ProgrammMatch[],
@@ -317,6 +382,24 @@ export async function erstelleFahrplan(fall: Record<string, unknown>): Promise<F
     }
   }
 
+  // Kombinierbare Zuschuss-Paare unter den passenden Programmen (mit Min-Deckel).
+  const kombinationen: FoerderKombination[] = [];
+  for (let i = 0; i < passende.length; i++) {
+    for (let j = i + 1; j < passende.length; j++) {
+      const k = await pruefeKumulierung(passende[i]!.programm_id, passende[j]!.programm_id);
+      if (k.kombinierbar !== true) continue;
+      const seite = (m: ProgrammMatch) => ({
+        programm_id: m.programm_id,
+        quote_prozent: m.foerdersatz_prozent,
+        deckel_prozent: progVon(m.programm_id)?.kumulierung_gesamtquote_max_prozent,
+        deckel_betrag_eur: progVon(m.programm_id)?.kumulierung_gesamtbetrag_max_eur,
+        foerderart: m.foerderart,
+      });
+      const kombi = berechneKombination(seite(passende[i]!), seite(passende[j]!));
+      if (kombi) kombinationen.push({ ...kombi, hinweis: kombi.hinweis ?? k.hinweis });
+    }
+  }
+
   const warnungen: string[] = [];
   if (feldWert(fall, "massnahme.begonnen") === true) {
     // Nur ein tatsächlich passendes steuerliches Programm als verbleibenden Weg
@@ -344,6 +427,7 @@ export async function erstelleFahrplan(fall: Record<string, unknown>): Promise<F
     alternativen,
     nicht_passend,
     entweder_oder,
+    kombinationen,
     isfp_weiche: baueIsfpWeiche(matches, programme, fall),
     schritte,
     offene_fragen,
@@ -383,6 +467,18 @@ export function renderFahrplanMarkdown(f: Fahrplan): string {
 
   for (const eo of f.entweder_oder) {
     z.push(`> ⚖️ **Entweder-oder:** ${eo.programme[0]} vs. ${eo.programme[1]} — ${eo.hinweis}`, "");
+  }
+
+  for (const k of f.kombinationen) {
+    z.push(
+      `> ➕ **Kombinierbar:** ${k.programme[0]} + ${k.programme[1]} — zusammen ${k.kombinierte_quote_prozent} %` +
+        (k.kombinierte_quote_prozent < k.quote_summe_prozent
+          ? ` statt ${k.quote_summe_prozent} % (${k.hinweis ?? "Richtlinien-Deckel"})`
+          : k.hinweis
+            ? ` — ${k.hinweis}`
+            : ""),
+      "",
+    );
   }
 
   if (f.isfp_weiche) z.push(`> 🧭 **iSFP-Weiche:** ${f.isfp_weiche.hinweis}`, "");

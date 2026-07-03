@@ -11,6 +11,7 @@
  *   GET  /api/status                          Wissensbasis-/Index-Status
  *   POST /api/frage        {frage, stichtag?} BM25-Normsuche (+ Clearingstelle/Rechtsprechung falls Indizes da)
  *   POST /api/fahrplan     {fall}             Deterministischer Förderfahrplan (src/rules/fahrplan.ts) + Markdown
+ *   POST /api/intake       {freitext?}        KI-Vorbefüllung aus dokumente/ + Freitext (braucht ANTHROPIC_API_KEY)
  *   GET  /api/norm         ?slug&enbez&datum  Norm-Fassung zum Stichtag
  *   GET  /api/cascade      ?slug&enbez&datum&tiefe   Querverweis-Kaskade
  *   GET  /api/uebergangsrecht ?ibn            §100-Resolver (Versteinerung)
@@ -19,6 +20,7 @@ import { join } from "node:path";
 import { crossRefs, normAtDate, oeffneGraph } from "../src/graph/query.ts";
 import { resolveUebergangsrecht } from "../src/graph/uebergangsrecht.ts";
 import { sucheNormen } from "../src/rag/suche.ts";
+import { extrahiereFall } from "../src/rag/intake.ts";
 import { erstelleFahrplan, renderFahrplanMarkdown } from "../src/rules/fahrplan.ts";
 
 const REPO = new URL("..", import.meta.url).pathname;
@@ -73,6 +75,15 @@ Bun.serve({
           sucheZusatz("rechtsprechung", frage),
         ]);
         return json({ frage, stichtag: stichtag ?? "aktuell", normen, clearingstelle, rechtsprechung });
+      }
+
+      if (p === "/api/intake" && req.method === "POST") {
+        const { freitext } = (await req.json().catch(() => ({}))) as { freitext?: string };
+        try {
+          return json(await extrahiereFall({ freitext }));
+        } catch (e) {
+          return json({ fehler: e instanceof Error ? e.message : String(e) }, 400);
+        }
       }
 
       if (p === "/api/fahrplan" && req.method === "POST") {

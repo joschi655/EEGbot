@@ -57,15 +57,63 @@ function referenzierteFelder(b: unknown): string[] {
   return Object.values(o).flatMap(referenzierteFelder);
 }
 
+export interface RegionPruefung {
+  ergebnis: true | false | "unbekannt";
+  /** Bei "unbekannt": welche standort.*-Angaben fehlen (dimensionsgenau). */
+  fehlende_felder: string[];
+  /** Klartext-Geltungsbereich für Ausschlussgründe/Anzeige. */
+  geltungsbereich: string;
+}
+
+/**
+ * Regionale Zuständigkeit prüfen — AND über die im Programm definierten
+ * Dimensionen, Listentreffer genügt je Dimension. Fehlende Standort-Angabe
+ * einer definierten Dimension ⇒ "unbekannt" (nie stilles false).
+ */
+export function regionPasst(p: Foerderprogramm, fall: Record<string, unknown>): RegionPruefung {
+  if (!p.region) return { ergebnis: true, fehlende_felder: [], geltungsbereich: "bundesweit" };
+  const teile: string[] = [];
+  const fehlend: string[] = [];
+  let mismatch = false;
+
+  const dim = (definiert: string[] | undefined, feld: string, beschreibung: string, passt: (wert: string) => boolean) => {
+    if (!definiert || definiert.length === 0) return;
+    teile.push(beschreibung);
+    const wert = feldWert(fall, feld);
+    if (typeof wert !== "string" || wert === "") fehlend.push(feld);
+    else if (!passt(wert)) mismatch = true;
+  };
+
+  dim(p.region.bundeslaender, "standort.bundesland", `Bundesland ${p.region.bundeslaender?.join("/")}`, (w) =>
+    (p.region!.bundeslaender as string[]).includes(w),
+  );
+  dim(p.region.kommunen, "standort.kommune", `Kommune ${p.region.kommunen?.join("/")}`, (w) =>
+    p.region!.kommunen!.some((k) => k.toLowerCase() === w.toLowerCase()),
+  );
+  dim(p.region.plz_praefixe, "standort.plz", `PLZ ${p.region.plz_praefixe?.join("/")}…`, (w) =>
+    p.region!.plz_praefixe!.some((praefix) => w.startsWith(praefix)),
+  );
+
+  const geltungsbereich = teile.join(", ") || "bundesweit";
+  if (mismatch) return { ergebnis: false, fehlende_felder: [], geltungsbereich };
+  if (fehlend.length) return { ergebnis: "unbekannt", fehlende_felder: fehlend, geltungsbereich };
+  return { ergebnis: true, fehlende_felder: [], geltungsbereich };
+}
+
 export async function matcheProgramme(fall: Record<string, unknown>): Promise<ProgrammMatch[]> {
   const programme = await ladeProgramme();
   const ergebnisse: ProgrammMatch[] = [];
 
   for (const p of programme) {
     if (p.status !== "aktiv") continue;
-    const fehlend = referenzierteFelder(p.eligibility).filter((f) => feldWert(fall, f) === undefined);
-    const eligible = fehlend.length === 0 ? pruefeBedingung(p.eligibility, fall) : false;
+    const region = regionPasst(p, fall);
+    const fehlend = [
+      ...referenzierteFelder(p.eligibility).filter((f) => feldWert(fall, f) === undefined),
+      ...region.fehlende_felder,
+    ];
+    const eligible = fehlend.length === 0 ? pruefeBedingung(p.eligibility, fall) && region.ergebnis === true : false;
     const ausschluesse = p.ausschluesse.filter((a) => pruefeBedingung(a.bedingung, fall)).map((a) => a.grund);
+    if (region.ergebnis === false) ausschluesse.push(`Regionales Programm — gilt nur: ${region.geltungsbereich}.`);
 
     const saetze = p.foerdersaetze.map((s) => {
       const satzFehlend = s.bedingung ? referenzierteFelder(s.bedingung).some((f) => feldWert(fall, f) === undefined) : false;

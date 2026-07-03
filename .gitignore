@@ -16,6 +16,10 @@ node_modules/
 *.log
 .DS_Store
 
+# API-Keys (z. B. ANTHROPIC_API_KEY für die KI-Vorbefüllung) — niemals committen
+.env
+.env.*
+
 # Catala-Kompilate (CI baut sie; Quelldateien rules/*.catala_de sind versioniert)
 rules/build/
 

@@ -6,6 +6,10 @@ import { Bedingung, IsoDate, Quelle } from "./common.ts";
  * Maschinenlesbare Kanonisierung von KfW-/BAFA-/Landes-Programmen —
  * Grundlage des deterministischen Förder-Matchers.
  */
+/** Amtliche Bundesland-Kürzel — Vokabular für data/programs region.bundeslaender. */
+export const Bundesland = z.enum(["BW", "BY", "BE", "BB", "HB", "HH", "HE", "MV", "NI", "NW", "RP", "SL", "SN", "ST", "SH", "TH"]);
+export type Bundesland = z.infer<typeof Bundesland>;
+
 export const Foerderprogramm = z.object({
   id: z.string().regex(/^[a-z0-9-]+$/), // z. B. "kfw-458"
   name: z.string(),
@@ -13,6 +17,20 @@ export const Foerderprogramm = z.object({
   foerderart: z.enum(["zuschuss", "kredit", "steuerlich", "verguetung", "bonus"]),
   status: z.enum(["aktiv", "ausgesetzt", "beendet"]),
   beschreibung: z.string(),
+
+  /**
+   * Regionale Zuständigkeit — fehlt = bundesweit. AND-Semantik über die
+   * definierten Dimensionen (Kommunalprogramm: Land UND Kommune müssen passen);
+   * innerhalb einer Dimension genügt ein Listentreffer. Geprüft gegen
+   * fall.standort.{bundesland,kommune,plz}.
+   */
+  region: z
+    .object({
+      bundeslaender: z.array(Bundesland).optional(),
+      kommunen: z.array(z.string()).optional(), // z. B. "München"
+      plz_praefixe: z.array(z.string().regex(/^\d{1,5}$/)).optional(),
+    })
+    .optional(),
 
   /** Deterministische Eligibility: Bedingung über den strukturierten Fall. */
   eligibility: Bedingung,
@@ -36,6 +54,15 @@ export const Foerderprogramm = z.object({
   kumulierung: z.array(
     z.object({ programm_id: z.string(), kombinierbar: z.boolean(), hinweis: z.string().optional() }),
   ).default([]),
+  /**
+   * Richtlinien-Deckel bei Kumulierung: Summe ALLER Förderquoten darf diesen
+   * Wert nicht übersteigen (z. B. „max. 90 % der förderfähigen Kosten").
+   * Bei Kombination mehrerer Programme bindet das Minimum der vorhandenen Deckel.
+   * Quellenpflichtig aus dem Richtlinientext.
+   */
+  kumulierung_gesamtquote_max_prozent: z.number().optional(),
+  /** Richtlinien-Deckel als BETRAG: Summe aller Fördermittel max. X € (manche Landes-/Kommunalrichtlinien deckeln in €, nicht in Prozent). */
+  kumulierung_gesamtbetrag_max_eur: z.number().optional(),
 
   antragsweg: z.object({
     kanal: z.enum(["online-portal", "finanzierungspartner", "finanzamt", "netzbetreiber", "schriftlich"]),

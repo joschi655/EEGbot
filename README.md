@@ -149,9 +149,17 @@ und nicht eingecheckt.
 `bun ui/server.ts` startet die fink-Web-App (Design-System in `ui/fink/`) samt
 REST-API auf http://localhost:3475 — die `/api/*`-Endpunkte rufen **dieselben
 Engine-Funktionen wie die MCP-Server** auf (Normsuche, §100-Resolver,
-Querverweis-Kaskade, Förder-Matcher). Nichts ist gemockt. Hinweis: die
-Gilmer-Fonts sind kommerziell lizenziert und nicht im Repo
+Querverweis-Kaskade, Förder-Matcher, Förderfahrplan). Nichts ist gemockt.
+Hinweis: die Gilmer-Fonts sind kommerziell lizenziert und nicht im Repo
 (`ui/fink/assets/fonts/README.md`).
+
+**Weniger tippen — KI-Vorbefüllung:** Der Fahrplan-Screen kann die Fall-Felder
+automatisch aus deinen Unterlagen (`dokumente/` + `bun run ingest:dokumente`)
+und einem Freitext-Satz vorbefüllen (`POST /api/intake`). Die KI schlägt nur
+belegte Werte vor (Quelle + wörtliches Zitat, sonst verworfen), du prüfst,
+die deterministische Engine rechnet. Dafür wird ein Anthropic-API-Key benötigt
+(`ANTHROPIC_API_KEY` in `.env`); ohne Key funktioniert alles Übrige unverändert —
+in Claude Code liest Claude die Unterlagen ohnehin direkt (Skill „Unterlagen").
 
 ## Mitmachen
 

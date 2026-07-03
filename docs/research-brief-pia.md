@@ -37,6 +37,18 @@ Unser unfairer Vorteil. Interview-Leitfaden:
 Je 1–2 belegte Programme aus BW, Bayern (+ Stadt München), NRW (+ eine
 Kommune), Berlin, Hamburg: Fördergegenstand, Satz/Betrag, Voraussetzungen,
 **Kumulierbarkeit mit BEG**, Antragsweg, Budget-Status, Quelle + Datum.
+
+Bitte je Programm zusätzlich (unser Datenformat kann das seit 03.07. direkt):
+
+- **Geltungsbereich exakt:** Bundesland / Kommune(n) / ggf. PLZ-Bereiche —
+  „gilt nur für Gebäude in …" wortwörtlich aus der Richtlinie.
+- **Gesamtquoten-Deckel:** Steht in der Richtlinie ein Satz wie „die Summe
+  aller Fördermittel darf X % der förderfähigen Kosten nicht übersteigen"?
+  Dann X + Fundstelle notieren (Feld `kumulierung_gesamtquote_max_prozent`) —
+  daraus rechnet das Tool automatisch „Bund + Land zusammen maximal X %".
+  Manche Richtlinien deckeln stattdessen in **Euro** („Gesamtförderung max.
+  X €") — dann bitte den Betrag notieren (`kumulierung_gesamtbetrag_max_eur`).
+  Und falls beides fehlt: explizit „kein Deckel genannt" vermerken.
 Vorsicht: Landesprogramme sind volatil — Stand unserer Recherche (Q2/2026):
 landesweite PV-Zuschüsse fast nur noch Berlin SolarPLUS; MV/Sachsen
 Balkonkraftwerk; Hamburg IFB Wärme. Bitte verifizieren und Kommunen ergänzen.

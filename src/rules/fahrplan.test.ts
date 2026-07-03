@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { baueSchritte, erstelleFahrplan, renderFahrplanMarkdown, FAHRPLAN_DISCLAIMER } from "./fahrplan.ts";
+import { baueSchritte, berechneKombination, erstelleFahrplan, renderFahrplanMarkdown, FAHRPLAN_DISCLAIMER } from "./fahrplan.ts";
+import { regionPasst } from "./foerderMatcher.ts";
 import { Foerderprogramm } from "../schemas/program.ts";
 
 const standardFall = () => ({
@@ -288,5 +289,189 @@ describe("Generischer Schema-Interpreter — trägt regionale Programme (Phase-C
     expect(schritte.map((s) => s.nr)).toEqual([1, 2, 3, 4]);
     expect(schritte.every((s) => s.quellen.length >= 1)).toBe(true);
     expect(schritte.find((s) => s.phase === "antrag")?.warnung).toMatch(/VOR Maßnahmenbeginn/i);
+  });
+});
+
+describe("Region-Layer — regionPasst (Phase C)", () => {
+  const programmMit = (region: unknown) =>
+    Foerderprogramm.parse({
+      id: "region-test",
+      name: "SYNTHETISCH — Region-Test",
+      traeger: "Test",
+      foerderart: "zuschuss",
+      status: "aktiv",
+      beschreibung: "Fixture",
+      eligibility: { feld: "massnahme.typ", op: "eq", wert: "waermepumpe" },
+      foerdersaetze: [{ bezeichnung: "Grundförderung", satz_prozent: 10 }],
+      antragsweg: { kanal: "online-portal", antrag_vor_massnahmenbeginn: true, benoetigte_formulare: [] },
+      quellen: [{ bezeichnung: "Fixture" }],
+      zuletzt_geprueft: "2026-07-03",
+      ...(region ? { region } : {}),
+    });
+
+  test("ohne region → bundesweit, passt immer", () => {
+    const r = regionPasst(programmMit(null), {});
+    expect(r.ergebnis).toBe(true);
+    expect(r.geltungsbereich).toBe("bundesweit");
+  });
+
+  test("Bundesland-Match und -Mismatch", () => {
+    const p = programmMit({ bundeslaender: ["BY", "BW"] });
+    expect(regionPasst(p, { standort: { bundesland: "BY" } }).ergebnis).toBe(true);
+    const nein = regionPasst(p, { standort: { bundesland: "NW" } });
+    expect(nein.ergebnis).toBe(false);
+    expect(nein.geltungsbereich).toContain("BY");
+  });
+
+  test("PLZ-Präfix: 80331 passt auf 80/81, 90402 nicht", () => {
+    const p = programmMit({ plz_praefixe: ["80", "81"] });
+    expect(regionPasst(p, { standort: { plz: "80331" } }).ergebnis).toBe(true);
+    expect(regionPasst(p, { standort: { plz: "90402" } }).ergebnis).toBe(false);
+  });
+
+  test("definierte Dimension ohne Standort-Angabe → unbekannt mit dimensionsgenauem fehlenden Feld", () => {
+    const p = programmMit({ bundeslaender: ["BY"], kommunen: ["München"] });
+    const r = regionPasst(p, { standort: { bundesland: "BY" } });
+    expect(r.ergebnis).toBe("unbekannt");
+    expect(r.fehlende_felder).toEqual(["standort.kommune"]);
+  });
+
+  test("AND über Dimensionen: BY+Nürnberg scheitert an der Kommune (Mismatch schlägt unbekannt)", () => {
+    const p = programmMit({ bundeslaender: ["BY"], kommunen: ["München"] });
+    expect(regionPasst(p, { standort: { bundesland: "BY", kommune: "Nürnberg" } }).ergebnis).toBe(false);
+    expect(regionPasst(p, { standort: { bundesland: "BY", kommune: "münchen" } }).ergebnis).toBe(true);
+  });
+
+  test("Anti: bundesweite Bestandsprogramme erzeugen keine standort-fehlende_felder", async () => {
+    const f = await erstelleFahrplan(standardFall());
+    expect(f.offene_fragen.some((o) => o.feld.startsWith("standort."))).toBe(false);
+  });
+});
+
+describe("Gesamtquoten-Deckelung — berechneKombination (Phase C)", () => {
+  const z = (id: string, quote?: number, deckel?: number, art = "zuschuss") =>
+    ({ programm_id: id, quote_prozent: quote, deckel_prozent: deckel, foerderart: art });
+
+  test("Summe ohne Deckel: 70 + 10 → 80", () => {
+    const k = berechneKombination(z("bund", 70), z("land", 10));
+    expect(k?.quote_summe_prozent).toBe(80);
+    expect(k?.kombinierte_quote_prozent).toBe(80);
+    expect(k?.gesamtquote_deckel_prozent).toBeUndefined();
+  });
+
+  test("Deckel greift: Summe 80, Landes-Deckel 75 → 75 mit Hinweis und Quell-Programm", () => {
+    const k = berechneKombination(z("bund", 70), z("land", 10, 75));
+    expect(k?.kombinierte_quote_prozent).toBe(75);
+    expect(k?.gesamtquote_deckel_prozent).toBe(75);
+    expect(k?.deckel_aus_programm).toBe("land");
+    expect(k?.hinweis).toContain("75 %");
+  });
+
+  test("beide Programme mit Deckel → Minimum bindet", () => {
+    const k = berechneKombination(z("bund", 70, 90), z("land", 10, 75));
+    expect(k?.kombinierte_quote_prozent).toBe(75);
+    expect(k?.deckel_aus_programm).toBe("land");
+  });
+
+  test("steuerlich/kredit oder fehlende Quote → keine Kombination", () => {
+    expect(berechneKombination(z("bund", 70), z("steuer", 20, undefined, "steuerlich"))).toBeNull();
+    expect(berechneKombination(z("bund", 70), z("kredit", undefined, undefined, "kredit"))).toBeNull();
+    expect(berechneKombination(z("bund", 70), z("land", 0))).toBeNull();
+  });
+
+  test("Integration: aktueller Datenbestand liefert keine False-Positive-Kombinationen", async () => {
+    const f = await erstelleFahrplan(standardFall());
+    expect(f.kombinationen).toEqual([]);
+    const md = renderFahrplanMarkdown(f);
+    expect(md).not.toContain("Kombinierbar:");
+  });
+});
+
+describe("Phase C — regionPasst / berechneKombination / kombinationen — adversariale Szenarien (Forge)", () => {
+  const regionProgramm = (region: unknown) =>
+    Foerderprogramm.parse({
+      id: "region-adv-test",
+      name: "SYNTHETISCH — Region-Adversarial",
+      traeger: "Test",
+      foerderart: "zuschuss",
+      status: "aktiv",
+      beschreibung: "Fixture",
+      eligibility: { feld: "massnahme.typ", op: "eq", wert: "waermepumpe" },
+      foerdersaetze: [{ bezeichnung: "Grundförderung", satz_prozent: 10 }],
+      antragsweg: { kanal: "online-portal", antrag_vor_massnahmenbeginn: true, benoetigte_formulare: [] },
+      quellen: [{ bezeichnung: "Fixture" }],
+      zuletzt_geprueft: "2026-07-03",
+      ...(region ? { region } : {}),
+    });
+
+  const z = (id: string, quote?: number, deckel?: number, art = "zuschuss") =>
+    ({ programm_id: id, quote_prozent: quote, deckel_prozent: deckel, foerderart: art });
+
+  test("leeres region-Objekt {} verhält sich wie bundesweit; plz_praefix '8' matcht '80331', nicht '10115'", () => {
+    const r = regionPasst(regionProgramm({}), {});
+    expect(r.ergebnis).toBe(true);
+    expect(r.geltungsbereich).toBe("bundesweit");
+    expect(r.fehlende_felder).toEqual([]);
+
+    const plz = regionProgramm({ plz_praefixe: ["8"] });
+    expect(regionPasst(plz, { standort: { plz: "80331" } }).ergebnis).toBe(true);
+    expect(regionPasst(plz, { standort: { plz: "10115" } }).ergebnis).toBe(false);
+  });
+
+  test("AND über 3 Dimensionen: passt + fehlt + mismatch → false gewinnt (fehlende_felder leer); leere Arrays = bundesweit", () => {
+    const p = regionProgramm({ bundeslaender: ["BY"], kommunen: ["München"], plz_praefixe: ["80"] });
+    const r = regionPasst(p, { standort: { bundesland: "BY", kommune: "Nürnberg" } });
+    expect(r.ergebnis).toBe(false);
+    expect(r.fehlende_felder).toEqual([]);
+    expect(r.geltungsbereich).toContain("BY");
+    expect(r.geltungsbereich).toContain("München");
+    expect(r.geltungsbereich).toContain("80");
+
+    const leer = regionPasst(regionProgramm({ bundeslaender: [], kommunen: [] }), {});
+    expect(leer.ergebnis).toBe(true);
+    expect(leer.geltungsbereich).toBe("bundesweit");
+  });
+
+  test("berechneKombination: Deckel höher/gleich Summe greift nicht — kombiniert=summe, kein Hinweis, Deckel-Felder dennoch gesetzt (IST)", () => {
+    const hoeher = berechneKombination(z("bund", 70, 90), z("land", 10));
+    expect(hoeher?.quote_summe_prozent).toBe(80);
+    expect(hoeher?.kombinierte_quote_prozent).toBe(80);
+    expect(hoeher?.hinweis).toBeUndefined();
+    expect(hoeher?.gesamtquote_deckel_prozent).toBe(90);
+    expect(hoeher?.deckel_aus_programm).toBe("bund");
+
+    const gleich = berechneKombination(z("bund", 70, 80), z("land", 10));
+    expect(gleich?.kombinierte_quote_prozent).toBe(80);
+    expect(gleich?.hinweis).toBeUndefined();
+    expect(gleich?.gesamtquote_deckel_prozent).toBe(80);
+  });
+
+  test("berechneKombination: Deckel 0 kappt auf 0 (0 ist kein Falsy-Skip); beide ohne Quote → null; bonus+bonus addierbar", () => {
+    const nullDeckel = berechneKombination(z("bund", 70, 0), z("land", 10));
+    expect(nullDeckel?.quote_summe_prozent).toBe(80);
+    expect(nullDeckel?.kombinierte_quote_prozent).toBe(0);
+    expect(nullDeckel?.gesamtquote_deckel_prozent).toBe(0);
+    expect(nullDeckel?.deckel_aus_programm).toBe("bund");
+    expect(nullDeckel?.hinweis).toContain("0 %");
+
+    expect(berechneKombination(z("bund", undefined), z("land", undefined))).toBeNull();
+
+    const bonus = berechneKombination(z("a", 25, undefined, "bonus"), z("b", 15, undefined, "bonus"));
+    expect(bonus?.kombinierte_quote_prozent).toBe(40);
+  });
+
+  test("erstelleFahrplan.kombinationen: zwei passende, aber kombinierbar=false (kfw-458 + § 35c) → []; nur ein passendes Programm → []", async () => {
+    const beide = await erstelleFahrplan(standardFall());
+    const passendIds = [beide.empfehlung?.programm_id, ...beide.alternativen.map((a) => a.programm_id)];
+    expect(passendIds).toContain("kfw-458");
+    expect(passendIds).toContain("estg-35c");
+    expect(beide.kombinationen).toEqual([]);
+
+    const fall = standardFall();
+    fall.eigentumsform = "miete";
+    const eins = await erstelleFahrplan(fall);
+    expect(eins.empfehlung?.programm_id).toBe("kfw-458");
+    expect(eins.alternativen).toEqual([]);
+    expect(eins.kombinationen).toEqual([]);
   });
 });

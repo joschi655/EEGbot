@@ -138,3 +138,41 @@ Clearingstelle-Restbestand (FAQ ~198–330) per erneutem Pipeline-Lauf.
   der GESAMTförderquote über Programme hinweg fehlt im Schema — vor Phase C
   entscheiden), Ground-Truth-Fixtures KfW/BAFA, Freitext-KI-Endpoint,
   Compare-Mode-Screen, Personas P1–P6.
+
+## 2026-07-03 — Hackathon Phase C (Teil 1): Region-Layer, Gesamtdeckel, KI-Intake
+
+- **Schema (data/programs):** `region` (bundeslaender als 16er-Enum, kommunen,
+  plz_praefixe — AND über definierte Dimensionen, OR innerhalb der Liste;
+  Mismatch → benannter Ausschlussgrund „gilt nur: …", fehlende Angabe →
+  dimensionsgenaue Rückfrage statt stillem false) und Kumulierungs-Deckel
+  in beiden Richtlinien-Varianten: `kumulierung_gesamtquote_max_prozent`
+  (Summe der Quoten ≤ X %) und `kumulierung_gesamtbetrag_max_eur`
+  (Gesamtförderung ≤ X €, Advisor-Fund — wird ausgewiesen, nicht still
+  verrechnet). Bestehende 4 Programme unverändert valide.
+- **Engine:** `regionPasst()` im Matcher; `berechneKombination()` (pure) +
+  `kombinationen` im Fahrplan — kombinierbare Zuschuss-Paare mit Min-Deckel-
+  Regel; steuerlich/kredit nie addiert. Aktueller Datenbestand liefert
+  bewusst [] (Anti-False-Positive-Test); scharf wird es mit Pias
+  Regionalprogrammen — ohne Codeänderung.
+- **KI-Intake (Anforderung Johannes: „möglichst wenig selber ausfüllen"):**
+  `src/rag/intake.ts` + `POST /api/intake` — extrahiert Fall-Felder aus
+  dokumente/-Extrakten + Freitext via Anthropic-API (claude-sonnet-5,
+  ANTHROPIC_API_KEY in .env; .env jetzt gitignored). Guardrails:
+  Beleg-Pflicht (Quelle + wörtliches Zitat, sonst verworfen),
+  Zitat-deckt-Wert-Check für Zahlen (Advisor-Fund: Existenz ≠ Korrektheit),
+  nur Katalog-Felder, Koerzierung (ja→true, „38.000 €"→38000, Enum exakt),
+  Inferenz injizierbar (Tests ohne Key). UI: „Weniger tippen"-Block im
+  Fahrplan-Screen — Freitext + Button, Vorschläge mit Beleg-Liste
+  („bitte prüfen"); prefill ≠ approved: Berechnung erst auf expliziten
+  Klick (RDG-Gate, grep-verifiziert). Ohne Key: klare deutsche Anleitung.
+- **UI:** Bundesland-Select (16 Länder), PLZ/Kommune-Felder,
+  Kombinierbar-Block (Klein-Blau, Farbregel eingehalten).
+- **Pia-Brief §3 erweitert:** Geltungsbereich wörtlich, Quote- ODER
+  Betragsdeckel (+ „kein Deckel genannt" explizit) je Regionalprogramm.
+- **Verifiziert:** Tests grün (inkl. 7 Intake-Tests mit Fake-Inferenz),
+  typecheck, validate:data; curl: /api/intake ohne Key → 400 mit Anleitung,
+  /api/fahrplan mit standort → keine falschen Kombinationen/Rückfragen;
+  Browser: KI-Block + Bundesland-Select gerendert, Leer-Pfad graceful.
+- **Offen:** PLZ→Netzbetreiber via MaStR (Phase C Schritt 9),
+  Recherche-Workflow „regionales Programm erfassen" (Schritt 10),
+  Live-Test des Intake mit echtem API-Key + Beispiel-Dokumenten.
