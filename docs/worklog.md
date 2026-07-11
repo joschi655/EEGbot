@@ -229,3 +229,52 @@ Clearingstelle-Restbestand (FAQ ~198–330) per erneutem Pipeline-Lauf.
 - **Offen:** Recherche-Workflow „regionales Programm erfassen" (Phase C
   Schritt 10), Ground-Truth-Fixtures (Phase D), Personas + Pitch (Phase E),
   Compare-Mode-Screen.
+
+## 2026-07-10 — Hackathon-Härtung: Offline-UI, Zahlen verifiziert, BGH-Zwilling, EEG-2027-Zeitmaschine
+
+- **Offline-Demo (P0):** React/ReactDOM/Babel/lucide als bun-Dependencies +
+  `/vendor/*`-Routen in ui/server.ts; `ui_kits/app/index.html` ohne unpkg-CDN.
+  Verifiziert: 4× HTTP 200 lokal, 0 externe URLs im servierten HTML,
+  Playwright-Render-Probe (einziger Konsolenfehler: favicon-404, kosmetisch).
+  Modell-ID-Check: `claude-sonnet-5` ist gültige aktuelle ID, `INTAKE_MODEL`-
+  Override existiert — kein Fix nötig.
+- **Zahlen-Verifikation (P0, `ZU VERIFIZIEREN` aufgelöst):** Vergütungssätze
+  ab 01.02.2026 gegen BNetzA-basierte konkordante Quellen (DGS/pv-magazine,
+  SFV, Metzler, ADAC; Abruf 10.07.2026): Teileinspeisung 7,78 ✓ / **6,73**
+  (war 6,74) / **5,50** (war 5,51); Volleinspeisung **12,34** (war 12,35) /
+  **10,35** (war 10,36). Jahresmarktwert Solar 2023 = 7,2 ✓, 2024 = 4,62 ✓.
+  **Ü20-Diskrepanz aufgelöst:** 0,4 ct/kWh ist die gesetzliche Pauschale
+  (§ 53 S. 1 Nr. 2, Wortlaut im eigenen Normgraph verifiziert); 0,715 ct ist
+  der empirische ÜNB-Kostenwert aus Fachdebatten — Code (0,4) war korrekt,
+  Kommentar präzisiert. Doppelcheck bleibt Sophias Brief-Punkt 3.5.
+- **BGH-Zwilling (P1):** `docs/beispiel-unterlagen-rueckforderung/` —
+  Zahlungsaufforderung 45.540 € (§ 52 Abs. 1 S. 1 Nr. 11, 103,5 kWp,
+  44 Monate à 10 €/kW), IBN-Protokoll 20.10.2022, MaStR-Nachregistrierung
+  05.07.2026. Engine-verifiziert: Exposure **6.417,00 €** (geheilt, rückwirkend
+  2 €/kW), **2.484,00 €** nur per Verjährungseinrede, Vor-2023-Zeitraum
+  ehrlich als altes Sanktionsregime ausgewiesen; §100-Resolver: EEG 2021.
+- **Demo-Drehbuch (P1):** `docs/demo-drehbuch.md` — 3 Akte ≤ 5 min, exakte
+  Prompts + engine-verifizierte Erwartungswerte, Offline-Checkliste,
+  Q&A-Munition, Fallbacks.
+- **EEG-2027-Zeitmaschine (P2):** `data/entwuerfe/eeg-2027-refe.json`
+  (7 kuratierte RefE-Kernänderungen, sinngemäß + quellenbelegt, Review Sophia)
+  → `pipelines/build-eeg2027-entwurf.ts` erzeugt VOLLSTÄNDIGEN
+  Entwurfs-Snapshot 2027-01-01 (Teil-Snapshot würde wegen der
+  Schließ-Semantik von ingestFassungen alle übrigen Normen beenden!);
+  `bun run build:eeg2027`. Graph: eeg_2014 jetzt 7 Snapshots/480 Expressions.
+  `bun run demo:zeitmaschine`: § 21-Diff geltend↔ENTWURF + Euro-Delta
+  IBN 15.12.2026 (12,34 ct → 24.433,20 €/20 J) vs. 15.01.2027
+  (ENTWURF ~3,5 ct, ~30 Mon. → 866,25 €) = **Δ 23.566,95 €**.
+  Parameter `markt.netzbetreiberabnahme_entwurf2027` als SCHÄTZUNG markiert.
+- **Root-Cause-Fix Suche:** `sucheNormen` ohne Stichtag filtert jetzt auf
+  „heute geltend" statt `fassung_bis = null` — sonst wäre der 2027-Entwurf
+  in der Default-Suche als geltendes Recht aufgetaucht. Anti-Leak-Proben:
+  Default-Suche 0 Entwurfs-Treffer, Stichtag 2027-01-15 findet ihn;
+  normAtDate(heute) liefert für alle kuratierten §§ die geltende Fassung,
+  § 100 bleibt am 2027-01-15 offen, §§ 20a/20b existieren heute nicht.
+- **Verifiziert:** 113 Tests grün, typecheck, validate:data, Benchmark 16/16
+  (nach Graph-Rebuild mit Entwurf), Demo-Skript-Lauf, Browser-Probe.
+- **Offen:** Personas P1–P5 E2E in frischer Session; Degressionsstufe
+  01.08.2026 nachtragen, sobald BNetzA veröffentlicht; netztransparenz-
+  Direktabruf (CSV) als Golddatei für Jahresmarktwerte; Sophia-Review der
+  Entwurfs-Normen gegen SUER-Synopse; Forge-Audit-Findings dieser Session.

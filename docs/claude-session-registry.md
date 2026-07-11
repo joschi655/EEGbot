@@ -18,6 +18,14 @@ Vor längeren Läufen prüfen, ob eine bestehende Session fortgesetzt werden kan
 - Cross-Check evals/catala-crosscheck.ts: 24/24 im arm64-Container verifiziert (clerk run)
 - CI-Job catala (setup-ocaml@v3, opam catala.1.2.0); clerk-Artefakte gitignored
 
+## Session 2026-07-10 — Hackathon-Härtung + Pitch-Artefakte (E3, ISA im Repo-Root)
+- Offline-UI: /vendor/*-Routen statt unpkg-CDN, Playwright-verifiziert
+- Zahlen ab 02/2026 verifiziert/korrigiert (12,34/10,35; 6,73/5,50), Ü20 0,4-vs-0,715 aufgelöst
+- BGH-Zwilling docs/beispiel-unterlagen-rueckforderung/ (45.540 € → 6.417 €) + docs/demo-drehbuch.md
+- EEG-2027-Zeitmaschine: data/entwuerfe/ + build:eeg2027 + demo:zeitmaschine (Δ ~23.567 €)
+- Root-Cause-Fix sucheNormen (Default = heute, kein Entwurfs-Leak)
+- KB-Doc „26.07.10 - Re-Audit & Pitch-Konzept Hackathon" in Obsidian für das Team
+
 ## Session 2026-07-03 — Hackathon Phase A
 - Onboarding-PDF Pia (make-pdf), Research-Brief mit Deadlines bis 17.08.
 - fink-DS → ui/fink (Fonts gitignored), Clickdummy-Stories → ui/content

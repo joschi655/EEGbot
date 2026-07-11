@@ -54,6 +54,23 @@ Claude liest Angebot + Typenschild, füllt den Fall mit belegten Werten, ruft de
 deterministischen `foerderfahrplan` auf und fragt nur nach, was in den Unterlagen
 fehlt (im Beispiel: das Haushaltseinkommen für den +30-%-Bonus).
 
+**Rückforderungs-Check (BGH-Zwillingsfall):** In
+`docs/beispiel-unterlagen-rueckforderung/` liegt ein synthetischer Fall nach dem
+Muster von BGH VIII ZR 147/16 — der Netzbetreiber fordert 45.540 € nach § 52 EEG,
+der §52-Radar rechnet Heilung (rückwirkend 2 €/kW) und Verjährung (§ 52 Abs. 6)
+nach und kommt auf 6.417 €. Einspielen wie oben, dann: *„Prüf die Unterlagen in
+dokumente/ — stimmt die Forderung?"*
+
+**EEG-2027-Zeitmaschine (Entwurfsrecht, klar markiert):**
+
+```bash
+bun run build:eeg2027       # legt den RefE 21.04.2026 als ENTWURFS-Fassung in den Normgraph
+bun run demo:zeitmaschine   # gleiche Anlage, IBN 15.12.2026 vs. 15.01.2027 — Diff + Euro-Delta
+```
+
+Stichtags-Abfragen ab dem 01.01.2027 zeigen den Entwurf (Titel + Text tragen
+`ENTWURF`-Marker), Abfragen für heute weiterhin ausschließlich geltendes Recht.
+
 Voraussetzungen: [bun](https://bun.sh), [Claude Code](https://claude.ai/code).
 Kein API-Key für die Wissensbasis nötig — alle Quellen sind offene Daten.
 Ausführliche Anleitung: **[docs/user-guide.md](docs/user-guide.md)**.
