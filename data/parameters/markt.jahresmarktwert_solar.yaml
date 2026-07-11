@@ -10,15 +10,16 @@ zeitraeume:
     gueltig_bis: "2023-12-31"
     wert: 7.2
     quelle:
-      bezeichnung: "netztransparenz.de Jahresmarktwert Solar 2023"
+      bezeichnung: "netztransparenz.de Jahresmarktwert Solar 2023 (Zweitbelege konkordant: ADAC, haus.de; Abruf 10.07.2026)"
       url: "https://www.netztransparenz.de/de-de/Erneuerbare-Energien-und-Umlagen/EEG/Transparenzanforderungen/Marktpr%C3%A4mie/Marktwert%C3%BCbersicht"
-    hinweis: "ZU VERIFIZIEREN — aus Sekundärquelle übernommen."
+    hinweis: "Verifiziert 10.07.2026 über mehrere konkordante Quellen, die die ÜNB-Veröffentlichung referenzieren."
   - gueltig_von: "2024-01-01"
     gueltig_bis: "2024-12-31"
     wert: 4.62
     quelle:
-      bezeichnung: "netztransparenz.de Jahresmarktwert Solar 2024"
-    hinweis: "ZU VERIFIZIEREN — aus Sekundärquelle übernommen."
+      bezeichnung: "netztransparenz.de Jahresmarktwert Solar 2024 (Zweitbelege konkordant: ADAC, haus.de; Abruf 10.07.2026)"
+      url: "https://www.netztransparenz.de/de-de/Erneuerbare-Energien-und-Umlagen/EEG/Transparenzanforderungen/Marktpr%C3%A4mie/Marktwert%C3%BCbersicht"
+    hinweis: "Verifiziert 10.07.2026 über mehrere konkordante Quellen, die die ÜNB-Veröffentlichung referenzieren."
   - gueltig_von: "2025-01-01"
     wert: 4.51
     quelle:

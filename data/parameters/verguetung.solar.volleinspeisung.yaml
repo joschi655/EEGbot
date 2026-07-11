@@ -49,9 +49,10 @@ zeitraeume:
       bezeichnung: "BNetzA anzulegende Werte Solar (Degression zum 01.08.2025)"
   - gueltig_von: "2026-02-01"
     wert:
-      - { bis_kwp: 10, wert: 12.35 }
-      - { bis_kwp: 40, wert: 10.36 }
-      - { bis_kwp: 100, wert: 10.36 }
+      - { bis_kwp: 10, wert: 12.34 }
+      - { bis_kwp: 40, wert: 10.35 }
+      - { bis_kwp: 100, wert: 10.35 }
     quelle:
-      bezeichnung: "BNetzA anzulegende Werte Solar (Degression zum 01.02.2026)"
-    hinweis: "ZU VERIFIZIEREN gegen aktuelle BNetzA-Tabelle (rechnerisch fortgeschrieben, 1 % Degression)."
+      bezeichnung: "BNetzA anzulegende Werte Solar 01.02.–31.07.2026 (Zweitbelege: DGS-Arbeitshilfe via pv-magazine, SFV, Metzler/Logic Energy, ADAC; Abruf 10.07.2026)"
+      url: "https://www.bundesnetzagentur.de/DE/Fachthemen/ElektrizitaetundGas/ErneuerbareEnergien/Solaranlagen/start.html"
+    hinweis: "Verifiziert 10.07.2026 — Korrektur der rechnerischen Fortschreibung: ≤10 kWp 12,34 (nicht 12,35), 10–100 kWp 10,35 (nicht 10,36). Nächste Degressionsstufe zum 01.08.2026 ergänzen, sobald bekanntgemacht."

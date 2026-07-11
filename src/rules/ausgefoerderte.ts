@@ -35,7 +35,10 @@ export interface AusgefoerderteErgebnis {
   quellen: string[];
 }
 
-const VERMARKTUNGSKOSTENPAUSCHALE_CT = 0.4; // § 53 Abs. 1 Nr. 2 i.V.m. Anlage 1 EEG (Kostenpauschale ausgeförderte Anlagen)
+// § 53 S. 1 Nr. 2 EEG: Verringerung um 0,4 ct/kWh für Solar (Wortlaut im Normgraph
+// verifiziert 10.07.2026). Der in Fachdebatten kursierende Wert 0,715 ct/kWh ist der
+// EMPIRISCHE ÜNB-Vermarktungskostenwert, keine gesetzliche Pauschale — nicht verwenden.
+const VERMARKTUNGSKOSTENPAUSCHALE_CT = 0.4;
 
 export async function vergleicheAusgefoerderteOptionen(input: AusgefoerderteInput): Promise<AusgefoerderteErgebnis> {
   const stichtag = input.stichtag ?? new Date().toISOString().slice(0, 10);
