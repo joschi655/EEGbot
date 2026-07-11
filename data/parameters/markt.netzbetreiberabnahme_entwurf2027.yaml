@@ -1,0 +1,17 @@
+id: markt.netzbetreiberabnahme_entwurf2027
+beschreibung: >
+  SCHÄTZUNG — KEIN GELTENDES RECHT. Erwartete Vergütung der „Netzbetreiberabnahme"
+  nach § 21 Abs. 1 EEG 2027-E (RefE 21.04.2026): Marktwert Solar abzüglich
+  Vermarktungskosten, ohne Förderbestandteil. Branchenschätzung ~3,5 ct/kWh
+  (Solarenergie-Förderverein auf Basis Enervis-Marktpreisprognose). Nur für die
+  Zeitmaschinen-Demo (pipelines/demo-zeitmaschine.ts) — NICHT in Engines
+  verwenden, solange das EEG 2027 nicht verkündet ist.
+einheit: ct/kWh
+staffelung: keine
+zeitraeume:
+  - gueltig_von: "2027-01-01"
+    wert: 3.5
+    quelle:
+      bezeichnung: "SFV/Enervis-Schätzung Netzbetreiberabnahme (~3,5 ct/kWh) — ENTWURF EEG 2027, RefE 21.04.2026"
+      url: "https://www.prometheus-recht.de/eeg-2027/"
+    hinweis: "SCHÄTZUNG aus Sekundärquellen (KB-Research EEG 2027, 26.05.2026) — vor Verkündung des EEG 2027 nicht als Rechtswert verwenden."

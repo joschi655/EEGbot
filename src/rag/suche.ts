@@ -53,11 +53,13 @@ export interface SuchTreffer extends NormChunk {
 
 /**
  * Sucht Norm-Absätze, optional gefiltert auf die zum Stichtag geltende Fassung.
- * Ohne Stichtag: nur aktuell geltende Fassungen (fassung_bis = null).
+ * Ohne Stichtag gilt der heutige Tag — nicht `fassung_bis = null`: sobald künftige
+ * Fassungen im Graphen liegen (z. B. der EEG-2027-Entwurf via build:eeg2027),
+ * wäre „bis = null" der Entwurfstext, nicht das geltende Recht.
  */
 export async function sucheNormen(query: string, opts?: { stichtag?: string; slug?: string; limit?: number }): Promise<SuchTreffer[]> {
   const index = await ladeIndex();
-  const stichtag = opts?.stichtag;
+  const stichtag = opts?.stichtag ?? new Date().toISOString().slice(0, 10);
   // Erst strikt (alle Begriffe), bei 0 Treffern locker (BM25-Ranking über OR)
   let ergebnisse = index.search(query, { fuzzy: 0.15, prefix: true, combineWith: "AND" });
   if (ergebnisse.length === 0) ergebnisse = index.search(query, { fuzzy: 0.2, prefix: true, combineWith: "OR" });
@@ -65,9 +67,7 @@ export async function sucheNormen(query: string, opts?: { stichtag?: string; slu
   for (const r of ergebnisse) {
     const c = r as unknown as NormChunk & { score: number };
     if (opts?.slug && c.slug !== opts.slug) continue;
-    if (stichtag) {
-      if (!(c.fassung_von <= stichtag && (c.fassung_bis === null || c.fassung_bis > stichtag))) continue;
-    } else if (c.fassung_bis !== null) continue;
+    if (!(c.fassung_von <= stichtag && (c.fassung_bis === null || c.fassung_bis > stichtag))) continue;
     treffer.push({ ...c, score: r.score });
     if (treffer.length >= (opts?.limit ?? 8)) break;
   }

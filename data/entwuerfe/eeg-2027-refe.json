@@ -1,0 +1,76 @@
+{
+  "stand": "Referentenentwurf EEG 2027 vom 21.04.2026 (Ressortabstimmung; Bundestag voraussichtlich September 2026; Inkrafttreten geplant 01.01.2027)",
+  "snapshot": "2027-01-01",
+  "hinweis": "KEIN GELTENDES RECHT und KEIN amtlicher Wortlaut: sinngemäße, kuratierte Wiedergabe der Kernänderungen nach Sekundärquellen (SUER-Synopse, Kanzlei-Analysen). Jede Norm trägt den ENTWURF-Marker. Review gegen die SUER-Synopse: Sophia.",
+  "quellen": [
+    { "bezeichnung": "Referentenentwurf EEG 2027, 442 S., Stand 21.04.2026 (Leak)", "url": "https://table.media/assets/berlin/260420_referentenentwurf_novelle_eeg_2027.pdf" },
+    { "bezeichnung": "Stiftung Umweltenergierecht — Synopse EEG 2023 ↔ EEG 2027-RefE (07.05.2026)", "url": "https://stiftung-umweltenergierecht.de/wp-content/uploads/2026/05/Stiftung_Umweltenergierecht_Synopse_EEG_2023-2027_RefE_2026-5-07.pdf" },
+    { "bezeichnung": "Prometheus Recht — EEG 2027 (laufend)", "url": "https://www.prometheus-recht.de/eeg-2027/" },
+    { "bezeichnung": "GÖRG — Arbeitsentwurf EEG 2027 Überblick (09.03.2026)", "url": "https://www.goerg.de/de/aktuelles/veroeffentlichungen/09-03-2026/arbeitsentwurf-zum-eeg-2027-die-ersten-reformplaene-im-ueberblick" },
+    { "bezeichnung": "Rödl & Partner — EEG-Novelle 2027 (RefE-Analyse)", "url": "https://www.roedl.com/insights/eeg-novelle-2027-neue-spielregeln-neue-chancen/" }
+  ],
+  "aenderungen": [
+    {
+      "enbez": "§ 19",
+      "aktion": "ersetzen",
+      "titel": "Zahlungsanspruch",
+      "absaetze": [
+        "(1) Betreiber von Anlagen, in denen ausschließlich erneuerbare Energien oder Grubengas eingesetzt werden, haben für den in der Anlage erzeugten Strom gegen den Netzbetreiber einen Anspruch auf 1. die Marktprämie nach § 20 in Verbindung mit dem Refinanzierungsbeitrag nach § 20a oder 2. die Netzbetreiberabnahme nach § 21 Absatz 1. Eine feste Einspeisevergütung wird für Anlagen mit Inbetriebnahme ab dem 1. Januar 2027 nicht mehr gewährt; für zuvor in Betrieb genommene Anlagen bleibt es bei den Übergangsbestimmungen der §§ 100 ff.",
+        "(2) Bei Anlagen mit einer installierten Leistung von mehr als 100 Kilowatt, deren anzulegender Wert nicht durch Ausschreibung ermittelt wird, besteht der Anspruch nach Absatz 1 Nummer 1 nur, wenn der Anlagenbetreiber dem Netzbetreiber innerhalb von sechs Monaten nach der Inbetriebnahme in Textform mitgeteilt hat, dass er die Förderung in Anspruch nimmt; andernfalls ist der Anspruch dauerhaft ausgeschlossen."
+      ],
+      "quelle": "§ 19 EEG 2027-E: Netzbetreiberabnahme als Veräußerungsform (GÖRG); 6-Monats-Mitteilungspflicht > 100 kW (Prometheus Recht)"
+    },
+    {
+      "enbez": "§ 20a",
+      "aktion": "neu",
+      "titel": "Refinanzierungsbeitrag",
+      "absaetze": [
+        "(1) Betreiber von Anlagen mit einer installierten Leistung von mehr als 100 Kilowatt, die die Marktprämie in Anspruch nehmen, müssen für jedes Kalenderjahr einen Refinanzierungsbeitrag an den Netzbetreiber zahlen, soweit der energieträgerspezifische Jahresmarktwert den anzulegenden Wert übersteigt. Der Refinanzierungsbeitrag entspricht dem Produkt aus dieser Differenz und der in dem Kalenderjahr eingespeisten Strommenge (zweiseitiger Differenzvertrag).",
+        "(2) Auf den Refinanzierungsbeitrag sind monatliche Abschläge zu leisten; die Abrechnung erfolgt jährlich nachträglich. Der Refinanzierungsbeitrag kann keinen negativen Wert annehmen. Die Erlöse fließen dem EEG-Konto zu.",
+        "(3) Die Absätze 1 und 2 sind nicht anzuwenden auf Strom aus Biomasse; dies gilt nicht für Strom aus Klärgas und Deponiegas."
+      ],
+      "quelle": "§ 20a EEG 2027-E (Stiftung Umweltenergierecht Reform-Update 13.05.2026; Rödl & Partner; GÖRG)"
+    },
+    {
+      "enbez": "§ 20b",
+      "aktion": "neu",
+      "titel": "Verzicht auf Zahlungsansprüche (Opt-Out)",
+      "absaetze": [
+        "(1) Anlagenbetreiber können durch Mitteilung in Textform an den Netzbetreiber auf sämtliche Zahlungsansprüche nach § 19 Absatz 1 verzichten. Mit Zugang der Mitteilung entfällt zugleich die Pflicht zur Zahlung des Refinanzierungsbeitrags nach § 20a.",
+        "(2) Die Erklärung nach Absatz 1 kann nur einmalig abgegeben werden und ist unwiderruflich."
+      ],
+      "quelle": "§ 20b EEG 2027-E (GÖRG: unumkehrbarer, einmaliger Ausstieg aus Förderung und Abschöpfung)"
+    },
+    {
+      "enbez": "§ 21",
+      "aktion": "ersetzen",
+      "titel": "Netzbetreiberabnahme; Mieterstromzuschlag",
+      "absaetze": [
+        "(1) Anspruch auf die Netzbetreiberabnahme — die Abnahme und Vermarktung des eingespeisten Stroms durch den Netzbetreiber gegen Zahlung des energieträgerspezifischen Marktwerts abzüglich der Vermarktungskosten, ohne Förderbestandteil — haben Betreiber 1. von Solaranlagen mit einer installierten Leistung von höchstens 25 Kilowatt, die vor dem 1. Januar 2028 in Betrieb genommen worden sind, und 2. von Solaranlagen mit einer installierten Leistung von höchstens 10 Kilowatt, die vor dem 1. Januar 2029 in Betrieb genommen worden sind. Für Anlagen, die danach in Betrieb genommen werden, besteht kein Anspruch auf Netzbetreiberabnahme; der Strom ist direkt zu vermarkten oder selbst zu verbrauchen.",
+        "(2) Eine feste Einspeisevergütung nach § 48 wird für Anlagen mit Inbetriebnahme ab dem 1. Januar 2027 nicht mehr gewährt.",
+        "(3) Der Anspruch auf den Mieterstromzuschlag bleibt unberührt."
+      ],
+      "quelle": "§ 21 Abs. 1 Nr. 1a/1b EEG 2027-E — Stufenmodell Marktwertdurchleitung (pv magazine 27.02.2026; GÖRG; Prometheus Recht)"
+    },
+    {
+      "enbez": "§ 51",
+      "aktion": "ersetzen",
+      "titel": "Verringerung des Zahlungsanspruchs bei negativen Preisen",
+      "absaetze": [
+        "(1) Wenn der Spotmarktpreis negativ ist, verringert sich der anzulegende Wert für jede Viertelstunde, in der dies der Fall ist, auf null. Eine zeitliche Mindestdauer negativer Preise ist nicht mehr Voraussetzung.",
+        "(2) Bei Anlagen mit einer installierten Leistung von weniger als 100 Kilowatt ist Absatz 1 erst ab dem Einbau eines intelligenten Messsystems anzuwenden."
+      ],
+      "quelle": "§ 51 EEG 2027-E: Absenkung ab der ersten Viertelstunde statt 4-Stunden-Regel (Prometheus Recht; KB-Research EEG 2027)"
+    },
+    {
+      "enbez": "§ 4a",
+      "aktion": "aufheben",
+      "quelle": "Strommengenpfad § 4a EEG 2023 wird ersatzlos gestrichen (Prometheus Recht; Kritik BWE/BEE)"
+    },
+    {
+      "enbez": "§ 37d",
+      "aktion": "aufheben",
+      "quelle": "Untersegment für besondere Solaranlagen (Agri-/Floating-/Parkplatz-PV) wird ersatzlos gestrichen (Prometheus Recht; VnAP-Kritik 27.04.2026)"
+    }
+  ]
+}
