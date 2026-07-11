@@ -2,8 +2,8 @@
 project: EEGbot
 task: Hackathon-Demo-Härtung + Pitch-Artefakte (Legal Loves Tech 17.–21.08.2026)
 effort: E3
-phase: verify
-progress: 36/40
+phase: complete
+progress: 40/40
 mode: build
 started: 2026-07-10T22:05:00+02:00
 updated: 2026-07-11T00:20:00+02:00
@@ -120,11 +120,11 @@ Pitch-Konzept als KB-Dokument.
 - [x] ISC-35: Euro-Delta-Output kennzeichnet 2027-Zweig unübersehbar als ENTWURF (Grep im Output)
 
 ### D9 — Meta/Repo-Hygiene
-- [ ] ISC-36: Anti: `knowledge/` und `dokumente/` bleiben uncommitted (git status)
-- [ ] ISC-37: Anti: Johannes' uncommitted Onboarding-Sophia-Edits sind in keinem meiner Commits (git show)
+- [x] ISC-36: Anti: `knowledge/` und `dokumente/` bleiben uncommitted (git status)
+- [x] ISC-37: Anti: Johannes' uncommitted Onboarding-Sophia-Edits sind in keinem meiner Commits (git show)
 - [x] ISC-38: `docs/worklog.md` + Session-Registry um diese Session ergänzt (Read)
-- [ ] ISC-39: Forge-Audit über neue Artefakte gelaufen; Funde behoben oder begründet dokumentiert (Read Audit-Log)
-- [ ] ISC-40: Logische Commits je Werkpaket, Arbeitsverzeichnis am Ende sauber bis auf Fremd-Edits (git status)
+- [x] ISC-39: Forge-Audit über neue Artefakte gelaufen; Funde behoben oder begründet dokumentiert (Read Audit-Log)
+- [x] ISC-40: Logische Commits je Werkpaket, Arbeitsverzeichnis am Ende sauber bis auf Fremd-Edits (git status)
 
 ## Test Strategy
 
@@ -185,4 +185,5 @@ Pitch-Konzept als KB-Dokument.
 - ISC-30..32: demo-Lauf zeigt Diff (4 geänderte Absätze); normAtDate-Proben: 2027-01-15 → „[ENTWURF EEG 2027]…", heute → geltende Fassungen; §§ 20a/20b heute nicht existent; § 100 am 2027-01-15 vorhanden; Default-Suche 0 Entwurfs-Treffer, Stichtagssuche 2027 findet ihn.
 - ISC-33..35: Read Parameter-YAML (SCHÄTZUNG/ENTWURF, Quelle); demo:zeitmaschine-Lauf: 24.433,20 € vs. 866,25 € → „Δ … ≈ 23.566,95 €", ⚠️-ENTWURF-Blöcke im Output.
 - ISC-38: Read worklog-Abschnitt 2026-07-10 + Registry-Eintrag.
-- ISC-36/37/39/40: offen bis Commit bzw. Forge-Rücklauf.
+- ISC-36/37/40: git log --name-only HEAD~5..HEAD → 0× onboarding, 0× knowledge/dokumente; 5 logische Commits (9a0aab9, 9e587b5, 3263f7a, 5f3b867, 29d4ea3); status sauber bis auf Fremd-Edits.
+- ISC-39: Forge-Audit (GPT-5.4) abgeschlossen — kein CRITICAL/MAJOR, Kernlogik/Invariante/Zahlen empirisch bestätigt; alle 7 MINOR-Funde behoben (leerer Stichtag, argv-Guard, Δ-Framing, § 25-Zitat, Drehbuch-Zahl, 2 Regressionstest-Dateien, Containment-Check). Nachweis: 118 Tests grün, typecheck, demo-Läufe (Guard exit 1, neues Label im Output).

@@ -59,7 +59,8 @@ export interface SuchTreffer extends NormChunk {
  */
 export async function sucheNormen(query: string, opts?: { stichtag?: string; slug?: string; limit?: number }): Promise<SuchTreffer[]> {
   const index = await ladeIndex();
-  const stichtag = opts?.stichtag ?? new Date().toISOString().slice(0, 10);
+  // `||` statt `??`: ein leerer Stichtag ("") darf die Fassungsfilterung nicht aushebeln (Forge-Fund).
+  const stichtag = opts?.stichtag?.trim() || new Date().toISOString().slice(0, 10);
   // Erst strikt (alle Begriffe), bei 0 Treffern locker (BM25-Ranking über OR)
   let ergebnisse = index.search(query, { fuzzy: 0.15, prefix: true, combineWith: "AND" });
   if (ergebnisse.length === 0) ergebnisse = index.search(query, { fuzzy: 0.2, prefix: true, combineWith: "OR" });

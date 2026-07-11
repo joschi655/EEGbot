@@ -272,9 +272,19 @@ Clearingstelle-Restbestand (FAQ ~198–330) per erneutem Pipeline-Lauf.
   Default-Suche 0 Entwurfs-Treffer, Stichtag 2027-01-15 findet ihn;
   normAtDate(heute) liefert für alle kuratierten §§ die geltende Fassung,
   § 100 bleibt am 2027-01-15 offen, §§ 20a/20b existieren heute nicht.
-- **Verifiziert:** 113 Tests grün, typecheck, validate:data, Benchmark 16/16
+- **Forge-Audit (GPT-5.4): kein CRITICAL/MAJOR** — Kernlogik, Graph-Invariante
+  (empirisch: genau 5 geschlossene + 7 geöffnete Expressions zum 2027-01-01)
+  und Zwilling-Zahlen bestätigt. 7 MINOR behoben: leerer Stichtag hebelte
+  sucheNormen aus (`||` statt `??` + /api/frage-Normalisierung); argv-Guard
+  demo:zeitmaschine (deutsche Komma-Eingabe → vorher Crash); Δ-Label ehrlich
+  als „geförderte Erlöse" (30-Monats- vs. 20-Jahres-Cashflow nicht mehr
+  vermischt); § 25-Abs.-1a-Zitat zu „Branchenschätzung" entschärft (Norm nicht
+  im kuratierten Datensatz); Drehbuch 45.538,55/45.540 explizit erklärt;
+  2 neue Testdateien (suche-Leak-Regression, Overlay-Invariante inkl.
+  ENTWURF-Marker-Check → 118 Tests); Containment-Check im Statics-Fallback.
+- **Verifiziert:** 118 Tests grün, typecheck, validate:data, Benchmark 16/16
   (nach Graph-Rebuild mit Entwurf), Demo-Skript-Lauf, Browser-Probe.
 - **Offen:** Personas P1–P5 E2E in frischer Session; Degressionsstufe
   01.08.2026 nachtragen, sobald BNetzA veröffentlicht; netztransparenz-
   Direktabruf (CSV) als Golddatei für Jahresmarktwerte; Sophia-Review der
-  Entwurfs-Normen gegen SUER-Synopse; Forge-Audit-Findings dieser Session.
+  Entwurfs-Normen gegen SUER-Synopse.

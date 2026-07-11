@@ -22,7 +22,8 @@ ob sich Parameter-Dateien geändert haben.
 
 > „2012 baut ein Landwirt eine PV-Anlage. Er vergisst eine Meldung. 2017
 > bestätigt der BGH: Er muss **45.538,55 €** zurückzahlen — VIII ZR 147/16.
-> Das Gesetz war öffentlich. Zugang zum Recht scheitert nicht an Geheimwissen,
+> (Unser Demo-Zwilling landet gerundet bei 45.540 € — gleicher Mechanismus,
+> heutiges Recht.) Das Gesetz war öffentlich. Zugang zum Recht scheitert nicht an Geheimwissen,
 > sondern an Komplexität: 8 EEG-Fassungen, 175 Paragrafen, über 10.000
 > Querverweise. Genau dieselbe Falle existiert heute — sie heißt jetzt § 52."
 
@@ -79,10 +80,14 @@ bun run demo:zeitmaschine
 - Diff geltend ↔ Entwurf: „Netzbetreiberabnahme … keine feste Einspeisevergütung mehr"
 - IBN 15.12.2026: 12,34 ct/kWh (BNetzA, verifiziert 10.07.2026) → **24.433,20 € über 20 Jahre**
 - IBN 15.01.2027 (ENTWURF): ~3,5 ct, ~30 Monate → **866,25 €**
-- **„Δ EIN MONAT INBETRIEBNAHME ≈ 23.566,95 € über 20 Jahre"**
+- **„Δ GEFÖRDERTE ERLÖSE ≈ 23.566,95 € — ein Monat IBN-Unterschied"** (das Skript
+  sagt ausdrücklich dazu: spätere Erlöse aus Eigenverbrauch/Direktvermarktung
+  sind NICHT eingerechnet — das ist der Vergleich der *geförderten* Erlöse)
+- Achtung Tippfalle am Beamer: Argumente mit **Punkt** (`9.9`), nicht Komma —
+  bei falscher Eingabe bricht das Skript jetzt mit klarer Nutzungszeile ab
 
 **Punchline (Sophia):** „Ein Monat Unterschied beim Inbetriebnahmedatum —
-rund 23.500 €. Diese Frage wird ab Herbst millionenfach gestellt. Es gibt keinen
+rund 23.500 € an geförderten Erlösen. Diese Frage wird ab Herbst millionenfach gestellt. Es gibt keinen
 offiziellen Übergangsprüfer dafür. Unserer ist open source."
 
 **Vision-Slide (30 s):** B2C gratis = Zugang zum Recht; B2B auf denselben

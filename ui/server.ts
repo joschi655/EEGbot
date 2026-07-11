@@ -16,7 +16,7 @@
  *   GET  /api/cascade      ?slug&enbez&datum&tiefe   Querverweis-Kaskade
  *   GET  /api/uebergangsrecht ?ibn            §100-Resolver (Versteinerung)
  */
-import { join } from "node:path";
+import { join, resolve, sep } from "node:path";
 import { crossRefs, normAtDate, oeffneGraph } from "../src/graph/query.ts";
 import { resolveUebergangsrecht } from "../src/graph/uebergangsrecht.ts";
 import { sucheNormen } from "../src/rag/suche.ts";
@@ -79,14 +79,16 @@ Bun.serve({
       }
 
       if (p === "/api/frage" && req.method === "POST") {
-        const { frage, stichtag } = (await req.json()) as { frage: string; stichtag?: string };
+        const { frage, stichtag } = (await req.json()) as { frage: string; stichtag?: unknown };
         if (!frage?.trim()) return json({ fehler: "frage fehlt" }, 400);
+        // Nur wohlgeformte Stichtage durchreichen — alles andere fällt auf "heute" zurück.
+        const st = typeof stichtag === "string" && /^\d{4}-\d{2}-\d{2}$/.test(stichtag.trim()) ? stichtag.trim() : undefined;
         const [normen, clearingstelle, rechtsprechung] = await Promise.all([
-          sucheNormen(frage, { stichtag, limit: 6 }),
+          sucheNormen(frage, { stichtag: st, limit: 6 }),
           sucheZusatz("clearingstelle", frage),
           sucheZusatz("rechtsprechung", frage),
         ]);
-        return json({ frage, stichtag: stichtag ?? "aktuell", normen, clearingstelle, rechtsprechung });
+        return json({ frage, stichtag: st ?? "aktuell", normen, clearingstelle, rechtsprechung });
       }
 
       if (p === "/api/intake" && req.method === "POST") {
@@ -152,8 +154,11 @@ Bun.serve({
         const f = Bun.file(join(APP_DIR, p.slice(5)));
         if (await f.exists()) return new Response(f);
       }
-      // relative Pfade des Kits (../../styles.css, ../../_ds_bundle.js, assets/…)
-      const kandidat = Bun.file(join(FINK_DIR, p.slice(1)));
+      // relative Pfade des Kits (../../styles.css, ../../_ds_bundle.js, assets/…).
+      // Defense-in-Depth: expliziter Containment-Check statt Vertrauen auf URL-Normalisierung.
+      const kandidatPfad = resolve(join(FINK_DIR, p.slice(1)));
+      if (!kandidatPfad.startsWith(resolve(FINK_DIR) + sep)) return json({ fehler: `Nicht gefunden: ${p}` }, 404);
+      const kandidat = Bun.file(kandidatPfad);
       if (await kandidat.exists()) return new Response(kandidat);
 
       return json({ fehler: `Nicht gefunden: ${p}` }, 404);

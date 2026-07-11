@@ -15,11 +15,16 @@ import { parameterWert } from "../src/lib/parameter.ts";
 
 const KWP = Number(process.argv[2] ?? 9.9);
 const KWH_JAHR = Number(process.argv[3] ?? 9900);
+if (!Number.isFinite(KWP) || KWP <= 0 || !Number.isFinite(KWH_JAHR) || KWH_JAHR <= 0) {
+  console.error("Nutzung: bun run demo:zeitmaschine [kWp] [kWh/Jahr] — Zahlen mit Punkt, z. B. 9.9 9900");
+  process.exit(1);
+}
 const IBN_ALT = "2026-12-15";
 const IBN_NEU = "2027-01-15";
 const ENTWURF_STICHTAG = "2027-01-15";
-/** § 25 Abs. 1a EEG 2027-E (RefE): unentgeltliche Abnahme als Regel nach 30 Monaten
- *  (bzw. 3 Monate nach iMSys-Einbau) — SCHÄTZUNG der bezahlten Abnahmedauer. */
+/** Bezahlte Abnahmedauer der Netzbetreiberabnahme: Branchenschätzung ~30 Monate nach
+ *  RefE-Sekundärquellen (Rödl zu § 25 Abs. 1a EEG 2027-E; § 25 ist NICHT Teil der
+ *  kuratierten Entwurfs-Normen in data/entwuerfe/ — reine SCHÄTZUNG). */
 const ABNAHME_MONATE_ENTWURF = 30;
 const FOERDERDAUER_JAHRE = 20;
 
@@ -70,11 +75,15 @@ console.log(`  ${eur(jahresAlt)}/Jahr → ${eur(gesamtAlt)} über ${FOERDERDAUER
 console.log(`\nIBN ${IBN_NEU} — ⚠️ ENTWURF EEG 2027 (RefE 21.04.2026, kein geltendes Recht):`);
 console.log(`  keine feste Einspeisevergütung mehr (§ 21 EEG 2027-E)`);
 console.log(`  Netzbetreiberabnahme ~${neu.wert} ct/kWh — SCHÄTZUNG (Quelle: ${neu.quelle})`);
-console.log(`  ${eur(jahresNeu)}/Jahr, bezahlt voraussichtlich nur ~${ABNAHME_MONATE_ENTWURF} Monate (§ 25 Abs. 1a EEG 2027-E, SCHÄTZUNG) → ${eur(gesamtNeu)}`);
+console.log(`  ${eur(jahresNeu)}/Jahr, bezahlt voraussichtlich nur ~${ABNAHME_MONATE_ENTWURF} Monate (Branchenschätzung nach RefE-Sekundärquellen) → ${eur(gesamtNeu)}`);
 console.log(`  danach: Eigenverbrauch/Direktvermarktung; 50-%-Wirkleistungskappung geplant`);
 
 console.log("\n──────────────────────────────────────────────────────────────");
-console.log(`Δ EIN MONAT INBETRIEBNAHME ≈ ${eur(gesamtAlt - gesamtNeu)} über ${FOERDERDAUER_JAHRE} Jahre`);
+console.log(`Δ GEFÖRDERTE ERLÖSE ≈ ${eur(gesamtAlt - gesamtNeu)} — ein Monat IBN-Unterschied`);
+console.log(
+  `  (${FOERDERDAUER_JAHRE} Jahre feste Vergütung vs. ~${ABNAHME_MONATE_ENTWURF} Monate Netzbetreiberabnahme;` +
+    ` spätere Erlöse aus Eigenverbrauch/Direktvermarktung sind hier NICHT eingerechnet)`,
+);
 console.log(
   "\n⚠️ Der 2027-Zweig beruht auf einem ENTWURF (Referentenentwurf 21.04.2026) und" +
     "\n   SCHÄTZUNGEN aus Sekundärquellen. Keine Rechts- oder Anlageberatung —" +
