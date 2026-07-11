@@ -29,6 +29,17 @@ const APP_DIR = join(REPO, "ui", "fink", "ui_kits", "app");
 const FINK_DIR = join(REPO, "ui", "fink");
 const PORT = Number(process.env.PORT ?? 3475);
 
+/**
+ * Lokale UMD-Builds statt CDN: Die Demo muss ohne Netz laufen (Pitch-Härtung).
+ * Quellen sind die per bun installierten Pakete — kein Binärblob im Repo.
+ */
+const VENDOR: Record<string, string> = {
+  "react.js": "node_modules/react/umd/react.development.js",
+  "react-dom.js": "node_modules/react-dom/umd/react-dom.development.js",
+  "babel.js": "node_modules/@babel/standalone/babel.min.js",
+  "lucide.js": "node_modules/lucide/dist/umd/lucide.min.js",
+};
+
 const json = (x: unknown, status = 200) =>
   new Response(JSON.stringify(x, null, 1), { status, headers: { "content-type": "application/json; charset=utf-8" } });
 
@@ -126,6 +137,15 @@ Bun.serve({
       }
 
       // ── Statics: fink-App + Design-System ──
+      if (p.startsWith("/vendor/")) {
+        const rel = VENDOR[p.slice("/vendor/".length)];
+        if (rel) {
+          const f = Bun.file(join(REPO, rel));
+          if (await f.exists())
+            return new Response(f, { headers: { "content-type": "text/javascript; charset=utf-8" } });
+          return json({ fehler: `Vendor-Datei fehlt — bun install ausführen (${rel})` }, 500);
+        }
+      }
       if (p === "/" ) return Response.redirect("/app/", 302);
       if (p === "/app" || p === "/app/") return new Response(Bun.file(join(APP_DIR, "index.html")));
       if (p.startsWith("/app/")) {
