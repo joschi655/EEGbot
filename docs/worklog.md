@@ -337,3 +337,34 @@ Clearingstelle-Restbestand (FAQ ~198–330) per erneutem Pipeline-Lauf.
   dpr=2-Hit-Testing, Lifecycle/Leaks, Performance (kein Cache nötig).
   Verifiziert: 118 Tests, typecheck, curl-Proben (markiere=§ 100 → 21 Knoten,
   tiefe=0 geklemmt), Playwright-Smoke mit 0 Konsolenfehlern.
+
+
+## 2026-07-15 — LIVE: fink.aiwerke.de + self-hosted Supabase (Opus-Deploy-Agent)
+
+- **Produktmodell fixiert (KB Statusübersicht Kap. 6):** Open Core / Managed
+  Hosting — Code für alle gleich und offen; bezahlt wird Betrieb, Aktualität,
+  Bequemlichkeit. Gleiche fink-UI für lokal und gehostet (Flag statt zweitem
+  Frontend); Installations-Resthürde ist bewusst der Conversion-Trichter.
+- **fink.aiwerke.de LIVE:** /opt/eegbot @ a9754d9, systemd `eegbot-fink`
+  (bun ui/server.ts, Port 3475, `EEGBOT_PUBLIC=1`), Cloudflare-Tunnel-Ingress +
+  CNAME via `cloudflared tunnel route dns`. Wissensbasis + EEG-2027-Entwurf auf
+  dem Server gebaut. Unabhängig verifiziert: /app/ 200 (0,13 s via CF),
+  /api/graph liefert 2027-Entwurf, /api/intake 403 (Kosten-Härtung),
+  /vendor/d3.js 200. Clearingstelle/Rechtsprechung bewusst nicht ingestiert
+  (separate Scraper, bei Bedarf `bun run ingest:<quelle>` auf dem Server).
+- **Supabase self-hosted (projektübergreifende Infra):** /opt/supabase/src/docker,
+  11/11 Container healthy; Ports verschoben (Kong 8100/8443, Postgres 5433,
+  Pooler 6543 — 8000/5432 waren belegt); alle Default-Secrets ersetzt
+  (HS256-Legacy-Keys generiert, ES256 leer = Default); URLs auf
+  supabase.aiwerke.de; Zugangsdaten NUR in
+  `/home/ubuntu/supabase-credentials.txt` (600). Live: Kong/REST antworten
+  401 ohne Key. Die fink-Demo braucht noch keine DB — Supabase ist für
+  Accounts/Fälle/Zahlungen und andere Projekte vorbereitet.
+- **cloudflared sicher angefasst:** Backup → beide Hostnames in EINEM Edit vor
+  dem Catch-all → `ingress validate` → Restart via systemd-run (überlebt den
+  eigenen SSH-Abbruch — SSH läuft selbst durch den Tunnel) → ssh-Ingress
+  unversehrt. Runbook: docs/deploy-fink.md.
+- **Offen:** Cato-Cross-Vendor-Audit des Deployments (läuft), Impressum/
+  RDG-Hinweis auf der öffentlichen Landing, Demo-Badge („Login ist Attrappe"),
+  Supabase-Backup-Strategie, ggf. Cloudflare Access vor das Studio.
+

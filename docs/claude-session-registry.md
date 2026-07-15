@@ -18,6 +18,12 @@ Vor längeren Läufen prüfen, ob eine bestehende Session fortgesetzt werden kan
 - Cross-Check evals/catala-crosscheck.ts: 24/24 im arm64-Container verifiziert (clerk run)
 - CI-Job catala (setup-ocaml@v3, opam catala.1.2.0); clerk-Artefakte gitignored
 
+## Session 2026-07-15-b — LIVE-Deploy fink.aiwerke.de + Supabase (Opus-Agent)
+- fink.aiwerke.de: /opt/eegbot, systemd eegbot-fink (3475, EEGBOT_PUBLIC=1), Tunnel-Ingress + CNAME — live verifiziert
+- Supabase self-hosted: /opt/supabase/src/docker, 11/11 healthy, Kong 8100, PG 5433; Creds nur in ~/supabase-credentials.txt (600)
+- cloudflared: Backup → ein Edit (beide Hostnames) → validate → systemd-run-Restart; Runbook docs/deploy-fink.md
+- Produktmodell Open Core in KB Statusübersicht Kap. 6; Delegations-Präferenz: Infra an Opus-Subagents
+
 ## Session 2026-07-15 — Norm-Graph + Statusübersicht + Doku-Entstaubung
 - fink-Screen „Norm-Graph": echtes Querverweis-Netz, Zeitreise-Slider bis EEG 2027-E, Fall-Modus (45.540-€-Kette)
 - /api/graph (Stichtags-Aggregation + crossRefs-Fall-Modus); d3 als Vendor; favicon-Route
