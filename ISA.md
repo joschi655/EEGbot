@@ -256,3 +256,12 @@ Pitch-Konzept als KB-Dokument.
 - ISC-57..59/61: Opus-Subagent-Deploy /opt/eegbot-b2c (7a6fce0), systemd eegbot-b2c 127.0.0.1:3476, cloudflared-Ingress nach validate=OK; eigene externe Proben: eegbot.aiwerke.de/app/=200, /api/status=200 (normgraph/normen/clearingstelle/rechtsprechung „vorhanden"), /api/sanktion52 BGH=6417, /api/intake=403, fink.aiwerke.de/app/=200 (Gegenprobe unverändert).
 - ISC-60: Fall B (Access fehlt noch) → Instanz öffentlich, Intake per EEGBOT_PUBLIC=1 gehärtet (403 verifiziert). Owner-Aktion offen: Cloudflare Access anlegen, dann Key statt EEGBOT_PUBLIC.
 - ISC-62: docs/deploy-eegbot-b2c.md gelesen — vollständig, ID-stabil zu deploy-fink.md.
+
+### Run 2026-07-15-c — Deploy (Live-Proben durch den Hauptagenten)
+- ISC-57..59/61: Opus-Subagent-Deploy /opt/eegbot-b2c (7a6fce0), systemd eegbot-b2c 127.0.0.1:3476, cloudflared-Ingress nach validate=OK; eigene externe Proben: eegbot.aiwerke.de/app/=200, /api/status=200 (normgraph/normen/clearingstelle/rechtsprechung „vorhanden"), /api/sanktion52 BGH=6417, /api/intake=403, fink.aiwerke.de/app/=200 (Gegenprobe unverändert).
+- ISC-60: Fall B (Access fehlt noch) → Instanz öffentlich, Intake per EEGBOT_PUBLIC=1 gehärtet (403 verifiziert). Owner-Aktion offen: Cloudflare Access anlegen, dann Key statt EEGBOT_PUBLIC.
+- ISC-62: docs/deploy-eegbot-b2c.md gelesen — vollständig, ID-stabil zu deploy-fink.md.
+
+### Offen (Owner)
+- Cross-Vendor-Audit (GPT-5.6): vom Owner auf später verschoben — codex-Account läuft auf GPT-5.5 (ChatGPT-Login), 5.6 braucht OPENAI_API_KEY. VERIFY bleibt bis dahin ohne Cross-Vendor-Gate; phase bleibt `verify`.
+- Cloudflare Access für eegbot.aiwerke.de anlegen, dann Key deployen (Runbook §Umschalten).
