@@ -149,20 +149,29 @@ Bun.serve({
         const db = oeffneGraph();
 
         const exprs = db
-          .query<{ enbez: string; titel: string | null }, [string, string, string]>(
-            `SELECT enbez, titel FROM expression
+          .query<{ id: number; enbez: string; titel: string | null; fassung_von: string }, [string, string, string]>(
+            `SELECT id, enbez, titel, fassung_von FROM expression
              WHERE slug = ? AND fassung_von <= ? AND (fassung_bis IS NULL OR fassung_bis > ?)`,
           )
           .all(slug, stichtag, stichtag);
-        const proEnbez = new Map(exprs.map((e) => [e.enbez, e]));
+        // Robustheit wie normAtDate (ORDER BY fassung_von DESC LIMIT 1): sollte je
+        // enbez mehr als ein Fenster greifen, gewinnt deterministisch das jüngste —
+        // und nur dessen Querverweise zählen (sonst doppelte Kanten/Grad-Inflation).
+        const proEnbez = new Map<string, (typeof exprs)[number]>();
+        for (const e of exprs) {
+          const alt = proEnbez.get(e.enbez);
+          if (!alt || e.fassung_von > alt.fassung_von) proEnbez.set(e.enbez, e);
+        }
+        const kanonisch = new Set([...proEnbez.values()].map((e) => e.id));
 
         const qv = db
-          .query<{ von: string; ziel_slug: string | null; ziel_enbez: string }, [string, string, string]>(
-            `SELECT e.enbez von, q.ziel_slug, q.ziel_enbez FROM querverweis q
+          .query<{ vid: number; von: string; ziel_slug: string | null; ziel_enbez: string }, [string, string, string]>(
+            `SELECT q.von_expression vid, e.enbez von, q.ziel_slug, q.ziel_enbez FROM querverweis q
              JOIN expression e ON e.id = q.von_expression
              WHERE e.slug = ? AND e.fassung_von <= ? AND (e.fassung_bis IS NULL OR e.fassung_bis > ?)`,
           )
-          .all(slug, stichtag, stichtag);
+          .all(slug, stichtag, stichtag)
+          .filter((k) => kanonisch.has(k.vid));
 
         const kanten = new Map<string, number>();
         const grad = new Map<string, number>();
@@ -182,12 +191,16 @@ Bun.serve({
         let highlight: string[] | undefined;
         const fall = url.searchParams.get("fall");
         if (fall) {
-          const tiefe = Math.min(Number(url.searchParams.get("tiefe") ?? 2) || 2, 3);
+          const tiefe = Math.min(Math.max(1, Number(url.searchParams.get("tiefe") ?? 2) || 2), 3);
           const seeds = fall.split(",").map((s) => s.trim()).filter(Boolean);
           const menge = new Set(seeds.filter((s) => proEnbez.has(s)));
           for (const seed of seeds)
             for (const kante of crossRefs(db, slug, seed, stichtag, tiefe))
               if (kante.ziel_slug === slug && proEnbez.has(kante.ziel_enbez)) menge.add(kante.ziel_enbez);
+          // markiere: Normen zusätzlich hervorheben, OHNE ihre Umgebung zu expandieren
+          // (z. B. § 100 — als Hub würde er mit Tiefe 1 das halbe Gesetz aufleuchten lassen).
+          for (const m of (url.searchParams.get("markiere") ?? "").split(",").map((s) => s.trim()).filter(Boolean))
+            if (proEnbez.has(m)) menge.add(m);
           highlight = [...menge];
         }
 

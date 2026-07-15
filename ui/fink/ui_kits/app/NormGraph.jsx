@@ -14,8 +14,11 @@ const NG_STICHTAGE = [
   [NG_HEUTE, 'Heute'],
   ['2027-01-15', 'EEG 2027-E'],
 ];
-/* Seeds = Normenkette des 45.540-EUR-Demofalls (Sanktion, Meldepflicht, Anspruch) */
+/* Seeds = Normenkette des 45.540-EUR-Demofalls (Sanktion, Meldepflicht, Anspruch).
+   § 100 (Versteinerung) wird nur MARKIERT, nicht expandiert - als Hub wuerde er
+   mit Tiefe 1 sonst 68 statt 21 Knoten aufleuchten lassen (buehnenuntauglich). */
 const NG_FALL_SEEDS = ['§ 52', '§ 71', '§ 19'];
+const NG_FALL_MARKIERE = ['§ 100'];
 const NG_BLAU = '#1213BE';
 const NG_AMBER = '#D97706';
 
@@ -68,18 +71,27 @@ function NormGraph({ onNav }) {
       .on('tick', () => { for (const n of nodes) posRef.current.set(n.id, { x: n.x, y: n.y }); });
   }, []);
 
+  const seqRef = React.useRef(0); // Out-of-order-Schutz: nur die zuletzt angeforderte Antwort gewinnt
+
   const lade = React.useCallback(async (i, fallAktiv) => {
+    const seq = ++seqRef.current;
     const datum = NG_STICHTAGE[i][0];
     const params = new URLSearchParams({ stichtag: datum });
-    if (fallAktiv) { params.set('fall', NG_FALL_SEEDS.join(',')); params.set('tiefe', '1'); }
+    if (fallAktiv) {
+      params.set('fall', NG_FALL_SEEDS.join(','));
+      params.set('tiefe', '1');
+      params.set('markiere', NG_FALL_MARKIERE.join(','));
+    }
     let j;
     try {
       j = await (await fetch('/api/graph?' + params.toString())).json();
     } catch (e) {
-      setHinweis('API nicht erreichbar - laeuft `bun ui/server.ts`?');
+      if (seq === seqRef.current) setHinweis('API nicht erreichbar - laeuft `bun ui/server.ts`?');
       return;
     }
+    if (seq !== seqRef.current) return; // inzwischen wurde ein neuerer Stand angefordert
     if (j.fehler) { setHinweis(j.fehler); return; }
+    if (!window.d3) { setHinweis('d3 nicht geladen - bun install ausfuehren und /vendor/d3.js pruefen.'); return; }
     const entwurfN = j.nodes.filter((n) => n.entwurf).length;
     setMeta({ nodes: j.nodes.length, edges: j.edges.length, entwurf: entwurfN });
     setHinweis(datum >= '2027-01-01' && entwurfN === 0
@@ -98,12 +110,16 @@ function NormGraph({ onNav }) {
 
   React.useEffect(() => { lade(idx, fall); }, [idx, fall, lade]);
 
-  /* Norm-Panel bei Auswahl nachladen */
+  /* Norm-Panel bei Auswahl nachladen (mit Out-of-order-Schutz) */
+  const normSeqRef = React.useRef(0);
   React.useEffect(() => {
     if (!sel) { setNorm(null); return; }
+    const seq = ++normSeqRef.current;
     const datum = NG_STICHTAGE[idx][0];
     fetch(`/api/norm?enbez=${encodeURIComponent(sel)}&datum=${datum}`)
-      .then((r) => r.json()).then(setNorm).catch(() => setNorm(null));
+      .then((r) => r.json())
+      .then((j) => { if (seq === normSeqRef.current) setNorm(j); })
+      .catch(() => { if (seq === normSeqRef.current) setNorm({ fehler: `${sel} nicht ladbar - API erreichbar?` }); });
   }, [sel, idx]);
 
   /* Render-Loop (Canvas) + Interaktion */
@@ -140,9 +156,12 @@ function NormGraph({ onNav }) {
         ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
         ctx.fillStyle = dim ? 'rgba(15,23,42,0.10)' : n.entwurf ? NG_AMBER : NG_BLAU;
         ctx.globalAlpha = dim ? 1 : 0.9; ctx.fill(); ctx.globalAlpha = 1;
-        if (n.entwurf && !dim) { // Warn-Ring
+        if (n.entwurf && !dim) { // Warn-Ring; aufgehobene Normen gestrichelt (Wegfall, kein Neuzugang)
+          const aufgehoben = (n.titel || '').startsWith('(aufgehoben)');
+          if (aufgehoben) ctx.setLineDash([3, 3]);
           ctx.beginPath(); ctx.arc(n.x, n.y, r + 3.5 * puls, 0, Math.PI * 2);
           ctx.strokeStyle = 'rgba(217,119,6,0.45)'; ctx.lineWidth = 1.4; ctx.stroke();
+          if (aufgehoben) ctx.setLineDash([]);
         }
         if (n.id === hover || n.id === selId) {
           ctx.beginPath(); ctx.arc(n.x, n.y, r + 3, 0, Math.PI * 2);
@@ -176,12 +195,15 @@ function NormGraph({ onNav }) {
       zRef.current.sel = id;
       setSel(id);
     };
+    const leave = () => { zRef.current.hover = null; canvas.style.cursor = 'default'; };
     canvas.addEventListener('mousemove', move);
+    canvas.addEventListener('mouseleave', leave);
     canvas.addEventListener('click', klick);
     return () => {
       cancelAnimationFrame(rafRef.current);
       ro.disconnect();
       canvas.removeEventListener('mousemove', move);
+      canvas.removeEventListener('mouseleave', leave);
       canvas.removeEventListener('click', klick);
       if (simRef.current) simRef.current.stop();
     };
@@ -231,7 +253,7 @@ function NormGraph({ onNav }) {
             <div style={{ position: 'absolute', left: 14, bottom: 12, display: 'flex', gap: 14, fontSize: 11.5, color: 'rgba(15,23,42,0.6)', background: 'rgba(255,255,255,0.85)', padding: '4px 10px', borderRadius: 8 }}>
               <span><span style={{ color: NG_BLAU }}>&#9679;</span> geltende Norm (Groesse = Vernetzungsgrad)</span>
               <span><span style={{ color: NG_AMBER }}>&#9679;</span> ENTWURF EEG 2027</span>
-              {fall && <span>gedimmt = nicht Teil des Falls (Seeds: {NG_FALL_SEEDS.join(', ')}, Tiefe 1)</span>}
+              {fall && <span>gedimmt = nicht Teil des Falls (Seeds: {NG_FALL_SEEDS.join(', ')}, Tiefe 1; {NG_FALL_MARKIERE.join(', ')} markiert)</span>}
             </div>
           </div>
         </div>
@@ -258,6 +280,7 @@ function NormGraph({ onNav }) {
               <div style={{ fontWeight: 600, fontSize: 13.5, marginBottom: 8 }}>{(norm.titel || '').replace(/^\[ENTWURF EEG 2027\]\s*/, '')}</div>
               <div style={{ fontSize: 11.5, color: 'rgba(15,23,42,0.55)', marginBottom: 10 }}>
                 {norm.jurabk} · Fassung ab {norm.fassung_von}{norm.fassung_bis ? ` (bis ${norm.fassung_bis})` : ' (geltend)'}
+                {(() => { const k = zRef.current.nodes.find((n) => n.id === sel); return k && k.extern > 0 ? ` · verweist ${k.extern}x in andere Gesetze` : ''; })()}
               </div>
               <div style={{ fontSize: 12.5, lineHeight: 1.6, whiteSpace: 'pre-wrap', color: 'rgba(15,23,42,0.8)' }}>
                 {(norm.text || '').slice(0, 900)}{(norm.text || '').length > 900 ? ' ...' : ''}

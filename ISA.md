@@ -163,6 +163,8 @@ Pitch-Konzept als KB-Dokument.
 - 2026-07-10: BGH-Zwilling bewusst als moderner § 52-Fall (IBN 2022, Nr. 11 MaStR) statt 1:1-Nachbau des 2012er-BGH-Falls — das §52-Zahlungsregime gilt erst ab EEG 2023; der Vor-2023-Zeitraum wird ehrlich als altes Sanktionsregime ausgewiesen (Ehrlichkeits-Beat im Pitch).
 - 2026-07-10: Ü20-Klärung: 0,4 ct/kWh = gesetzliche Pauschale (§ 53 S. 1 Nr. 2, Wortlaut im Normgraph verifiziert); 0,715 ct = empirischer ÜNB-Kostenwert, rechtlich nicht maßgeblich. Code war korrekt; KB-Flag geschlossen.
 - 2026-07-10: `sucheNormen`-Default von `fassung_bis = null` auf „heute" umgestellt (Root-Cause-Fix): mit künftigen Fassungen im Graph wäre „bis = null" der Entwurfstext gewesen — Ingestion-Punkt statt Symptom gefixt.
+- 2026-07-15: Folge-Task (Plan 15.07., genehmigt): Norm-Graph-Visualisierung als Pitch-Feature — `/api/graph` (Stichtags-Aggregation, Fall-Modus via crossRefs Tiefe 1; Tiefe 2 mit 113 Knoten verworfen, bühnenuntauglich) + fink-Screen `NormGraph.jsx` (d3-force als 5. Vendor). Playwright-verifiziert (heute 205/708; 2027: 7 ENTWURF amber; Fall: 20 Knoten). Dazu Statusübersicht+Jura-Metaphern in der KB, source-inventory/architektur.md entstaubt (4 als „Roadmap" markierte Pipelines waren längst gebaut).
+- 2026-07-15: Tooling-Gotcha: „→" in einem Edit landete als NUL-Byte im Quelltext (JS-funktional, aber Korruption) — durch ASCII-`|` ersetzt; Regel: keine Pfeil-Glyphen in Code-Edits.
 
 ## Changelog
 

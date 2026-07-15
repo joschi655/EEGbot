@@ -325,3 +325,15 @@ Clearingstelle-Restbestand (FAQ ~198–330) per erneutem Pipeline-Lauf.
 - **Drehbuch:** Graph-Momente in Akt 2 (Fall-Subgraph) und Akt 3
   (Slider-Umverdrahtung vor dem Euro-Delta), Glossar-Box Jura-Sprache,
   Q&A „Woher wisst ihr, dass euer Rechner stimmt?" (Vier-Augen-Prinzip).
+- **Forge-Audit Norm-Graph: kein CRITICAL; 1 MAJOR + 5 MINOR + 3 Nits, alle
+  behoben:** Out-of-order-Fetch-Race in der Hero-Interaktion (Sequenz-Guards
+  für Graph- und Norm-Fetch), Drehbuch-vs-Realität § 100 (neuer
+  `markiere`-Param: § 100 wird hervorgehoben ohne Expansion — mit Expansion
+  wären es 68 statt 21 Knoten), Per-enbez-Dedupe + kanonische Kanten wie
+  normAtDate (Robustheit gegen künftige Fenster-Overlaps), Fehlerzustand statt
+  Dauer-Spinner im Norm-Panel, d3-fehlt-Hinweis, tiefe-Klemme [1,3],
+  mouseleave-Handler, aufgehobene Entwurfsnormen gestrichelt, extern-Zähler im
+  Panel genutzt. Sauber bestätigt: SQL-Injection, Halboffen-Fenster, Dedupe,
+  dpr=2-Hit-Testing, Lifecycle/Leaks, Performance (kein Cache nötig).
+  Verifiziert: 118 Tests, typecheck, curl-Proben (markiere=§ 100 → 21 Knoten,
+  tiefe=0 geklemmt), Playwright-Smoke mit 0 Konsolenfehlern.
