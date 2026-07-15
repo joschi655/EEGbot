@@ -288,3 +288,40 @@ Clearingstelle-Restbestand (FAQ ~198–330) per erneutem Pipeline-Lauf.
   01.08.2026 nachtragen, sobald BNetzA veröffentlicht; netztransparenz-
   Direktabruf (CSV) als Golddatei für Jahresmarktwerte; Sophia-Review der
   Entwurfs-Normen gegen SUER-Synopse.
+
+## 2026-07-15 — Norm-Graph-Visualisierung + Statusübersicht + Doku-Entstaubung
+
+- **Norm-Graph (Pitch-Feature):** `GET /api/graph?stichtag&slug[&fall&tiefe]`
+  in ui/server.ts — Knoten je enbez, Kanten aus `querverweis` der zum Stichtag
+  geltenden Expressions (aggregiert, Selbstverweise raus, externe Gesetze als
+  Zähler), Fall-Modus über bestehendes `crossRefs`. Neuer fink-Screen
+  `NormGraph.jsx` (Canvas + d3-force, d3 als 5. Vendor-Dependency):
+  **Zeitreise-Slider** mit Snap-Punkten EEG 2017 → heute → EEG 2027-E
+  (Entwurfs-Normen amber + Puls, Delta-Zeile „Neu gegenüber Heute: § 20a,
+  § 20b"), **Fall-Modus** „45.540-EUR-Fall zeigen" (Seeds § 52/§ 71/§ 19,
+  Tiefe 1 = 20 Knoten; Tiefe 2 wäre mit 113 Knoten bühnenuntauglich),
+  Klick → Norm-Panel mit Stichtags-Fassung. Positions-Cache über
+  Stichtagswechsel, Layout beruhigt sich in ~3 s (im Drehbuch vermerkt).
+- **Playwright-verifiziert:** Landing→Login→Norm-Graph; heute 205 Normen/708
+  Kanten mit § 100 als Hub; 2027-Slider kippt Header auf ENTWURF-Amber und
+  zeigt 7 Entwurfs-Normen; Fall-Modus dimmt korrekt; § 100-Klick lädt
+  „Übergangsbestimmungen". Einziger Konsolenfehler war favicon-404 → Inline-
+  SVG-Favicon-Route ergänzt (saubere DevTools auf der Bühne).
+- **Gotcha Edit-Tooling:** ein „→" aus einem Edit landete als NUL-Byte (\x00)
+  im Quelltext (funktionierte in JS zufällig als Separator!) — durch ASCII-`|`
+  ersetzt, alle Session-Dateien auf NUL gescannt (sauber). In Code-Edits keine
+  Pfeil-Glyphen verwenden.
+- **Statusübersicht (KB):** „26.07.15 - EEGbot Statusübersicht & Roadmap" —
+  Fähigkeiten-Inventar (verifiziert), Funktionsweise, Bedienung,
+  Roadmap-Abgleich (gebaut✓/offen✗ inkl. Embedder-Interface = vorbereitet,
+  nicht implementiert) und Kapitel „Für Juristen erklärt" (Metaphern-Set:
+  geeichter Taschenrechner, Schönfelder mit allen Auflagen, Vier-Augen-Catala,
+  Loseblattsammlung mit Aktenführungspflicht).
+- **Doku-Entstaubung:** source-inventory.md korrigiert (rechtsprechung/markt/
+  clearingstelle/changefeed waren längst GEBAUT, standen aber als
+  „Roadmap/offen"); architektur.md um 2027-Entwurf, Norm-Graph, /vendor-Offline
+  und Such-Default „heute" ergänzt; Obsidian-Spiegel (Agent Framework
+  Architektur) per Update-Abschnitt nachgezogen.
+- **Drehbuch:** Graph-Momente in Akt 2 (Fall-Subgraph) und Akt 3
+  (Slider-Umverdrahtung vor dem Euro-Delta), Glossar-Box Jura-Sprache,
+  Q&A „Woher wisst ihr, dass euer Rechner stimmt?" (Vier-Augen-Prinzip).

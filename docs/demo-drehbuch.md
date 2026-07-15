@@ -12,6 +12,8 @@ ob sich Parameter-Dateien geändert haben.
 - [ ] Zwillings-Unterlagen einspielen:
       `cp docs/beispiel-unterlagen-rueckforderung/* dokumente/ && bun run ingest:dokumente`
 - [ ] UI starten: `bun ui/server.ts` → http://localhost:3475/app/
+- [ ] Norm-Graph-Screen einmal durchklicken (Slider bis „EEG 2027-E", Fall-Toggle,
+      Klick auf § 100) — Layout beruhigt sich nach ~3 s, das vorher machen
 - [ ] **WLAN AUS und einmal komplett durchspielen** (UI lädt React/Babel lokal
       über `/vendor/*` — keine CDN-Abhängigkeit mehr; Claude Code selbst braucht
       Netz, also für Akt 2 Hotspot als Fallback bereithalten)
@@ -52,6 +54,13 @@ Prüf die Unterlagen in dokumente/. Der Netzbetreiber fordert 45.540 € nach
 | Tatsächliches Exposure (geheilt 05.07.2026, rückwirkend 2 €/kW, Nr. 11) | **6.417,00 €** | §52-Radar |
 | Differenz zur Forderung | **≈ 39.123 €** zu viel gefordert | Rechnung |
 
+**Graph-Moment (+15 s, Johannes wechselt in die fink-App → „Norm-Graph" →
+Button „45.540-EUR-Fall zeigen"):** Das ganze EEG dimmt ab, nur die Normenkette
+des Falls leuchtet (§ 52, § 71, § 19, § 100 …).
+**Sophia:** „Und so sieht dieser Fall *im Gesetz* aus — jede Linie ist ein
+echter Querverweis aus dem Normtext. Das ist kein Schaubild, das ist die
+Datenbank, mit der eben gerechnet wurde."
+
 **Punchline (Sophia):** „Der Netzbetreiber hat weder die rückwirkende Heilung
 noch die Verjährung gerechnet. Das Tool schon — jede Zahl mit Paragraf und
 Fassung. Und wo es etwas nicht weiß, sagt es das: Sachverhaltsfragen bleiben
@@ -67,6 +76,13 @@ open source, im 20-€-Claude-Abo."
 **Überleitung (Sophia):** „Im September liest der Bundestag das EEG 2027 — der
 größte Systemwechsel seit 2000. Kommentare dazu gibt es noch nicht. Unser
 Normgraph hat den Entwurf schon drin — als Entwurf gekennzeichnet, versteht sich."
+
+**Graph-Moment (Johannes zieht im Norm-Graph den Zeitreise-Slider von „Heute"
+auf „EEG 2027-E"):** Der Header kippt auf Amber, „Neu gegenüber Heute: § 20a,
+§ 20b" erscheint, sieben Entwurfs-Normen pulsieren im blauen Netz.
+**Sophia:** „Sie sehen gerade live, wie sich das Gesetz umverdrahtet — die
+amber Knoten sind der Entwurf. § 20a, der neue Refinanzierungsbeitrag, existiert
+heute noch gar nicht. Und was heißt das in Euro?"
 
 **Kommando (tippen):**
 
@@ -94,12 +110,34 @@ offiziellen Übergangsprüfer dafür. Unserer ist open source."
 Daten-Schemas (Kanzleien, Stadtwerke, Syndizi). QR-Code zum Repo:
 „Bringt euren eigenen Claude mit."
 
+## Glossar-Box — Technik in Jura-Sprache (für Sophias Sprechtexte)
+
+Vollständiges Metaphern-Set in der KB („EEGbot Statusübersicht & Roadmap",
+Kapitel 5). Die vier wichtigsten für die Bühne:
+
+- **Engines** = der geeichte Taschenrechner: Die KI darf nicht rechnen, sie darf
+  nur den Taschenrechner bedienen — gleiche Eingabe, gleiches Ergebnis, mit
+  Fundstelle.
+- **Normgraph** = ein Schönfelder mit allen alten Auflagen gleichzeitig, in dem
+  jede Verweisung ein klickbarer Faden ist (der Norm-Graph-Screen zeigt genau das).
+- **Catala** = automatisiertes Vier-Augen-Prinzip: Das Prüfschema steht direkt
+  unter dem Normtext als zweite, unabhängige Umsetzung — der Computer rechnet
+  beide bei jeder Änderung gegeneinander, Abweichung blockiert die Freigabe.
+- **Parameter-Dateien** = Loseblattsammlung mit Aktenführungspflicht: Neue Sätze
+  werden eingeheftet (Quelle + Datum), alte nie überklebt.
+
 ## Q&A-Munition
 
 - **„Warum nicht einfach ChatGPT?"** → Split-Screen-Clip: ChatGPT rät einen
   Vergütungssatz, EEGbot rechnet ihn mit BNetzA-Quelle und Fassung. Plus:
   LG Kiel 6 O 151/23 — wer KI-Antworten betreibt, haftet; deshalb rechnen bei
   uns deterministische Engines, nicht das Sprachmodell.
+- **„Woher wisst ihr, dass euer Rechner stimmt?"** → Vier-Augen-Prinzip,
+  automatisiert: Dieselbe Norm ist zweimal unabhängig umgesetzt — als formale
+  Catala-Spezifikation am Gesetzestext und als TypeScript-Engine. Bei jeder
+  Änderung rechnet die CI beide gegeneinander; weichen sie ab, wird der Stand
+  nicht freigegeben. Dazu 118 Tests und ein 16-Fragen-Benchmark mit belegten
+  Goldantworten.
 - **„Ist der EEG-2027-Teil nicht spekulativ?"** → Ja, und das Tool sagt es in
   jeder Zeile (ENTWURF-Marker in Titel, Text und Output). Genau so gehen
   Kanzleien heute mit Referentenentwürfen um — nur langsamer.

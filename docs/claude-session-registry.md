@@ -18,6 +18,13 @@ Vor längeren Läufen prüfen, ob eine bestehende Session fortgesetzt werden kan
 - Cross-Check evals/catala-crosscheck.ts: 24/24 im arm64-Container verifiziert (clerk run)
 - CI-Job catala (setup-ocaml@v3, opam catala.1.2.0); clerk-Artefakte gitignored
 
+## Session 2026-07-15 — Norm-Graph + Statusübersicht + Doku-Entstaubung
+- fink-Screen „Norm-Graph": echtes Querverweis-Netz, Zeitreise-Slider bis EEG 2027-E, Fall-Modus (45.540-€-Kette)
+- /api/graph (Stichtags-Aggregation + crossRefs-Fall-Modus); d3 als Vendor; favicon-Route
+- KB-Doc „26.07.15 - EEGbot Statusübersicht & Roadmap" (Fähigkeiten, Bedienung, Roadmap-Abgleich, Jura-Metaphern)
+- source-inventory/architektur.md/Obsidian-Spiegel entstaubt; Drehbuch um Graph-Momente + Glossar erweitert
+- Gotcha: „→" in Edits kann als NUL-Byte landen — ASCII-Separatoren in Code
+
 ## Session 2026-07-10 — Hackathon-Härtung + Pitch-Artefakte (E3, ISA im Repo-Root)
 - Offline-UI: /vendor/*-Routen statt unpkg-CDN, Playwright-verifiziert
 - Zahlen ab 02/2026 verifiziert/korrigiert (12,34/10,35; 6,73/5,50), Ü20 0,4-vs-0,715 aufgelöst

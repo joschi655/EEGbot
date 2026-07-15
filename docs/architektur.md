@@ -15,7 +15,7 @@ Schritt-Ebene, nicht auf Agenten-Ebene — jeder Workflow mischt Tool-Schritte
 
 | Schicht | Implementierung |
 |---|---|
-| Experience | Claude Code (Chat) — B2C-Frontend folgt später auf denselben Schemas |
+| Experience | Claude Code (Chat) + fink-Dev-Server (`bun ui/server.ts`: Förder-Fahrplan- und Norm-Graph-Screen live gegen die Engines; React/Babel/d3 lokal über `/vendor/*` — läuft ohne Netz) — volles B2C-Frontend folgt später auf denselben Schemas |
 | Orchestrierung | Skills: `Intake` (Fall-Strukturierung + Routing) → `Workflow`-Runner (interpretiert `data/workflows/*.yaml` State-Machines) |
 | Deterministische Engines | `src/rules/` (TypeScript) + `rules/*.catala_en` (formale Spezifikation) — §52, Vergütung, §24, Fristen, Schwellen, Ü20, Förder-Matcher, Guardrail-Classifier |
 | Agenten | `.claude/agents/`: intake, eligibility, process-navigator, document-prep, compliance-guardrail, eskalation, research |
@@ -38,6 +38,17 @@ Schritt-Ebene, nicht auf Agenten-Ebene — jeder Workflow mischt Tool-Schritte
 - **Deterministische API** (Pattern „Deterministic Legal Agents", arXiv 2510.06002):
   `norm_at_date`, `fassungen`, `diff_fassungen`, `cross_refs`,
   `resolve_uebergangsrecht` — komponierbare Primitive statt freier LLM-Suche.
+- **EEG-2027-Entwurf (opt-in):** `bun run build:eeg2027` legt die kuratierten
+  RefE-Kernänderungen (`data/entwuerfe/eeg-2027-refe.json`, sinngemäß + quellen-
+  belegt) als Snapshot `2027-01-01` in den Graphen. Invariante: der Entwurf wird
+  als **Overlay über den letzten Voll-Snapshot** erzeugt — ein Teil-Snapshot
+  würde alle nicht kuratierten Normen fälschlich schließen (Regressionstest
+  `src/graph/eeg2027.test.ts`). Jede Entwurfs-Norm trägt den ENTWURF-Marker in
+  Titel und Text; Stichtags-Queries für heute bleiben unberührt.
+- **Norm-Graph-Visualisierung:** `GET /api/graph?stichtag=…[&fall=…&tiefe=…]`
+  aggregiert Knoten (je enbez) + Querverweis-Kanten zum Stichtag; der fink-Screen
+  „Norm-Graph" rendert das Netz (Canvas + d3-force) mit Zeitreise-Slider und
+  Fall-Modus (crossRefs-Umgebung der Seeds, alles andere gedimmt).
 
 ## OpenFisca-Pattern in TypeScript
 
@@ -81,14 +92,17 @@ abrufbar:
 
 | Index | Quelle | Datei | Pipeline | MCP-Tool |
 |---|---|---|---|---|
-| Normen (temporal) | gesetze-im-internet via QuantLaw-Snapshots | `knowledge/normgraph.sqlite` + `knowledge/index/normen.json` (5 390 Chunks) | `build:knowledge` | `eeg-wissen` → `suche_norm`, `norm_at_date`, `cross_refs`, `resolve_uebergangsrecht` |
+| Normen (temporal) | gesetze-im-internet via QuantLaw-Snapshots (+ optional EEG-2027-RefE) | `knowledge/normgraph.sqlite` + `knowledge/index/normen.json` (5 411 Chunks) | `build:knowledge` (+ `build:eeg2027`) | `eeg-wissen` → `suche_norm`, `norm_at_date`, `cross_refs`, `resolve_uebergangsrecht` |
 | Clearingstelle | clearingstelle-eeg-kwkg.de (FAQ + Voten, Detailseiten-Enumeration; Facettensuche ist WAF-geschützt) | `knowledge/clearingstelle.sqlite` + Index | `ingest:clearingstelle` (mehrfach laufen lassen — Drosselung nach ~200 Requests) | `eeg-wissen` → `suche_clearingstelle` |
 | Rechtsprechung | Open Legal Data (8 BGH-Kernurteile gezielt + EEG-Breitensuche) | `knowledge/rechtsprechung.sqlite` + Index | `ingest:rechtsprechung` | `eeg-wissen` → `suche_rechtsprechung` |
 | Nutzer-Dokumente | `dokumente/` (privat) | `dokumente/.extrakte/` + `knowledge/index/dokumente.json` | `ingest:dokumente` | `eeg-dokumente` → `suche_dokumente`, `dokument_lesen`, `bilder_liste` |
 
 Retrieval ist lexikalisch (BM25, AND-zuerst-OR-Fallback, Fuzzy für
 OCR-Fehler) — für juristische Texte mit exakten Paragraphennummern die richtige
-Basis. Vektor-Hybrid (jina-embeddings-v2-base-de via transformers.js) ist als
+Basis. Ohne Stichtag filtert `sucheNormen` auf die **heute** geltenden Fassungen
+(nicht `fassung_bis = null` — sonst würde ein künftiger Entwurfs-Snapshot als
+geltendes Recht auftauchen; Regressionstest `src/rag/suche.test.ts`).
+Vektor-Hybrid (jina-embeddings-v2-base-de via transformers.js) ist als
 `Embedder`-Interface in `src/rag/suche.ts` vorbereitet (Roadmap).
 
 ## Dokumente-Layer (Nutzer-Unterlagen)
