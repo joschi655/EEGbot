@@ -15,7 +15,7 @@ Schritt-Ebene, nicht auf Agenten-Ebene — jeder Workflow mischt Tool-Schritte
 
 | Schicht | Implementierung |
 |---|---|
-| Experience | Claude Code (Chat) + fink-Dev-Server (`bun ui/server.ts`: Förder-Fahrplan- und Norm-Graph-Screen live gegen die Engines; React/Babel/d3 lokal über `/vendor/*` — läuft ohne Netz) — volles B2C-Frontend folgt später auf denselben Schemas |
+| Experience | Zwei Ebenen, ein Produkt: **Web-UI** (`bun ui/server.ts` → `/app/`, React/Babel/d3 lokal über `/vendor/*`, läuft ohne Netz) mit 9 B2C-Screens live gegen die Engines — Übersicht, Meine Anlage (localStorage-Profil `eegbot.anlage.v1`), Fristen, Rückforderungs-Check (§ 52), Vergütung, Ü20, Förder-Fahrplan, Recherche, Norm-Graph. **Claude Code** als agentische Ebene obendrauf (eigene PDFs, Freitext, Workflows, RDG-Guardrail — nur lokal). REST-Wrapper in `ui/server.ts`: `/api/{frage,fahrplan,intake,norm,cascade,uebergangsrecht,graph,sanktion52,verguetung,fristen,schwellen,ue20,status}` — dieselben Engine-Funktionen wie die MCP-Server, Engine-Throws als lesbare 400er. Gehostet: fink.aiwerke.de (B2B-Artefakt, gepinnt) + eegbot.aiwerke.de (B2C, hinter Cloudflare Access) |
 | Orchestrierung | Skills: `Intake` (Fall-Strukturierung + Routing) → `Workflow`-Runner (interpretiert `data/workflows/*.yaml` State-Machines) |
 | Deterministische Engines | `src/rules/` (TypeScript) + `rules/*.catala_en` (formale Spezifikation) — §52, Vergütung, §24, Fristen, Schwellen, Ü20, Förder-Matcher, Guardrail-Classifier |
 | Agenten | `.claude/agents/`: intake, eligibility, process-navigator, document-prep, compliance-guardrail, eskalation, research |

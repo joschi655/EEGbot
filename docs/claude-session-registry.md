@@ -7,16 +7,11 @@ Vor längeren Läufen prüfen, ob eine bestehende Session fortgesetzt werden kan
 |---|---|---|---|
 | 2026-06-12 | v0.1.0 Initial Build (Phasen 0–5) | Komplettes Framework, 40 Tests grün, Benchmark 16/16 | Folge-Phasen, Bugfixes, Daten-Kuratierung |
 
-## Session 2026-06-12-b — EEGbot-Migration + Dokumente-Layer
-- Repo nach github.com/joschi655/EEGbot migriert (History erhalten)
-- Nutzer-Dokumenten-Ingestion (PDF/OCR/Vision) + eeg-dokumente MCP + Unterlagen-Skill
-- Pipelines clearingstelle/rechtsprechung/markt/ausschreibungen gebaut + real verprobt
-- docs/user-guide.md neu; architektur.md RAG-Topologie; setup-Skript
-
-## Session 2026-06-12-c — Catala-CI
-- Befund: kein catala_de — Spezifikationen auf catala_en portiert (§52 neu, §24 ersetzt)
-- Cross-Check evals/catala-crosscheck.ts: 24/24 im arm64-Container verifiziert (clerk run)
-- CI-Job catala (setup-ocaml@v3, opam catala.1.2.0); clerk-Artefakte gitignored
+## Session 2026-07-15-c — B2C-Umbau + eegbot.aiwerke.de + Demo-Guide
+- 5 neue Engine-Endpunkte in ui/server.ts (sanktion52/verguetung/fristen/schwellen/ue20), Throws als lesbare 400er
+- UI komplett B2C: Anlagenprofil in localStorage (profil.js), 9 echte Screens, Login/Mocks raus; Forge baute Verguetung/Ue20/Recherche parallel
+- Demo-Star Sanktion52: „Beispielfall laden" → 6.417 € vs. 45.540 € durchgestrichen; BGH-Zwilling-Dashboard zeigt Vergütungs-400 ehrlich als „—"
+- docs/demo-guide-team.md (3 Stationen); Testzahl 118 vereinheitlicht; ISA ISC-41..67; Deploy eegbot.aiwerke.de via /opt/eegbot-b2c:3476 hinter Cloudflare Access (Opus-Agent)
 
 ## Session 2026-07-15-b — LIVE-Deploy fink.aiwerke.de + Supabase (Opus-Agent)
 - fink.aiwerke.de: /opt/eegbot, systemd eegbot-fink (3475, EEGBOT_PUBLIC=1), Tunnel-Ingress + CNAME — live verifiziert

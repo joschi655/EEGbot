@@ -376,3 +376,52 @@ Clearingstelle-Restbestand (FAQ ~198–330) per erneutem Pipeline-Lauf.
   vor das Studio bevor echte Projektdaten reinwandern, optional Supabase-Ports
   auf 127.0.0.1 mappen.
 
+
+## 2026-07-15-c — B2C-Umbau: „Meine Anlage", echte Engines statt Mocks, eegbot.aiwerke.de
+
+**Anlass:** Owner-Entscheid: Fokus auf den B2C-EEGbot (Open Source lokal + paid
+gehostet); fink.aiwerke.de bleibt als B2B-Artefakt liegen. 6 von 8 fink-Screens
+waren B2B-Mock-Attrappen (Fake-Login, Fake-Chat, hartkodiertes Portfolio) — die
+Engines existierten aber alle. Umbau = Verdrahtung, kein Neubau. Team-Demo am
+16.07.
+
+- **Server (`ui/server.ts`):** 5 neue Endpunkte als dünne Wrapper um dieselben
+  Engines wie mcp/rechner: GET+POST `/api/sanktion52`, `/api/verguetung`,
+  `/api/fristen`, `/api/schwellen`, `/api/ue20`. Engine-Throws sind
+  nutzerlesbare Validierungsmeldungen → 400 mit Originaltext (engine-Helper).
+  Favicon „f"→„E".
+- **Anlagenprofil (`profil.js`):** localStorage `eegbot.anlage.v1` deckt alle
+  Engine-Inputs; Vorlagen `beispiel()` (9,8 kWp, konform) und `bghZwilling()`
+  (103,5 kWp, IBN 20.10.2022, geheilter Nr.-11-Verstoß). Nur MeineAnlage
+  schreibt, Screens lesen on-mount. Zentrales Fristen-Status-Mapping
+  (ueberschritten→overdue …).
+- **UI-Umbau:** Login-Stage raus (kommt mit Supabase; Login.jsx bleibt als
+  Vorlage liegen). Shell FINK_DATA-frei, Text-Wordmark „EEGbot" (kein
+  --font-outline — Gilmer liegt nicht auf dem Server). Sidebar B2C: Übersicht ·
+  Meine Anlage · Fristen · Rückforderungs-Check · Vergütung · Nach der
+  Förderung · Förder-Fahrplan · Recherche · Norm-Graph. Neue/umgebaute Screens:
+  Landing (B2C-Hero + GitHub), Dashboard (parallel fristen/verguetung/schwellen
+  mit SEPARATEN Catches — Vergütungs-400 beim >100-kWp-Zwilling ist Normalfall
+  → KPI „—" + Direktvermarktungs-Hinweis), MeineAnlage (ersetzt
+  Assets+AssetDetail; Schwellen-Befunde + §100-Rechtsregime-Karte via
+  /api/uebergangsrecht), Deadlines (echte Fristen inkl. folge_bei_verstoss +
+  Veräußerungsform-Erklärtext), Sanktion52 (Demo-Star: „Beispielfall laden" →
+  6.417 € vs. 45.540 € durchgestrichen, Differenz 39.123 €, Monats-Tabelle mit
+  verjährt-Badges), Verguetung/Ue20/Recherche (Forge, GPT-5.4 — Recherche
+  bewusst OHNE Chat: Suchfeld → 3 Trefferblöcke Normen/Clearingstelle/
+  Rechtsprechung). Reports-Fake-Chat und data.js werden nicht mehr geladen.
+- **Doku:** docs/demo-guide-team.md (3 Demo-Stationen, Produktmodell „zwei
+  Ebenen, ein Produkt", Echt-vs-Roadmap, Troubleshooting); Testzahl auf 118
+  vereinheitlicht (README hatte 40, Drehbuch 113); architektur.md
+  Experience-Schicht aktualisiert; ISA um ISC-41..67 erweitert (ID-stabil).
+- **Deploy:** eegbot.aiwerke.de über zweiten Checkout /opt/eegbot-b2c
+  (Port 3476, Cloudflare Access statt EEGBOT_PUBLIC) — Opus-Agent, Runbook
+  docs/deploy-eegbot-b2c.md. Reihenfolge gegen offenes Key-Fenster:
+  Access-Probe (302) VOR Key-Deploy; Fallback EEGBOT_PUBLIC=1.
+- **Verifiziert:** 118 Tests, typecheck, curl je Endpunkt (BGH-Payload =
+  6.417 €), Playwright alle 9 Screens (Konsole 0 Fehler außer gewollten
+  4xx-Netzwerklogs), Flows Beispiel-Anlage/BGH-Zwilling, Fahrplan+NormGraph-
+  Regression.
+- **Gelernt:** Browser loggt gewollte 4xx als Konsole-Fehler → Abnahmekriterium
+  präzisiert; _ds_bundle.js definiert FINK_DATA weiterhin (Z. 1847) → Anti-
+  Kriterium als Grep der geladenen Screens statt „ist undefined".

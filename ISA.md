@@ -1,12 +1,12 @@
 ---
 project: EEGbot
-task: Hackathon-Demo-Härtung + Pitch-Artefakte (Legal Loves Tech 17.–21.08.2026)
-effort: E3
-phase: complete
-progress: 40/40
+task: B2C-Umbau (Meine Anlage, echte Engines statt Mocks) + eegbot.aiwerke.de + Team-Demo-Guide
+effort: E4
+phase: verify
+progress: 55/67
 mode: build
-started: 2026-07-10T22:05:00+02:00
-updated: 2026-07-11T00:20:00+02:00
+started: 2026-07-15T12:10:00+02:00
+updated: 2026-07-15T15:50:00+02:00
 ---
 
 # ISA — EEGbot (Projekt)
@@ -126,6 +126,41 @@ Pitch-Konzept als KB-Dokument.
 - [x] ISC-39: Forge-Audit über neue Artefakte gelaufen; Funde behoben oder begründet dokumentiert (Read Audit-Log)
 - [x] ISC-40: Logische Commits je Werkpaket, Arbeitsverzeichnis am Ende sauber bis auf Fremd-Edits (git status)
 
+### D10 — B2C-Server-Endpunkte (Run 2026-07-15-c)
+- [x] ISC-41: `GET /api/sanktion52` liefert `{kategorien}` = VERSTOSS_KATEGORIEN (curl)
+- [x] ISC-42: `POST /api/sanktion52` mit BGH-Zwilling-Payload → `exposure_gesamt_eur == 6417`, verjährt 2484, 43 Monate (curl)
+- [x] ISC-43: `POST /api/verguetung` 2023er 9,8 kWp → satz 8.2, foerderende 2043-12-31; 2020er → HTTP 400 mit lesbarer Engine-Meldung (curl)
+- [x] ISC-44: `POST /api/fristen` + `/api/schwellen` + `/api/ue20` liefern Engine-Shapes (Array/Objekt, Status/Norm/Optionen) (curl)
+- [x] ISC-45: Engine-Throw wird als 400 mit Originaltext gereicht (engine-Helper), nicht als 500 (curl 2020er-Fall)
+- [x] ISC-46: `bun test` 118 grün + `tsc --noEmit` sauber nach Server-Edits (Bash)
+
+### D11 — B2C-UI-Umbau
+- [x] ISC-47: `profil.js`: window.EEGBOT_PROFIL {lade, speichere, loesche, vollstaendig, beispiel, bghZwilling, FRIST_STATUS/LABEL}, Key `eegbot.anlage.v1` (Read + Browser-Flow)
+- [x] ISC-48: Login-Stage entfernt; Landing → App direkt; „Abmelden" → „Startseite" (App.jsx/shell.jsx + Klick-Probe)
+- [x] ISC-49: Kein geladener Screen liest FINK_DATA; data.js/Login/Assets/AssetDetail/Reports nicht mehr in index.html (Grep + Read)
+- [x] ISC-50: Wordmark „EEGbot" als Text OHNE --font-outline (Gilmer fehlt auf Server) in Shell + Landing (Read + Screenshot)
+- [x] ISC-51: Alle 12 Script-Dateien laden: Konsole 0 Fehler außer gewollten 4xx-Netzwerklogs (Playwright console_messages)
+- [x] ISC-52: Flow Landing → App → Empty-State → „Beispiel-Anlage laden" → KPIs live (8,2 ct/kWh, Förderende 2043, Schwellen-Handlungsbedarf) (Playwright)
+- [x] ISC-53: BGH-Zwilling-Flow: Vergütungs-KPI „—" + Erklär-Card (>100 kWp → Direktvermarktung), Fristen/Schwellen rechnen trotzdem (separate Catches) (Playwright)
+- [x] ISC-54: Sanktion52 „Beispielfall laden" → „6.417 €" groß sichtbar, Forderung 45.540 € durchgestrichen, Differenz 39.123 €, Monats-Tabelle mit verjährt-Badges (Playwright + Screenshot)
+- [x] ISC-55: Forge-Screens: Vergütung (13 ct Volleinspeisung + Stufen + 400-als-Hinweis), Ü20 (Options-Cards, beste Option 4.027,80 €/Jahr), Recherche (Chip → 13 Treffer, 3 Blöcke, kein Chat) (Playwright)
+- [x] ISC-56: Regression: Fahrplan + NormGraph rendern unter neuem AppShell (205 Normen/708 Kanten) (Playwright)
+
+### D12 — Deploy eegbot.aiwerke.de
+- [ ] ISC-57: `/opt/eegbot-b2c` als zweiter Checkout; `/opt/eegbot` unangetastet (Agent-Report + fink-Gegenprobe)
+- [ ] ISC-58: systemd `eegbot-b2c` aktiv auf 127.0.0.1:3476, EnvironmentFile 600 root:root, kein EEGBOT_PUBLIC (Agent-Report)
+- [ ] ISC-59: cloudflared-Ingress ergänzt NACH `ingress validate`, fink-Eintrag unverändert, Restart via systemd-run überlebt (Agent-Report)
+- [ ] ISC-60: Access-Probe: https://eegbot.aiwerke.de/app/ → 302 auf cloudflareaccess.com BEVOR der Key deployed wird; sonst EEGBOT_PUBLIC=1-Fallback (Agent-Report)
+- [ ] ISC-61: Gegenprobe fink.aiwerke.de weiterhin 200; Supabase/übrige Dienste unangetastet (Agent-Report)
+- [ ] ISC-62: Runbook `docs/deploy-eegbot-b2c.md` existiert im Repo (Read)
+
+### D13 — Doku + Weitergabe
+- [x] ISC-63: `docs/demo-guide-team.md`: 3 Stationen, Produktmodell-Absatz („wann Web-UI, wann Claude Code"), Prep-Checkliste, Echt-vs-Roadmap, Troubleshooting (Read)
+- [x] ISC-64: Testzahlen-Inkonsistenz behoben: README 40→118, Drehbuch 113→118 (Grep)
+- [x] ISC-65: `docs/architektur.md` Experience-Schicht: 9 B2C-Screens + 13 REST-Routen + Zwei-Ebenen-Modell (Read)
+- [ ] ISC-66: worklog + Session-Registry um Run 2026-07-15-c ergänzt (Read)
+- [ ] ISC-67: Obsidian-Statusübersicht Kap. Produktmodell um eegbot.aiwerke.de ergänzt (Read)
+
 ## Test Strategy
 
 | isc | type | check | threshold | tool |
@@ -139,6 +174,10 @@ Pitch-Konzept als KB-Dokument.
 | 25–26 | doc | Drehbuch vollständig | alle 3 Akte | Read |
 | 27–35 | graph | Entwurf drin, heute unberührt | Anti-32 zwingend | sqlite/bun |
 | 36–40 | repo | Hygiene + Audit | 0 Verstöße | git/Read |
+| 41–46 | api | curl je Endpunkt gegen Engine-Erwartung | BGH = 6417 exakt | curl/Bash |
+| 47–56 | ui | Playwright-Flows + Konsole | 0 Fehler (außer gewollte 4xx) | Playwright |
+| 57–62 | deploy | Agent-Report + Live-Proben | Access vor Key | curl/ssh |
+| 63–67 | doc | Read/Grep der Artefakte | vollständig | Read/Grep |
 
 ## Features
 
@@ -151,6 +190,10 @@ Pitch-Konzept als KB-Dokument.
 | demo-drehbuch | ISC-25..26 | bgh-zwilling, zeitmaschine | nein |
 | eeg2027-zeitmaschine | ISC-27..35 | – | ja |
 | verify-und-audit | ISC-17..19, 36..40 | alle | nein |
+| b2c-endpunkte | ISC-41..46 | – | ja |
+| b2c-ui-umbau | ISC-47..56 | b2c-endpunkte | teilweise (Forge: 3 Screens) |
+| deploy-eegbot-b2c | ISC-57..62 | b2c-ui-umbau, Push | ja (Opus-Agent) |
+| demo-guide+doku | ISC-63..67 | alle | ja |
 
 ## Decisions
 
@@ -165,6 +208,10 @@ Pitch-Konzept als KB-Dokument.
 - 2026-07-10: `sucheNormen`-Default von `fassung_bis = null` auf „heute" umgestellt (Root-Cause-Fix): mit künftigen Fassungen im Graph wäre „bis = null" der Entwurfstext gewesen — Ingestion-Punkt statt Symptom gefixt.
 - 2026-07-15: Folge-Task (Plan 15.07., genehmigt): Norm-Graph-Visualisierung als Pitch-Feature — `/api/graph` (Stichtags-Aggregation, Fall-Modus via crossRefs Tiefe 1; Tiefe 2 mit 113 Knoten verworfen, bühnenuntauglich) + fink-Screen `NormGraph.jsx` (d3-force als 5. Vendor). Playwright-verifiziert (heute 205/708; 2027: 7 ENTWURF amber; Fall: 20 Knoten). Dazu Statusübersicht+Jura-Metaphern in der KB, source-inventory/architektur.md entstaubt (4 als „Roadmap" markierte Pipelines waren längst gebaut).
 - 2026-07-15: Tooling-Gotcha: „→" in einem Edit landete als NUL-Byte im Quelltext (JS-funktional, aber Korruption) — durch ASCII-`|` ersetzt; Regel: keine Pfeil-Glyphen in Code-Edits.
+- 2026-07-15 (Run c): Produkt-Entscheid (Owner): Fokus B2C-EEGbot; fink.aiwerke.de bleibt als B2B-Artefakt liegen. Subdomain eegbot.aiwerke.de, Schutz Cloudflare Access (Team-E-Mails), Supabase-Login NACH der Demo, Mocks echt auf B2C umgebaut („Meine Anlage"-Konzept, localStorage als Vor-Supabase-Persistenz).
+- 2026-07-15 (Run c): Alte B2B-Dateien (Login/Assets/AssetDetail/Reports/data.js) bleiben auf Platte, werden aber nicht mehr geladen — Login.jsx ist Vorlage für den Supabase-Login, Rest ist fink-Referenz. `_ds_bundle.js` definiert FINK_DATA weiterhin (Z. 1847) — deshalb Anti-Kriterium ISC-49 als Grep statt „ist undefined".
+- 2026-07-15 (Run c): Forge (E4-Binding) baute Verguetung/Ue20/Recherche parallel als neue Dateien (Kontrakt: nur window.*-Schnittstelle, keine Shared-File-Edits) — Kollisionsfreiheit durch Datei-Ownership statt Locking.
+- 2026-07-15 (Run c): Deploy-Reihenfolge gegen offenes Key-Fenster: Access-Probe (302 auf cloudflareaccess.com) MUSS vor dem Key-Deploy grün sein; Fallback bei fehlendem Access ist EEGBOT_PUBLIC=1 (Intake-403) statt Key.
 
 ## Changelog
 
@@ -172,6 +219,11 @@ Pitch-Konzept als KB-Dokument.
   **Refuted by:** `ingestFassungen` schließt alle in einem Snapshot fehlenden Normen (`fassung_bis` gesetzt) — § 100 wäre am 2027-01-15 „weggefallen".
   **Learned:** Entwurfs-Snapshots müssen als Overlay über den letzten Voll-Snapshot erzeugt werden; unveränderte Normen kollabieren dann hash-gleich in dieselbe Expression.
   **Criterion now:** ISC-28 (Voll-Snapshot via Pipeline) + ISC-32 (Anti-Leak heute) + Stichprobe § 100 am 2027-01-15.
+
+- **Conjectured (Run c):** „Konsole == 0 Fehler" ist das saubere UI-Abnahmekriterium je Screen.
+  **Refuted by:** Der Browser loggt jeden HTTP-4xx als Konsole-Fehler — der GEWOLLTE Vergütungs-400 beim 103,5-kWp-Zwilling erscheint dort zwangsläufig.
+  **Learned:** Fehlerfreiheit heißt: 0 Script-/Render-Fehler; erwartete 4xx-Netzwerklogs sind explizit whitelisted.
+  **Criterion now:** ISC-51/53 (Formulierung „außer gewollten 4xx-Netzwerklogs").
 
 ## Verification
 
@@ -189,3 +241,13 @@ Pitch-Konzept als KB-Dokument.
 - ISC-38: Read worklog-Abschnitt 2026-07-10 + Registry-Eintrag.
 - ISC-36/37/40: git log --name-only HEAD~5..HEAD → 0× onboarding, 0× knowledge/dokumente; 5 logische Commits (9a0aab9, 9e587b5, 3263f7a, 5f3b867, 29d4ea3); status sauber bis auf Fremd-Edits.
 - ISC-39: Forge-Audit (GPT-5.4) abgeschlossen — kein CRITICAL/MAJOR, Kernlogik/Invariante/Zahlen empirisch bestätigt; alle 7 MINOR-Funde behoben (leerer Stichtag, argv-Guard, Δ-Framing, § 25-Zitat, Drehbuch-Zahl, 2 Regressionstest-Dateien, Containment-Check). Nachweis: 118 Tests grün, typecheck, demo-Läufe (Guard exit 1, neues Label im Output).
+
+### Run 2026-07-15-c (B2C-Umbau)
+- ISC-41..45: curl-Proben lokal:3475 — GET sanktion52 12+ Kategorien; BGH-Payload exposure_gesamt_eur=6417/verjährt=2484/43 Monate; verguetung 2023 satz=8.2 + foerderende=2043-12-31; verguetung 2020 HTTP 400 „IBN … liegt vor dem 30.07.2022 …"; fristen=Array mit status/norm/folge_bei_verstoss, schwellen=Array thema/zutreffend, ue20=Objekt foerderende/optionen/warnungen/quellen.
+- ISC-46: bun test „118 pass / 0 fail"; tsc --noEmit leer (nach Server- UND UI-Edits).
+- ISC-47..50: Read profil.js/App.jsx/shell.jsx/index.html; Grep FINK_DATA in app/*.jsx → nur ungenutzte Altdateien; Grep font-outline in neuen Dateien → 0.
+- ISC-51: Playwright console_messages nach Vollladung: 0 Fehler; nach BGH-Flows: nur /api/verguetung-400 (gewollt).
+- ISC-52..54: Screenshots — Dashboard-KPIs 8,2 ct/kWh / 2043 / Schwellen-Rows; BGH-Dashboard „—" + „Kein fester Vergütungssatz berechenbar" + Volleinspeisungs-Frist offen; Sanktion52 „6.417 €" 44px Klein-Blau + „45.540 €" durchgestrichen + „Differenz 39.123 €" + Monatszeilen mit verjährt-Badge.
+- ISC-55: Screenshots — Vergütung 13 ct/kWh + Stufen-Tabelle + „Kein fester Satz"-400-Card; Ü20 „Ausgefördert seit 31.12.2024" + beste Option 4.027,80 €/Jahr; Recherche „13 Treffer" mit Normen-Block (KWKG § 13b, EEG 2014 § 55b …).
+- ISC-56: Screenshot NormGraph „205 Normen · 708 Querverweis-Kanten" unter neuem Shell; Fahrplan-Screen rendert.
+- ISC-63..65: Read demo-guide-team.md (3 Stationen + Produktmodell-Absatz + Tabellen); Grep „118" in README:141 + demo-drehbuch:21; Read architektur.md Experience-Zeile.
