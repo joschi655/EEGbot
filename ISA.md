@@ -147,12 +147,12 @@ Pitch-Konzept als KB-Dokument.
 - [x] ISC-56: Regression: Fahrplan + NormGraph rendern unter neuem AppShell (205 Normen/708 Kanten) (Playwright)
 
 ### D12 — Deploy eegbot.aiwerke.de
-- [ ] ISC-57: `/opt/eegbot-b2c` als zweiter Checkout; `/opt/eegbot` unangetastet (Agent-Report + fink-Gegenprobe)
-- [ ] ISC-58: systemd `eegbot-b2c` aktiv auf 127.0.0.1:3476, EnvironmentFile 600 root:root, kein EEGBOT_PUBLIC (Agent-Report)
-- [ ] ISC-59: cloudflared-Ingress ergänzt NACH `ingress validate`, fink-Eintrag unverändert, Restart via systemd-run überlebt (Agent-Report)
-- [ ] ISC-60: Access-Probe: https://eegbot.aiwerke.de/app/ → 302 auf cloudflareaccess.com BEVOR der Key deployed wird; sonst EEGBOT_PUBLIC=1-Fallback (Agent-Report)
-- [ ] ISC-61: Gegenprobe fink.aiwerke.de weiterhin 200; Supabase/übrige Dienste unangetastet (Agent-Report)
-- [ ] ISC-62: Runbook `docs/deploy-eegbot-b2c.md` existiert im Repo (Read)
+- [x] ISC-57: `/opt/eegbot-b2c` als zweiter Checkout (Commit 7a6fce0); `/opt/eegbot` (fink, b633455) unangetastet — Agent-Report + eigene Gegenprobe fink 200
+- [x] ISC-58: systemd `eegbot-b2c` aktiv auf 127.0.0.1:3476, EnvironmentFile 600 root:root, kein EEGBOT_PUBLIC in der Unit (Agent-Report)
+- [x] ISC-59: cloudflared-Ingress ergänzt NACH `ingress validate` (OK), fink-Eintrag unverändert, Config-Backup, Restart via systemd-run überlebt SSH-Abbruch (Agent-Report)
+- [~] ISC-60: Access-Probe ergab **Fall B** — https://eegbot.aiwerke.de/app/ = 200 (Access im Dashboard NOCH NICHT angelegt). Sicherer Fallback korrekt: KEIN Key, `EEGBOT_PUBLIC=1` → eigene Live-Probe /api/intake = **403**. OFFEN für Johannes: Access anlegen, dann Key rein (docs/deploy-eegbot-b2c.md §Umschalten)
+- [x] ISC-61: eigene Live-Gegenproben: fink.aiwerke.de/app/ = 200; eegbot /api/status = 200 (4 Indizes vorhanden); /api/sanktion52 BGH-Payload = **6417**; Supabase-Container healthy (Agent-Report)
+- [x] ISC-62: Runbook `docs/deploy-eegbot-b2c.md` im Repo (Read — Architektur-Diffs, Access-vs-EEGBOT_PUBLIC, Update-Prozess, Gefahren)
 
 ### D13 — Doku + Weitergabe
 - [x] ISC-63: `docs/demo-guide-team.md`: 3 Stationen, Produktmodell-Absatz („wann Web-UI, wann Claude Code"), Prep-Checkliste, Echt-vs-Roadmap, Troubleshooting (Read)
@@ -251,3 +251,8 @@ Pitch-Konzept als KB-Dokument.
 - ISC-55: Screenshots — Vergütung 13 ct/kWh + Stufen-Tabelle + „Kein fester Satz"-400-Card; Ü20 „Ausgefördert seit 31.12.2024" + beste Option 4.027,80 €/Jahr; Recherche „13 Treffer" mit Normen-Block (KWKG § 13b, EEG 2014 § 55b …).
 - ISC-56: Screenshot NormGraph „205 Normen · 708 Querverweis-Kanten" unter neuem Shell; Fahrplan-Screen rendert.
 - ISC-63..65: Read demo-guide-team.md (3 Stationen + Produktmodell-Absatz + Tabellen); Grep „118" in README:141 + demo-drehbuch:21; Read architektur.md Experience-Zeile.
+
+### Run 2026-07-15-c — Deploy (Live-Proben durch den Hauptagenten)
+- ISC-57..59/61: Opus-Subagent-Deploy /opt/eegbot-b2c (7a6fce0), systemd eegbot-b2c 127.0.0.1:3476, cloudflared-Ingress nach validate=OK; eigene externe Proben: eegbot.aiwerke.de/app/=200, /api/status=200 (normgraph/normen/clearingstelle/rechtsprechung „vorhanden"), /api/sanktion52 BGH=6417, /api/intake=403, fink.aiwerke.de/app/=200 (Gegenprobe unverändert).
+- ISC-60: Fall B (Access fehlt noch) → Instanz öffentlich, Intake per EEGBOT_PUBLIC=1 gehärtet (403 verifiziert). Owner-Aktion offen: Cloudflare Access anlegen, dann Key statt EEGBOT_PUBLIC.
+- ISC-62: docs/deploy-eegbot-b2c.md gelesen — vollständig, ID-stabil zu deploy-fink.md.
