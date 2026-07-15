@@ -24,6 +24,9 @@ ist; agentisch nur, wo Auslegung oder Nutzerführung gebraucht wird:**
 - **§24-Entscheidungsbaum** — deterministische Prüfschritte; der unbestimmte
   Rechtsbegriff „unmittelbare räumliche Nähe" wird ehrlich als
   `LLM_SUBSUMTION_ERFORDERLICH` ausgewiesen (mit BGH-XIII-ZR-12/19-Pflichtkontext)
+- **Solarspitzen-Check** — 60-%-Wirkleistungsgrenze, Steuertechnik und
+  Negativpreisfolge nach §§ 9, 51, 51a EEG einschließlich Übergangsrecht und
+  bewusstem Altregime-Gate statt pauschaler Bestandsanlagen-Antwort
 - **Förder-Matcher** — KfW 458/270, BAFA BEG EM, § 35c EStG als maschinenlesbare
   Schemas mit Boni-Logik und Kumulierungs-Matrix
 - **Formularinventar** — MaStR-Felder, Veräußerungsform-Meldung, WEG-Zustimmung
@@ -109,7 +112,7 @@ Claude Code (Runtime)
  ├─ Hooks       RDG-Ampel (UserPromptSubmit) · Freshness (SessionStart)
  └─ MCP-Server  eeg-wissen     Normgraph, §100-Resolver, Norm-/Clearingstelle-/
                                Rechtsprechungs-Suche
-                eeg-rechner    §52, Vergütung, §24, Fristen, Schwellen, Ü20
+                eeg-rechner    §52, Vergütung, §24, Fristen, Schwellen, Solarspitzen, Ü20
                 eeg-foerder    Programme, Kumulierung, Formularinventar
                 eeg-daten      MaStR-Suche, Marktwerte, DIP, Gebotstermine
                 eeg-dokumente  DEINE Unterlagen: Suche, Volltext, Pläne/Fotos
@@ -141,8 +144,8 @@ changefeed` überwacht BGBl, QuantLaw-Delta und Bundestags-Vorhaben.
 
 ```bash
 # Voraussetzung: bun run setup (Graph-Tests lesen die lokal gebaute Wissensbasis)
-bun test              # 137 Tests: Normgraph, Engines, Contracts, Profile (BGH-/Clearingstelle-Fixtures)
-bun run evals         # EEG-Benchmark: 19 deterministische + 4 interpretative Fragen
+bun test              # 150 Tests: Normgraph, Engines, Contracts, Profile (BGH-/Clearingstelle-Fixtures)
+bun run evals         # EEG-Benchmark: 20 deterministische + 4 interpretative Fragen
 bun run validate:data # Schema- + Konsistenz-Gate für alle data/-Artefakte
 bun run crosscheck:catala # Catala-Spezifikation ⇄ TS-Engine (12 Szenarien; Catala via opam, sonst nur TS-Seite)
 ```

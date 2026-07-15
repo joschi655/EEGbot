@@ -4,6 +4,7 @@ einheit: gemischt (kW, VA, Monate)
 staffelung: keine
 zeitraeume:
   - gueltig_von: "2023-01-01"
+    gueltig_bis: "2025-02-24"
     wert: "siehe src/rules/schwellen.ts — Werte dort mit Einzelquellen"
     quelle:
       bezeichnung: "Sammelverweis; Einzelwerte in schwellen.ts mit Norm je Schwelle"
@@ -13,3 +14,16 @@ zeitraeume:
       30 kW Netzanschluss-Vereinfachung § 8; 10,8 kW Monatsfrist-Fiktion § 8 Abs. 5)
       sind in der Engine kodiert, da mehrdimensional. Diese Datei dient als
       Änderungs-Anker für den Changefeed.
+  - gueltig_von: "2025-02-25"
+    wert: "siehe src/rules/schwellen.ts und src/rules/solarspitzen.ts — mehrdimensionale §9-/§51-Regeln"
+    quelle:
+      bezeichnung: "EEG 2023 i.d.F. Solarspitzengesetz"
+      url: "https://www.gesetze-im-internet.de/eeg_2014/"
+      fundstelle: "§§ 9, 51, 51a; § 100 Abs. 3b, 46, 47"
+      abgerufen_am: "2026-07-15"
+    hinweis: >
+      Ab IBN 25.02.2025: 60-%-Zwischenbegrenzung für Anlagen unter 100 kW
+      in Einspeisevergütung oder Mieterstrom bis iMSys, Steuerungseinrichtung
+      und erfolgreicher Ansteuerbarkeitstest vorliegen. § 51 gilt bei Anlagen
+      unter 100 kW erst nach Ablauf des iMSys-Einbaujahres; unter 2 kW gilt
+      zusätzlich die Ausnahme bis zur BNetzA-Festlegung nach § 85 Abs. 2 Nr. 12.

@@ -1,5 +1,32 @@
 # Worklog
 
+## 2026-07-15-e — Solarspitzen-Check (§§ 9, 51, 51a EEG)
+
+**Anlass:** Direkte Erweiterung des privaten Anlagen-Lebenszyklus um die
+technischen und wirtschaftlichen Folgen des Solarspitzengesetzes.
+
+- **Engine:** `src/rules/solarspitzen.ts` trennt Neuanlagen ab 25.02.2025,
+  Übergangsanlagen 2023–24.02.2025, Kleinstanlagen und historische
+  Großanlagen. Für Altanlagen ab 400 kW wird die historische Fassung verlangt,
+  statt einen pauschalen Schwellenwert zu behaupten.
+- **§ 9:** 60-%-Begrenzung nur in Einspeisevergütung/Mieterstrom und nur bis
+  iMSys, Steuerungseinrichtung und erfolgreicher Ansteuerbarkeitstest
+  vollständig vorliegen; 25-kW-Fernsteuer-Zwischenpflicht und
+  Steckersolar-Ausnahme werden separat ausgewiesen.
+- **§§ 51/51a:** Beginn nach Ablauf des iMSys-Einbaujahres, zusätzliche
+  Kleinstanlagen-Ausnahme, alte 400-kW-/Stundenschwelle und Solar-Zeitkontingent
+  ohne erfundenes Förderenddatum modelliert. §-100-Abs.-47-Bonus wird nur für
+  Bestandsanlagen und mit §-101-Genehmigungsvorbehalt gezeigt.
+- **Produkt:** Profil v3 migriert v1/v2 und speichert Vermarktungsform,
+  iMSys-Einbaudatum, Steuerungseinrichtung und Teststatus. Neuer responsiver
+  Screen zeigt Technik, Negativpreise, Verlängerung, Quellen und Rechenweg.
+- **Schnittstellen:** Gemeinsamer Zod-Contract, REST `/api/solarspitzen` und MCP
+  `solarspitzen_pruefen`; Schwellen-Hinweis nutzt dieselben zusätzlichen
+  Profiltatsachen.
+- **Verifiziert:** `bun test` 150/150, `bun run evals` 20/20 deterministisch,
+  `bun run test:e2e` 8/8 auf Desktop und Pixel 7, Typecheck, `validate:data`
+  und EEG-2027-Pflichtsuite 4/4.
+
 ## 2026-07-15-d — Audit-Härtung und belastbare Demo-Beweiskette
 
 **Anlass:** Umsetzung des priorisierten Audit- und Gewinnplans. Fokus auf

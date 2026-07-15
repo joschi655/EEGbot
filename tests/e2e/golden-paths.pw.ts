@@ -53,3 +53,18 @@ test("Ü20 zeigt echte Optionen und strukturierte Quellen nur nach Förderende",
   await expect(page.getByRole("link", { name: /§ 25 EEG \(Vergütungsdauer\)/ }).first()).toBeVisible();
   await expect(page.getByText("So wurde gerechnet", { exact: true })).toBeVisible();
 });
+
+test("Solarspitzen-Check zeigt für eine 2025er 9,8-kWp-Anlage die exakte 60-%-Grenze", async ({ page }) => {
+  await starteApp(page);
+  await page.getByRole("button", { name: "Meine Anlage" }).first().click();
+  await page.getByRole("textbox", { name: "Bezeichnung" }).fill("Solarspitzen-Demo");
+  await page.getByRole("spinbutton", { name: "Leistung", exact: true }).fill("9.8");
+  await page.getByRole("textbox", { name: "Inbetriebnahme" }).fill("2025-03-01");
+  await page.getByRole("button", { name: "Profil speichern" }).click();
+
+  await page.getByRole("button", { name: "Solarspitzen" }).click();
+  await expect(page.getByText("60 % Begrenzung", { exact: true })).toBeVisible();
+  await expect(page.getByTestId("solarspitzen-max")).toContainText("5,88");
+  await expect(page.getByTestId("solarspitzen-negative")).toContainText("Noch ausgenommen");
+  await expect(page.getByText("So wurde gerechnet", { exact: true })).toBeVisible();
+});

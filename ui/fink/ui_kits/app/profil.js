@@ -3,12 +3,13 @@
    Schema deckt ALLE Engine-Inputs ab (fristen, schwellen, verguetung, ue20). */
 
 (function () {
-  const VERSION = 2;
-  const KEY = 'eegbot.anlage.v2';
-  const LEGACY_KEYS = ['eegbot.anlage.v1'];
+  const VERSION = 3;
+  const KEY = 'eegbot.anlage.v3';
+  const LEGACY_KEYS = ['eegbot.anlage.v2', 'eegbot.anlage.v1'];
   const DATUM = /^\d{4}-\d{2}-\d{2}$/;
   const EINSPEISEART = new Set(['teileinspeisung', 'volleinspeisung']);
   const ANLAGENTYP = new Set(['dach', 'freiflaeche', 'steckersolar', 'fassade', 'sonstig']);
+  const VERMARKTUNGSFORM = new Set(['einspeiseverguetung', 'marktpraemie', 'mieterstromzuschlag', 'keine_eeg_foerderung']);
 
   const istDatum = (wert) => {
     if (typeof wert !== 'string' || !DATUM.test(wert)) return false;
@@ -24,10 +25,25 @@
     if (!istDatum(p.ibn_datum)) return { erfolg: false, fehler: 'Inbetriebnahme ist kein gültiges Datum.' };
     if (!EINSPEISEART.has(p.einspeiseart)) return { erfolg: false, fehler: 'Einspeiseart ist ungültig.' };
     if (p.anlagentyp != null && !ANLAGENTYP.has(p.anlagentyp)) return { erfolg: false, fehler: 'Anlagentyp ist ungültig.' };
+    // v1/v2 kannten nur die physische Einspeiseart. Für die Migration wird die
+    // übliche EEG-Vermarktungsform konservativ aus der 100-kW-Grenze abgeleitet.
+    if (p.vermarktungsform == null) p.vermarktungsform = p.leistung_kwp > 100 ? 'marktpraemie' : 'einspeiseverguetung';
+    if (!VERMARKTUNGSFORM.has(p.vermarktungsform)) return { erfolg: false, fehler: 'Vermarktungsform ist ungültig.' };
     if (typeof p.mastr_registriert !== 'boolean' || typeof p.veraeusserungsform_gemeldet !== 'boolean')
       return { erfolg: false, fehler: 'Meldestatus fehlt.' };
     if (p.mastr_registrierung_datum != null && !istDatum(p.mastr_registrierung_datum))
       return { erfolg: false, fehler: 'MaStR-Registrierungsdatum ist ungültig.' };
+    if (p.imsys_vorhanden == null) p.imsys_vorhanden = false;
+    if (p.steuerungseinrichtung_vorhanden == null) p.steuerungseinrichtung_vorhanden = false;
+    if (p.ansteuerbarkeit_getestet == null) p.ansteuerbarkeit_getestet = false;
+    if (typeof p.imsys_vorhanden !== 'boolean' || typeof p.steuerungseinrichtung_vorhanden !== 'boolean' || typeof p.ansteuerbarkeit_getestet !== 'boolean')
+      return { erfolg: false, fehler: 'Technikstatus ist ungültig.' };
+    if (p.imsys_einbau_datum != null && !istDatum(p.imsys_einbau_datum))
+      return { erfolg: false, fehler: 'iMSys-Einbaudatum ist ungültig.' };
+    if (p.imsys_einbau_datum != null && !p.imsys_vorhanden)
+      return { erfolg: false, fehler: 'iMSys-Einbaudatum setzt ein vorhandenes iMSys voraus.' };
+    if (p.ansteuerbarkeit_getestet && (!p.imsys_vorhanden || !p.steuerungseinrichtung_vorhanden))
+      return { erfolg: false, fehler: 'Erfolgreiche Testung setzt iMSys und Steuerungseinrichtung voraus.' };
     for (const feld of ['wechselrichter_va', 'jahresertrag_kwh', 'strompreis_ct_kwh'])
       if (p[feld] != null && !positiveZahl(p[feld])) return { erfolg: false, fehler: `${feld} muss größer als 0 sein.` };
     if (p.eigenverbrauchsanteil_prozent != null &&
@@ -68,7 +84,7 @@
         localStorage.removeItem(legacyKey || KEY);
         return null;
       }
-      // Valide v1-Profile werden einmalig nach v2 migriert.
+      // Valide v1/v2-Profile werden einmalig nach v3 migriert.
       localStorage.setItem(KEY, JSON.stringify(ergebnis.profil));
       if (legacyKey) localStorage.removeItem(legacyKey);
       return ergebnis.profil;
@@ -102,11 +118,14 @@
     leistung_kwp: 9.8,
     ibn_datum: '2023-05-10',
     einspeiseart: 'teileinspeisung',
+    vermarktungsform: 'einspeiseverguetung',
     plz: '80331',
     mastr_registriert: true,
     mastr_registrierung_datum: '2023-05-20',
     veraeusserungsform_gemeldet: true,
     imsys_vorhanden: false,
+    steuerungseinrichtung_vorhanden: false,
+    ansteuerbarkeit_getestet: false,
     jahresertrag_kwh: 9300,
     eigenverbrauchsanteil_prozent: 35,
     strompreis_ct_kwh: 35,
@@ -121,11 +140,14 @@
     leistung_kwp: 103.5,
     ibn_datum: '2022-10-20',
     einspeiseart: 'volleinspeisung',
+    vermarktungsform: 'marktpraemie',
     plz: '',
     mastr_registriert: true,
     mastr_registrierung_datum: '2026-07-05',
     veraeusserungsform_gemeldet: true,
     imsys_vorhanden: false,
+    steuerungseinrichtung_vorhanden: false,
+    ansteuerbarkeit_getestet: false,
     jahresertrag_kwh: 98000,
     eigenverbrauchsanteil_prozent: 0,
     strompreis_ct_kwh: 35,

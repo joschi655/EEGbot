@@ -33,6 +33,7 @@ rules/clerk.toml
 # Browser-Testartefakte (Traces/Screenshots nur lokal bzw. als CI-Artefakt)
 test-results/
 playwright-report/
+.playwright-cli/
 
 # Catala/clerk Build-Artefakte (Projekt-Root)
 _build/

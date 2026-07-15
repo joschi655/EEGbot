@@ -84,6 +84,7 @@ normalem Deutsch:
 | PV-Dachanlage | „Wir planen 12 kWp aufs Dach, was kommt auf uns zu?" |
 | Förderung finden | „Welche Förderung gibt es für eine Wärmepumpe im Altbau?" |
 | §52-Risiko prüfen | „Ich habe meine Anlage zu spät im MaStR gemeldet — was droht mir?" |
+| Solarspitzen prüfen | „Gilt für meine neue PV-Anlage die 60-%-Grenze und wann treffen mich negative Preise?" |
 | Ü20-Anlage | „Meine PV-Anlage von 2004 fällt aus der Vergütung — was nun?" |
 | Eigene Unterlagen | „Was steht in meiner Einspeisezusage zur Inbetriebnahme?" |
 
@@ -93,7 +94,8 @@ aus deinen Unterlagen statt dich zu fragen.
 
 ## 4. Was deterministisch ist (und warum das wichtig ist)
 
-Vergütungssätze, §52-Sanktionsbeträge, Fristen, Schwellen und das anwendbare
+Vergütungssätze, §52-Sanktionsbeträge, Fristen, Schwellen, Solarspitzen-Regeln
+nach §§ 9/51/51a und das anwendbare
 EEG je Inbetriebnahmedatum berechnet **Code, nicht das Sprachmodell** — mit
 datierten, quellenbelegten Parametern (`data/parameters/`). Wo das Gesetz einen
 unbestimmten Begriff hat (z. B. „unmittelbare räumliche Nähe" bei § 24), sagt

@@ -1,4 +1,4 @@
-# EEG-Kompass Benchmark v0.2 — 23 Fragen (Ziel: 50+, Beiträge willkommen)
+# EEG-Kompass Benchmark v0.3 — 24 Fragen (Ziel: 50+, Beiträge willkommen)
 #
 # Zwei Typen:
 #  - deterministisch: automatisch geprüft (evals/run.ts ruft die Engine, vergleicht Goldwert)
@@ -232,3 +232,19 @@
   input: { ibn_datum: "2026-03-15", leistung_kwp: 9.8 }
   erwartet_fehler: "einspeiseart"
   quelle: "Gemeinsamer Zod-Contract src/schemas/rechner.ts"
+
+- id: b24
+  typ: deterministisch
+  frage: "Neue 9,8-kWp-Dachanlage in Einspeisevergütung ohne iMSys: Welche maximale Wirkleistungseinspeisung gilt nach § 9 EEG?"
+  engine: solarspitzen
+  input:
+    ibn_datum: "2025-03-01"
+    leistung_kwp: 9.8
+    anlagentyp: dach
+    vermarktungsform: einspeiseverguetung
+    imsys_vorhanden: false
+    steuerungseinrichtung_vorhanden: false
+    ansteuerbarkeit_getestet: false
+    stichtag: "2026-07-15"
+  erwartet: { pfad: technische_vorgabe.max_einspeisung_kw, wert: 5.88 }
+  quelle: "§ 9 Abs. 2 Satz 1 Nr. 3, § 100 Abs. 3b EEG 2023"

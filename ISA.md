@@ -176,6 +176,14 @@ Pitch-Konzept als KB-Dokument.
 - [ ] ISC-79: Drei Golden Cases durch Energierechtsanwältin/Clearingstellen-erfahrene Person schriftlich abgezeichnet (externe Abnahme)
 - [ ] ISC-80: Fünf Nutzerinterviews und drei fehlerfreie Fünf-Minuten-Durchläufe plus lokales Recording durchgeführt (externe/operative Abnahme)
 
+### D15 — Solarspitzen-Check (Run 2026-07-15-e)
+- [x] ISC-81: Engine trennt IBN ab 25.02.2025, Übergang 2023–24.02.2025, Kleinstanlagen und historische ≥400-kW-Fälle ohne pauschale Altregime-Antwort
+- [x] ISC-82: §-9-Ergebnis berücksichtigt Vermarktungsform, 60 %, 25-kW-Fernsteuerpflicht, Steckersolar-Ausnahme sowie iMSys + Steuerung + erfolgreichen Test
+- [x] ISC-83: §§ 51/51a modellieren iMSys-Einbaujahr, Kleinstanlagen-Ausnahme, alte Stundenschwelle und Verlängerungsregel; § 100 Abs. 47 trägt §-101-Genehmigungsvorbehalt
+- [x] ISC-84: Profil v3 migriert v1/v2; REST und MCP verwenden den gemeinsamen Solarspitzen-Zod-Contract
+- [x] ISC-85: Responsiver B2C-Screen zeigt exakte 5,88-kW-Grenze für 9,8 kWp, Negativpreisstatus, Rechenweg und Quellen
+- [x] ISC-86: Abnahme grün — 150/150 Unit/Integration, 20/20 Evals, 8/8 Desktop/Mobile-Browserpfade, typecheck, validate:data, EEG-2027 4/4
+
 ## Test Strategy
 
 | isc | type | check | threshold | tool |
@@ -193,6 +201,7 @@ Pitch-Konzept als KB-Dokument.
 | 47–56 | ui | Playwright-Flows + Konsole | 0 Fehler (außer gewollte 4xx) | Playwright |
 | 57–62 | deploy | Agent-Report + Live-Proben | Access vor Key | curl/ssh |
 | 63–67 | doc | Read/Grep der Artefakte | vollständig | Read/Grep |
+| 81–86 | solarspitzen | Engine/Contract/Profil/UI + Browserpfad | 100 % grün | bun/Playwright/Read |
 
 ## Features
 

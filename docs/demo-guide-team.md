@@ -26,8 +26,8 @@ Spiel sind („hier ist der Brief vom Netzbetreiber — was mache ich jetzt?").
 cd ~/Development/EEGbot
 git pull && bun install
 bun run validate:data && bun run build:knowledge && bun run build:eeg2027
-bun test                      # muss 137 grün zeigen
-bun run evals                 # muss 19/19 deterministisch grün zeigen
+bun test                      # muss 150 grün zeigen
+bun run evals                 # muss 20/20 deterministisch grün zeigen
 ls dokumente/                 # BGH-Akte da? sonst: cp docs/beispiel-unterlagen-rueckforderung/* dokumente/
 bun run ingest:dokumente      # lokale Extraktion/OCR; kein API-Key nötig
 ```
@@ -96,7 +96,7 @@ Klickpfad (so aufgebaut, dass jede Zahl live berechnet wird):
 
 | Echt heute | Roadmap |
 |---|---|
-| Alle 6 Rechen-Engines deterministisch + bequellt (118 Tests) | Supabase-Login + Profile serverseitig (statt localStorage) |
+| Alle 7 Kern-Rechen-Engines deterministisch + bequellt (150 Tests) | Supabase-Login + Profile serverseitig (statt localStorage) |
 | Web-UI komplett auf Engines verdrahtet, kein Mock mehr | Mehr Energieträger (Wind/Biomasse-Vergütung vor 2023) |
 | Norm-Graph mit 8 Fassungen + EEG-2027-Entwurf | Automatische Gesetzes-Updates als Pipeline |
 | Claude-Code-Ebene: Dokumente, Skills, Guardrail | Web-Intake mit eigenem Account-Kontingent |

@@ -9,6 +9,9 @@ export interface SchwellenInput {
   wechselrichter_va?: number;
   anlagentyp?: "dach" | "freiflaeche" | "steckersolar" | "fassade" | "sonstig";
   imsys_vorhanden?: boolean;
+  vermarktungsform?: "einspeiseverguetung" | "marktpraemie" | "mieterstromzuschlag" | "keine_eeg_foerderung";
+  steuerungseinrichtung_vorhanden?: boolean;
+  ansteuerbarkeit_getestet?: boolean;
   ibn_datum?: string;
 }
 
@@ -22,6 +25,11 @@ export interface SchwellenBefund {
 export function pruefeSchwellen(input: SchwellenInput): SchwellenBefund[] {
   const b: SchwellenBefund[] = [];
   const kw = input.leistung_kwp;
+  const vollSteuerbar =
+    input.imsys_vorhanden === true &&
+    input.steuerungseinrichtung_vorhanden === true &&
+    input.ansteuerbarkeit_getestet === true;
+  const begrenzungsForm = input.vermarktungsform === "einspeiseverguetung" || input.vermarktungsform === "mieterstromzuschlag";
 
   b.push({
     thema: "Steckersolargerät",
@@ -43,10 +51,10 @@ export function pruefeSchwellen(input: SchwellenInput): SchwellenBefund[] {
     norm: "§ 8 Abs. 5 EEG",
   });
   b.push({
-    thema: "Wirkleistungsbegrenzung ohne iMSys (Solarspitzengesetz)",
-    zutreffend: kw < 100 && input.imsys_vorhanden === false && (input.ibn_datum ?? "9999") >= "2025-02-25",
+    thema: "Wirkleistungsbegrenzung (Solarspitzengesetz)",
+    zutreffend: kw < 100 && begrenzungsForm && !vollSteuerbar && (input.ibn_datum ?? "0000") >= "2025-02-25",
     aussage:
-      "Neuanlagen < 100 kW ohne intelligentes Messsystem: Begrenzung der Einspeisung auf 60 % der installierten Leistung bis iMSys-Einbau. Verstoß = § 9-Verstoß → § 52 Abs. 1 Nr. 1.",
+      "Neuanlagen < 100 kW in Einspeisevergütung oder Mieterstrom: Begrenzung auf 60 % bis iMSys, Steuerungseinrichtung und erfolgreicher Ansteuerbarkeitstest vollständig vorliegen. Details im Solarspitzen-Check.",
     norm: "§ 9 EEG i.d.F. Solarspitzengesetz (in Kraft 25.02.2025)",
   });
   b.push({

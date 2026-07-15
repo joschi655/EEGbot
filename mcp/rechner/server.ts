@@ -11,6 +11,7 @@ import { berechneVerguetung } from "../../src/rules/verguetung.ts";
 import { pruefeZusammenfassung } from "../../src/rules/anlagenzusammenfassung.ts";
 import { pruefeFristen } from "../../src/rules/fristen.ts";
 import { pruefeSchwellen } from "../../src/rules/schwellen.ts";
+import { pruefeSolarspitzen } from "../../src/rules/solarspitzen.ts";
 import { vergleicheAusgefoerderteOptionen } from "../../src/rules/ausgefoerderte.ts";
 import {
   AusgefoerderteInputSchema,
@@ -18,6 +19,8 @@ import {
   FristenInputSchema,
   Sanktion52InputSchema,
   SchwellenInputSchema,
+  SolarspitzenInputShape,
+  SolarspitzenInputSchema,
   VerguetungInputSchema,
 } from "../../src/schemas/rechner.ts";
 
@@ -77,6 +80,16 @@ server.registerTool(
     inputSchema: SchwellenInputSchema.shape,
   },
   async (args) => json(pruefeSchwellen(args)),
+);
+
+server.registerTool(
+  "solarspitzen_pruefen",
+  {
+    description:
+      "Solarspitzengesetz-Check: 60-%-Wirkleistungsbegrenzung und Fernsteuer-Zwischenpflicht nach § 9 sowie Negativpreisfolge und Verlängerung nach §§ 51/51a EEG mit Übergangsrecht.",
+    inputSchema: SolarspitzenInputShape,
+  },
+  async (args) => json(pruefeSolarspitzen(SolarspitzenInputSchema.parse(args))),
 );
 
 server.registerTool(

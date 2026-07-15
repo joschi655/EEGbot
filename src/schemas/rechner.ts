@@ -14,6 +14,12 @@ export const RechnerDatum = z
 
 export const Einspeiseart = z.enum(["teileinspeisung", "volleinspeisung"]);
 export const Anlagentyp = z.enum(["dach", "freiflaeche", "steckersolar", "fassade", "sonstig"]);
+export const SolarVermarktungsformSchema = z.enum([
+  "einspeiseverguetung",
+  "marktpraemie",
+  "mieterstromzuschlag",
+  "keine_eeg_foerderung",
+]);
 export const VerstossKategorieSchema = z.enum(
   Object.keys(VERSTOSS_KATEGORIEN) as [keyof typeof VERSTOSS_KATEGORIEN, ...(keyof typeof VERSTOSS_KATEGORIEN)[]],
 );
@@ -81,6 +87,9 @@ export const SchwellenInputSchema = z
     wechselrichter_va: z.number().positive().optional(),
     anlagentyp: Anlagentyp.optional(),
     imsys_vorhanden: z.boolean().optional(),
+    vermarktungsform: SolarVermarktungsformSchema.optional(),
+    steuerungseinrichtung_vorhanden: z.boolean().optional(),
+    ansteuerbarkeit_getestet: z.boolean().optional(),
     ibn_datum: RechnerDatum.optional(),
   })
   .strict();
@@ -96,8 +105,36 @@ export const AusgefoerderteInputSchema = z
   })
   .strict();
 
+const SolarspitzenInputObject = z
+  .object({
+    ibn_datum: RechnerDatum,
+    leistung_kwp: z.number().positive(),
+    anlagentyp: Anlagentyp.optional(),
+    wechselrichter_va: z.number().positive().optional(),
+    vermarktungsform: SolarVermarktungsformSchema,
+    imsys_vorhanden: z.boolean(),
+    imsys_einbau_datum: RechnerDatum.optional(),
+    steuerungseinrichtung_vorhanden: z.boolean(),
+    ansteuerbarkeit_getestet: z.boolean(),
+    stichtag: RechnerDatum.optional(),
+  })
+  .strict();
+
+export const SolarspitzenInputShape = SolarspitzenInputObject.shape;
+export const SolarspitzenInputSchema = SolarspitzenInputObject.superRefine((v, ctx) => {
+    if (v.imsys_einbau_datum && !v.imsys_vorhanden)
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["imsys_einbau_datum"], message: "Einbaudatum setzt ein vorhandenes iMSys voraus" });
+    if (v.ansteuerbarkeit_getestet && (!v.imsys_vorhanden || !v.steuerungseinrichtung_vorhanden))
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["ansteuerbarkeit_getestet"],
+        message: "Erfolgreiche Testung setzt iMSys und Steuerungseinrichtung voraus",
+      });
+  });
+
 export type Sanktion52InputContract = z.infer<typeof Sanktion52InputSchema>;
 export type VerguetungInputContract = z.infer<typeof VerguetungInputSchema>;
 export type FristenInputContract = z.infer<typeof FristenInputSchema>;
 export type SchwellenInputContract = z.infer<typeof SchwellenInputSchema>;
 export type AusgefoerderteInputContract = z.infer<typeof AusgefoerderteInputSchema>;
+export type SolarspitzenInputContract = z.infer<typeof SolarspitzenInputSchema>;

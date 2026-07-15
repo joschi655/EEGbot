@@ -9,7 +9,7 @@ function DbEmpty({ onNav, onLaden }) {
     <div style={{ maxWidth: 620, margin: '40px auto' }}>
       <Card title="Willkommen bei EEGbot" subtitle="Einmal die Anlage erfassen — alles Weitere rechnet sich von selbst">
         <p style={{ font: 'var(--font-body)', color: 'var(--text-muted)', margin: '0 0 16px' }}>
-          Fristen, Vergütung, Schwellenwerte und der Rückforderungs-Check nutzen Ihr Anlagenprofil.
+          Fristen, Vergütung, Solarspitzen-Regeln, Schwellenwerte und der Rückforderungs-Check nutzen Ihr Anlagenprofil.
           Es bleibt lokal in diesem Browser gespeichert.
         </p>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
@@ -58,6 +58,9 @@ function Dashboard({ onNav }) {
       leistung_kwp: Number(profil.leistung_kwp),
       ...(profil.anlagentyp ? { anlagentyp: profil.anlagentyp } : {}),
       ...(typeof profil.imsys_vorhanden === 'boolean' ? { imsys_vorhanden: profil.imsys_vorhanden } : {}),
+      ...(profil.vermarktungsform ? { vermarktungsform: profil.vermarktungsform } : {}),
+      steuerungseinrichtung_vorhanden: !!profil.steuerungseinrichtung_vorhanden,
+      ansteuerbarkeit_getestet: !!profil.ansteuerbarkeit_getestet,
       ...(profil.ibn_datum ? { ibn_datum: profil.ibn_datum } : {}),
       ...(profil.wechselrichter_va ? { wechselrichter_va: Number(profil.wechselrichter_va) } : {}),
     }).then((d) => aktiv && setSchwellen(d)).catch(() => aktiv && setSchwellen([]));
@@ -148,6 +151,9 @@ function Dashboard({ onNav }) {
             </Card>
             <Card title="Vergütung" subtitle="§ 48: Satz, Mischvergütung, Förderende" tight>
               <Button size="sm" variant="secondary" onClick={() => onNav('verguetung')} iconRight={<i data-lucide="arrow-right"></i>}>Berechnen</Button>
+            </Card>
+            <Card title="Solarspitzen" subtitle="§§ 9, 51: 60 %, Steuerung, Negativpreise" tight>
+              <Button size="sm" variant="secondary" onClick={() => onNav('solarspitzen')} iconRight={<i data-lucide="arrow-right"></i>}>Prüfen</Button>
             </Card>
             <Card title="Nach der Förderung" subtitle="Ü20-Optionen im Vergleich" tight>
               <Button size="sm" variant="secondary" onClick={() => onNav('ue20')} iconRight={<i data-lucide="arrow-right"></i>}>Vergleichen</Button>

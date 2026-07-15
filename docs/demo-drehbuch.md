@@ -18,7 +18,7 @@ ob sich Parameter-Dateien geändert haben.
       über `/vendor/*` — keine CDN-Abhängigkeit mehr; Claude Code selbst braucht
       Netz, also für Akt 2 Hotspot als Fallback bereithalten)
 - [ ] Screen-Recording des kompletten Durchlaufs als Backup auf dem Desktop
-- [ ] `bun test` (137) + `bun run evals` (19/19 deterministisch) + `bun run test:e2e` (6/6) müssen grün sein
+- [ ] `bun test` (150) + `bun run evals` (20/20 deterministisch) + `bun run test:e2e` (8/8) müssen grün sein
 
 ## Akt 1 — Problem (60 s, Sophia, Slide)
 
@@ -136,7 +136,7 @@ Kapitel 5). Die vier wichtigsten für die Bühne:
   automatisiert: Dieselbe Norm ist zweimal unabhängig umgesetzt — als formale
   Catala-Spezifikation am Gesetzestext und als TypeScript-Engine. Bei jeder
   Änderung rechnet die CI beide gegeneinander; weichen sie ab, wird der Stand
-  nicht freigegeben. Dazu 137 Tests, sechs Desktop-/Mobile-Browserpfade und ein 23-Fragen-Benchmark (19 automatisch) mit belegten
+  nicht freigegeben. Dazu 150 Tests, acht Desktop-/Mobile-Browserpfade und ein 24-Fragen-Benchmark (20 automatisch) mit belegten
   Goldantworten.
 - **„Ist der EEG-2027-Teil nicht spekulativ?"** → Ja, und das Tool sagt es in
   jeder Zeile (ENTWURF-Marker in Titel, Text und Output). Genau so gehen

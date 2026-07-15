@@ -71,6 +71,7 @@ function AppShell({ active, onNav, title, subtitle, actions, search = false, chi
           <div className="fk-side__section">Prüfen &amp; Rechnen</div>
           <NavItem label="Rückforderungs-Check" active={active === 'sanktion52'} onClick={() => onNav('sanktion52')} />
           <NavItem label="Vergütung" active={active === 'verguetung'} onClick={() => onNav('verguetung')} />
+          <NavItem label="Solarspitzen" active={active === 'solarspitzen'} onClick={() => onNav('solarspitzen')} />
           <NavItem label="Nach der Förderung" active={active === 'ue20'} onClick={() => onNav('ue20')} />
           <div className="fk-side__section">Recht</div>
           <NavItem label="Förder-Fahrplan" active={active === 'fahrplan'} onClick={() => onNav('fahrplan')} />

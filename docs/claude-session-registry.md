@@ -7,6 +7,12 @@ Vor längeren Läufen prüfen, ob eine bestehende Session fortgesetzt werden kan
 |---|---|---|---|
 | 2026-06-12 | v0.1.0 Initial Build (Phasen 0–5) | Komplettes Framework, 40 Tests grün, Benchmark 16/16 | Folge-Phasen, Bugfixes, Daten-Kuratierung |
 
+## Session 2026-07-15-e — Solarspitzen-Check
+- Deterministische Engine für § 9, §§ 51/51a und § 100 Abs. 3b/46/47; keine scheinpräzise Antwort für historische Großanlagen
+- Profil v3: Vermarktungsform, iMSys-Einbaudatum, Steuerungseinrichtung und erfolgreicher Test; v1/v2-Migration
+- Neuer B2C-Screen, REST `/api/solarspitzen`, MCP `solarspitzen_pruefen`, Rechenweg und amtliche Quellen
+- Verifiziert: 150 Unit/Integrationstests, 20/20 deterministische Evals, 8/8 Browserpfade, typecheck, validate:data, EEG-2027 4/4
+
 ## Session 2026-07-15-d — Audit-Härtung + Browser-CI
 - P0 geschlossen: Monatsendfrist, Intake-Vorschau/Consent, Tarifende 31.07.2026, gemeinsame Zod-Contracts, HTTP-Fehlerklassen
 - P1: Volleinspeisungs-Meldejahr, Profil v2/Migration, Ü20-Quellen/Vorschau, Mobile-Layouts, „So wurde gerechnet"
@@ -33,11 +39,3 @@ Vor längeren Läufen prüfen, ob eine bestehende Session fortgesetzt werden kan
 - KB-Doc „26.07.15 - EEGbot Statusübersicht & Roadmap" (Fähigkeiten, Bedienung, Roadmap-Abgleich, Jura-Metaphern)
 - source-inventory/architektur.md/Obsidian-Spiegel entstaubt; Drehbuch um Graph-Momente + Glossar erweitert
 - Gotcha: „→" in Edits kann als NUL-Byte landen — ASCII-Separatoren in Code
-
-## Session 2026-07-10 — Hackathon-Härtung + Pitch-Artefakte (E3, ISA im Repo-Root)
-- Offline-UI: /vendor/*-Routen statt unpkg-CDN, Playwright-verifiziert
-- Zahlen ab 02/2026 verifiziert/korrigiert (12,34/10,35; 6,73/5,50), Ü20 0,4-vs-0,715 aufgelöst
-- BGH-Zwilling docs/beispiel-unterlagen-rueckforderung/ (45.540 € → 6.417 €) + docs/demo-drehbuch.md
-- EEG-2027-Zeitmaschine: data/entwuerfe/ + build:eeg2027 + demo:zeitmaschine (Δ ~23.567 €)
-- Root-Cause-Fix sucheNormen (Default = heute, kein Entwurfs-Leak)
-- KB-Doc „26.07.10 - Re-Audit & Pitch-Konzept Hackathon" in Obsidian für das Team

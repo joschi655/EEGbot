@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   FristenInputSchema,
   RechnerDatum,
+  SolarspitzenInputSchema,
   VerguetungInputSchema,
 } from "./rechner.ts";
 
@@ -24,5 +25,20 @@ describe("gemeinsame Rechner-Contracts", () => {
       veraeusserungsform_gemeldet: true,
     });
     expect(r.volleinspeisung_gemeldet_fuer_jahr).toEqual([]);
+  });
+
+  test("Solarspitzen-Contract weist widersprüchliche Technikangaben zurück", () => {
+    const input = {
+      ibn_datum: "2025-03-01",
+      leistung_kwp: 9.8,
+      vermarktungsform: "einspeiseverguetung",
+      imsys_vorhanden: false,
+      imsys_einbau_datum: "2026-01-10",
+      steuerungseinrichtung_vorhanden: false,
+      ansteuerbarkeit_getestet: true,
+    };
+    const r = SolarspitzenInputSchema.safeParse(input);
+    expect(r.success).toBe(false);
+    if (!r.success) expect(r.error.issues.map((i) => i.path.join("."))).toContain("imsys_einbau_datum");
   });
 });

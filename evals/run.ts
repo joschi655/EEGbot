@@ -11,6 +11,7 @@ import { berechneVerguetung } from "../src/rules/verguetung.ts";
 import { pruefeZusammenfassung } from "../src/rules/anlagenzusammenfassung.ts";
 import { pruefeFristen } from "../src/rules/fristen.ts";
 import { pruefeSchwellen } from "../src/rules/schwellen.ts";
+import { pruefeSolarspitzen } from "../src/rules/solarspitzen.ts";
 import { vergleicheAusgefoerderteOptionen } from "../src/rules/ausgefoerderte.ts";
 import { resolveUebergangsrecht } from "../src/graph/uebergangsrecht.ts";
 import {
@@ -19,6 +20,7 @@ import {
   FristenInputSchema,
   Sanktion52InputSchema,
   SchwellenInputSchema,
+  SolarspitzenInputSchema,
   VerguetungInputSchema,
 } from "../src/schemas/rechner.ts";
 
@@ -53,6 +55,7 @@ const ENGINES: Record<string, (input: Record<string, unknown>) => Promise<unknow
       befunde,
     };
   },
+  solarspitzen: async (i) => pruefeSolarspitzen(SolarspitzenInputSchema.parse(i)),
   ausgefoerderte: (i) => vergleicheAusgefoerderteOptionen(AusgefoerderteInputSchema.parse(i)),
   uebergangsrecht: (i) => resolveUebergangsrecht((i as never)["ibn_datum"], (i as never)["stichtag"]),
 };

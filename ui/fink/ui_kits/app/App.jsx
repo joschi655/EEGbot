@@ -13,6 +13,7 @@ function App() {
     case 'deadlines':  return <Deadlines onNav={nav} />;
     case 'sanktion52': return <Sanktion52 onNav={nav} />;
     case 'verguetung': return <Verguetung onNav={nav} />;
+    case 'solarspitzen': return <Solarspitzen onNav={nav} />;
     case 'ue20':       return <Ue20 onNav={nav} />;
     case 'fahrplan':   return <Fahrplan onNav={nav} />;
     case 'recherche':  return <Recherche onNav={nav} />;

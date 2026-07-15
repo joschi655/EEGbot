@@ -59,4 +59,23 @@ describe("REST-Fehlervertrag", () => {
     expect(res.status).toBe(422);
     expect((await res.json()).fehler).toContain("Einwilligung");
   });
+
+  test("Solarspitzen-Route nutzt gemeinsamen Contract und liefert 60-%-Grenze", async () => {
+    const body = {
+      ibn_datum: "2025-03-01",
+      leistung_kwp: 9.8,
+      anlagentyp: "dach",
+      vermarktungsform: "einspeiseverguetung",
+      imsys_vorhanden: false,
+      steuerungseinrichtung_vorhanden: false,
+      ansteuerbarkeit_getestet: false,
+      stichtag: "2026-07-15",
+    };
+    const res = await handleRequest(post("/api/solarspitzen", JSON.stringify(body)));
+    expect(res.status).toBe(200);
+    expect((await res.json()).technische_vorgabe.max_einspeisung_kw).toBe(5.88);
+
+    const ungueltig = await handleRequest(post("/api/solarspitzen", JSON.stringify({ ...body, vermarktungsform: "falsch" })));
+    expect(ungueltig.status).toBe(422);
+  });
 });

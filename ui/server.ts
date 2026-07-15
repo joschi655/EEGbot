@@ -22,6 +22,7 @@
  *   POST /api/verguetung   {ibn_datum, leistung_kwp, einspeiseart}  Einspeisevergütung
  *   POST /api/fristen      {ibn_datum, mastr_registriert, veraeusserungsform_gemeldet, …}
  *   POST /api/schwellen    {leistung_kwp, …}                        Leistungs-Schwellen
+ *   POST /api/solarspitzen {ibn_datum, leistung_kwp, technik, …}    §9/§51-Solarspitzen-Check
  *   POST /api/ue20         {ibn_datum, leistung_kwp, …}             Ü20-Optionsvergleich
  */
 import { join, resolve, sep } from "node:path";
@@ -35,6 +36,7 @@ import { berechneSanktion52, VERSTOSS_KATEGORIEN } from "../src/rules/sanktion52
 import { berechneVerguetung } from "../src/rules/verguetung.ts";
 import { pruefeFristen } from "../src/rules/fristen.ts";
 import { pruefeSchwellen } from "../src/rules/schwellen.ts";
+import { pruefeSolarspitzen } from "../src/rules/solarspitzen.ts";
 import { vergleicheAusgefoerderteOptionen } from "../src/rules/ausgefoerderte.ts";
 import { FachlicherFehler } from "../src/lib/fehler.ts";
 import {
@@ -42,6 +44,7 @@ import {
   FristenInputSchema,
   Sanktion52InputSchema,
   SchwellenInputSchema,
+  SolarspitzenInputSchema,
   VerguetungInputSchema,
 } from "../src/schemas/rechner.ts";
 import { z } from "zod";
@@ -196,6 +199,9 @@ export async function handleRequest(req: Request): Promise<Response> {
       }
       if (p === "/api/schwellen" && req.method === "POST") {
         return engineResponse(req, SchwellenInputSchema, pruefeSchwellen);
+      }
+      if (p === "/api/solarspitzen" && req.method === "POST") {
+        return engineResponse(req, SolarspitzenInputSchema, pruefeSolarspitzen);
       }
       if (p === "/api/ue20" && req.method === "POST") {
         return engineResponse(req, AusgefoerderteInputSchema, vergleicheAusgefoerderteOptionen);
