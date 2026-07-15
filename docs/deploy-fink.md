@@ -53,6 +53,7 @@ WorkingDirectory=/opt/eegbot
 ExecStart=/home/ubuntu/.bun/bin/bun ui/server.ts
 Environment=PORT=3475
 Environment=EEGBOT_PUBLIC=1
+Environment=HOST=127.0.0.1
 Restart=always
 RestartSec=3
 NoNewPrivileges=true

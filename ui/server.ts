@@ -28,6 +28,9 @@ const REPO = new URL("..", import.meta.url).pathname;
 const APP_DIR = join(REPO, "ui", "fink", "ui_kits", "app");
 const FINK_DIR = join(REPO, "ui", "fink");
 const PORT = Number(process.env.PORT ?? 3475);
+// Öffentliche Instanz bindet per systemd auf 127.0.0.1 (nur der Cloudflare-Tunnel
+// spricht mit dem Prozess); lokal bleibt 0.0.0.0 für LAN-Demos.
+const HOST = process.env.HOST ?? "0.0.0.0";
 
 /**
  * Lokale UMD-Builds statt CDN: Die Demo muss ohne Netz laufen (Pitch-Härtung).
@@ -61,6 +64,7 @@ async function sucheZusatz(indexName: string, query: string, limit = 5): Promise
 
 Bun.serve({
   port: PORT,
+  hostname: HOST,
   async fetch(req) {
     const url = new URL(req.url);
     const p = url.pathname;
