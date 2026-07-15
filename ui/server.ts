@@ -93,6 +93,13 @@ Bun.serve({
       }
 
       if (p === "/api/intake" && req.method === "POST") {
+        // Öffentliche Instanz (fink.aiwerke.de): Intake ruft die Anthropic-API mit
+        // Server-Key auf — ungeschützt wäre das ein offener Kosten-Endpunkt.
+        if (process.env.EEGBOT_PUBLIC === "1")
+          return json(
+            { fehler: "KI-Intake ist auf der öffentlichen Demo deaktiviert. Lokal verfügbar: git clone → bun run setup (siehe README) — dort läuft er ohne API-Key direkt in Claude Code." },
+            403,
+          );
         const { freitext } = (await req.json().catch(() => ({}))) as { freitext?: string };
         try {
           return json(await extrahiereFall({ freitext }));
