@@ -364,7 +364,15 @@ Clearingstelle-Restbestand (FAQ ~198–330) per erneutem Pipeline-Lauf.
   dem Catch-all → `ingress validate` → Restart via systemd-run (überlebt den
   eigenen SSH-Abbruch — SSH läuft selbst durch den Tunnel) → ssh-Ingress
   unversehrt. Runbook: docs/deploy-fink.md.
-- **Offen:** Cato-Cross-Vendor-Audit des Deployments (läuft), Impressum/
-  RDG-Hinweis auf der öffentlichen Landing, Demo-Badge („Login ist Attrappe"),
-  Supabase-Backup-Strategie, ggf. Cloudflare Access vor das Studio.
+- **Cato-Cross-Vendor-Audit (E4) + Remediation:** REST-Auth sauber (401 ohne
+  Key). Funde behoben: `.env` mit allen Live-Secrets war world-readable (0664)
+  → chmod 600; fink band auf 0.0.0.0 → `HOST=127.0.0.1` (Code b633455 +
+  systemd-Unit, nur der Tunnel spricht mit dem Prozess; live re-verifiziert).
+  Dokumentiert, nicht geändert: Supabase-Docker-Ports (8100/5433/6543) binden
+  0.0.0.0 = LAN-sichtbar hinter NAT (Internet nur via Tunnel); Studio hängt am
+  offenen Internet nur hinter Kong-Basic-Auth.
+- **Offen:** Impressum/RDG-Hinweis auf der öffentlichen Landing, Demo-Badge
+  („Login ist Attrappe"), Supabase-Backups (pg_dump-Cron), Cloudflare Access
+  vor das Studio bevor echte Projektdaten reinwandern, optional Supabase-Ports
+  auf 127.0.0.1 mappen.
 
