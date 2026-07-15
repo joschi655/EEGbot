@@ -32,8 +32,13 @@ describe("normAtDate (temporaler Zugriff)", () => {
   });
 
   test("§ 42c EnWG (Energy Sharing) existiert erst in neuer Fassung", () => {
+    // § 42c erscheint erst im jüngsten Snapshot (Pipeline-„heute"). Der Stichtag
+    // MUSS dynamisch heute sein: ein hartkodiertes Datum wird vom wandernden
+    // heute-Snapshot überholt, sobald der Graph nach jenem Datum neu gebaut wird
+    // (CI baut täglich → fassung_von = Build-Tag) und liefert dann null.
+    const heute = new Date().toISOString().slice(0, 10);
     expect(normAtDate(db, "enwg_2005", "§ 42c", "2023-01-01")).toBeNull();
-    const neu = normAtDate(db, "enwg_2005", "§ 42c", "2026-06-12");
+    const neu = normAtDate(db, "enwg_2005", "§ 42c", heute);
     expect(neu).not.toBeNull();
   });
 
