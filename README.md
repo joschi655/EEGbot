@@ -138,7 +138,7 @@ changefeed` überwacht BGBl, QuantLaw-Delta und Bundestags-Vorhaben.
 
 ```bash
 # Voraussetzung: bun run setup (Graph-Tests lesen die lokal gebaute Wissensbasis)
-bun test              # 40 Tests: Normgraph, Engines, Förder-Matcher (BGH-/Clearingstelle-Fixtures)
+bun test              # 118 Tests: Normgraph, Engines, Förder-Matcher (BGH-/Clearingstelle-Fixtures)
 bun run evals         # EEG-Benchmark: 16 deterministische + 4 interpretative Fragen
 bun run validate:data # Schema- + Konsistenz-Gate für alle data/-Artefakte
 bun run crosscheck:catala # Catala-Spezifikation ⇄ TS-Engine (12 Szenarien; Catala via opam, sonst nur TS-Seite)

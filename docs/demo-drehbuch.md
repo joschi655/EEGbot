@@ -18,7 +18,7 @@ ob sich Parameter-Dateien geändert haben.
       über `/vendor/*` — keine CDN-Abhängigkeit mehr; Claude Code selbst braucht
       Netz, also für Akt 2 Hotspot als Fallback bereithalten)
 - [ ] Screen-Recording des kompletten Durchlaufs als Backup auf dem Desktop
-- [ ] `bun test` (113) + `bun run evals` (16/16) müssen grün sein
+- [ ] `bun test` (118) + `bun run evals` (16/16) müssen grün sein
 
 ## Akt 1 — Problem (60 s, Sophia, Slide)
 

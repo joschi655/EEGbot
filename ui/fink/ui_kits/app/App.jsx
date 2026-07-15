@@ -1,25 +1,24 @@
-/* fink app — root flow: landing → login → app */
+/* EEGbot app — root flow: landing → app (Login kommt mit Supabase-Accounts) */
 
 function App() {
-  const [stage, setStage] = React.useState('landing'); // 'landing' | 'login' | 'app'
+  const [stage, setStage] = React.useState('landing'); // 'landing' | 'app'
   const [screen, setScreen] = React.useState('dashboard');
-  const [asset, setAsset] = React.useState(null);
 
-  const openAsset = (a) => { setAsset(a); setScreen('asset'); };
   const nav = (s) => { if (s === 'logout') { setStage('landing'); return; } setScreen(s); };
 
-  if (stage === 'landing') return <Landing onLogin={() => setStage('login')} />;
-  if (stage === 'login') return <Login onSignIn={() => { setStage('app'); setScreen('dashboard'); }} onBack={() => setStage('landing')} />;
+  if (stage === 'landing') return <Landing onStart={() => { setStage('app'); setScreen('dashboard'); }} />;
 
   switch (screen) {
-    case 'assets':    return <Assets onNav={nav} onOpenAsset={openAsset} />;
-    case 'asset':     return <AssetDetail asset={asset} onNav={nav} onBack={() => setScreen('assets')} onDraft={() => setScreen('reports')} />;
-    case 'deadlines': return <Deadlines onNav={nav} />;
-    case 'fahrplan':  return <Fahrplan onNav={nav} />;
-    case 'normgraph': return <NormGraph onNav={nav} />;
-    case 'reports':   return <Reports onNav={nav} />;
+    case 'anlage':     return <MeineAnlage onNav={nav} />;
+    case 'deadlines':  return <Deadlines onNav={nav} />;
+    case 'sanktion52': return <Sanktion52 onNav={nav} />;
+    case 'verguetung': return <Verguetung onNav={nav} />;
+    case 'ue20':       return <Ue20 onNav={nav} />;
+    case 'fahrplan':   return <Fahrplan onNav={nav} />;
+    case 'recherche':  return <Recherche onNav={nav} />;
+    case 'normgraph':  return <NormGraph onNav={nav} />;
     case 'dashboard':
-    default:          return <Dashboard onNav={nav} onOpenAsset={openAsset} />;
+    default:           return <Dashboard onNav={nav} />;
   }
 }
 

@@ -15,6 +15,12 @@
  *   GET  /api/norm         ?slug&enbez&datum  Norm-Fassung zum Stichtag
  *   GET  /api/cascade      ?slug&enbez&datum&tiefe   Querverweis-Kaskade
  *   GET  /api/uebergangsrecht ?ibn            §100-Resolver (Versteinerung)
+ *   GET  /api/sanktion52                      Verstoß-Kategorien (füttert das Formular)
+ *   POST /api/sanktion52   {leistung_kw, verstoesse[], stichtag?}   §52-Exposure
+ *   POST /api/verguetung   {ibn_datum, leistung_kwp, einspeiseart}  Einspeisevergütung
+ *   POST /api/fristen      {ibn_datum, mastr_registriert, veraeusserungsform_gemeldet, …}
+ *   POST /api/schwellen    {leistung_kwp, …}                        Leistungs-Schwellen
+ *   POST /api/ue20         {ibn_datum, leistung_kwp, …}             Ü20-Optionsvergleich
  */
 import { join, resolve, sep } from "node:path";
 import { crossRefs, normAtDate, oeffneGraph } from "../src/graph/query.ts";
@@ -23,6 +29,11 @@ import { sucheNormen } from "../src/rag/suche.ts";
 import { extrahiereFall } from "../src/rag/intake.ts";
 import { netzbetreiberFuerPlz } from "../src/apis/netzbetreiber.ts";
 import { erstelleFahrplan, renderFahrplanMarkdown } from "../src/rules/fahrplan.ts";
+import { berechneSanktion52, VERSTOSS_KATEGORIEN } from "../src/rules/sanktion52.ts";
+import { berechneVerguetung } from "../src/rules/verguetung.ts";
+import { pruefeFristen } from "../src/rules/fristen.ts";
+import { pruefeSchwellen } from "../src/rules/schwellen.ts";
+import { vergleicheAusgefoerderteOptionen } from "../src/rules/ausgefoerderte.ts";
 
 const REPO = new URL("..", import.meta.url).pathname;
 const APP_DIR = join(REPO, "ui", "fink", "ui_kits", "app");
@@ -46,6 +57,19 @@ const VENDOR: Record<string, string> = {
 
 const json = (x: unknown, status = 200) =>
   new Response(JSON.stringify(x, null, 1), { status, headers: { "content-type": "application/json; charset=utf-8" } });
+
+/**
+ * Engine-Aufruf als Response. Engine-Throws sind nutzerlesbare Validierungs-
+ * Meldungen (z. B. "IBN vor 30.07.2022 wird nicht abgedeckt") — deshalb 400
+ * mit Originaltext statt generischem 500.
+ */
+const engine = async (fn: () => unknown) => {
+  try {
+    return json(await fn());
+  } catch (e) {
+    return json({ fehler: e instanceof Error ? e.message : String(e) }, 400);
+  }
+};
 
 async function sucheZusatz(indexName: string, query: string, limit = 5): Promise<unknown[]> {
   const pfad = join(REPO, "knowledge", "index", `${indexName}.json`);
@@ -124,6 +148,29 @@ Bun.serve({
           netzbetreiber = await netzbetreiberFuerPlz(plz).catch((e) => ({ fehler: e instanceof Error ? e.message : String(e) }));
         }
         return json({ fahrplan, netzbetreiber, markdown: renderFahrplanMarkdown(fahrplan) });
+      }
+
+      // ── B2C-Rechner: dieselben Engines wie mcp/rechner/server.ts, dünn verdrahtet ──
+      if (p === "/api/sanktion52") {
+        if (req.method === "GET") return json({ kategorien: VERSTOSS_KATEGORIEN });
+        const body = await req.json();
+        return engine(() => berechneSanktion52(body));
+      }
+      if (p === "/api/verguetung" && req.method === "POST") {
+        const body = await req.json();
+        return engine(() => berechneVerguetung(body));
+      }
+      if (p === "/api/fristen" && req.method === "POST") {
+        const body = await req.json();
+        return engine(() => pruefeFristen(body));
+      }
+      if (p === "/api/schwellen" && req.method === "POST") {
+        const body = await req.json();
+        return engine(() => pruefeSchwellen(body));
+      }
+      if (p === "/api/ue20" && req.method === "POST") {
+        const body = await req.json();
+        return engine(() => vergleicheAusgefoerderteOptionen(body));
       }
 
       if (p === "/api/norm") {
@@ -236,7 +283,7 @@ Bun.serve({
       // ── Statics: fink-App + Design-System ──
       if (p === "/favicon.ico" || p === "/favicon.svg")
         return new Response(
-          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#1213BE"/><text x="16" y="23" font-family="system-ui" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">f</text></svg>',
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#1213BE"/><text x="16" y="23" font-family="system-ui" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">E</text></svg>',
           { headers: { "content-type": "image/svg+xml" } },
         );
       if (p.startsWith("/vendor/")) {
