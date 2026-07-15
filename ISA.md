@@ -161,6 +161,21 @@ Pitch-Konzept als KB-Dokument.
 - [ ] ISC-66: worklog + Session-Registry um Run 2026-07-15-c ergänzt (Read)
 - [ ] ISC-67: Obsidian-Statusübersicht Kap. Produktmodell um eegbot.aiwerke.de ergänzt (Read)
 
+### D14 — Audit-Härtung (Run 2026-07-15-d)
+- [x] ISC-68: MaStR-Monatsfrist folgt § 188 Abs. 3 BGB (31.01.2024 → 29.02.2024; Normaljahr und Schaltjahr getestet)
+- [x] ISC-69: Web-KI-Intake zeigt Empfänger, Zweck und vollständige übertragene Inhalte; API verlangt ausdrückliche Einwilligung (Unit + REST)
+- [x] ISC-70: Vergütung 01.02.–31.07.2026 ist geschlossen; 01.08.2026 liefert Datenlücke, Freshness-Gate verbietet offene letzte Tarifzeiträume
+- [x] ISC-71: Alle Rechner-MCP-Inputs und alle Rechner-REST-Routen verwenden `src/schemas/rechner.ts`; JSON=400, Contract/Fach=422, unbekannt=500 ohne Detail-Leak
+- [x] ISC-72: Volleinspeisungs-Meldejahr modelliert; Browserprofil v2 migriert valide v1-Werte und verwirft ungültige Altprofile
+- [x] ISC-73: Ü20-Quellen strukturiert und verlinkt; Zukunftsanlagen liefern Vorschau ohne scheinpräzise Optionen; `null` nimmt nicht am Zahlenvergleich teil
+- [x] ISC-74: Drei Golden Paths laufen in CI auf Desktop-Chromium und Mobile-Chromium (6/6 lokal grün)
+- [x] ISC-75: EEG-2027 hat separaten Pflichtjob; `REQUIRE_EEG2027=1` macht fehlenden Entwurf zum Fehler statt Skip
+- [x] ISC-76: Mobile Navigation + einspaltige Rechner; Ergebnis-Screens zeigen „So wurde gerechnet" mit Inputs, Schritten, Parameterstand, Normen und Links
+- [x] ISC-77: Jahresmarktwert Solar 2025 amtlich gegen netztransparenz.de auf 4,508 ct/kWh verifiziert
+- [x] ISC-78: Benchmark um falsche Fassung, falsche Schwelle und fehlende Eingabe erweitert (19/19 deterministisch)
+- [ ] ISC-79: Drei Golden Cases durch Energierechtsanwältin/Clearingstellen-erfahrene Person schriftlich abgezeichnet (externe Abnahme)
+- [ ] ISC-80: Fünf Nutzerinterviews und drei fehlerfreie Fünf-Minuten-Durchläufe plus lokales Recording durchgeführt (externe/operative Abnahme)
+
 ## Test Strategy
 
 | isc | type | check | threshold | tool |

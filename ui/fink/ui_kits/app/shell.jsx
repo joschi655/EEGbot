@@ -24,6 +24,35 @@ function NavItem({ label, count, active, onClick }) {
   );
 }
 
+function Rechenweg({ inputs = {}, schritte = [], parameterstand, normen = [], quellen = [] }) {
+  const quellenListe = Array.isArray(quellen) ? quellen : [];
+  return (
+    <details className="fk-calculation" data-testid="calculation-details">
+      <summary>So wurde gerechnet</summary>
+      <div className="fk-calculation__body">
+        <div>
+          <strong>Eingaben</strong>
+          <dl>
+            {Object.entries(inputs).map(([k, v]) => (
+              <React.Fragment key={k}><dt>{k}</dt><dd>{Array.isArray(v) ? v.join(', ') : String(v ?? '—')}</dd></React.Fragment>
+            ))}
+          </dl>
+        </div>
+        {schritte.length > 0 && <div><strong>Rechenschritte</strong><ol>{schritte.map((s, i) => <li key={i}>{s}</li>)}</ol></div>}
+        {parameterstand && <p><strong>Parameterstand:</strong> {parameterstand}</p>}
+        {normen.length > 0 && <p><strong>Normfassung:</strong> {normen.join(' · ')}</p>}
+        {quellenListe.length > 0 && (
+          <div><strong>Fundstellen und Quellen</strong><ul>{quellenListe.map((q, i) => {
+            const quelle = typeof q === 'string' ? { bezeichnung: q } : q;
+            const label = [quelle.bezeichnung, quelle.fundstelle].filter(Boolean).join(' — ');
+            return <li key={i}>{quelle.url ? <a href={quelle.url} target="_blank" rel="noreferrer">{label}</a> : label}</li>;
+          })}</ul></div>
+        )}
+      </div>
+    </details>
+  );
+}
+
 function AppShell({ active, onNav, title, subtitle, actions, search = false, children }) {
   const { Avatar, IconButton } = window.FinkDesignSystem_4f2014;
   const profil = window.EEGBOT_PROFIL.lade();
@@ -77,4 +106,4 @@ function AppShell({ active, onNav, title, subtitle, actions, search = false, chi
   );
 }
 
-Object.assign(window, { EegbotMark, NavItem, AppShell, STATUS_LABEL, STATUS_TONE });
+Object.assign(window, { EegbotMark, NavItem, Rechenweg, AppShell, STATUS_LABEL, STATUS_TONE });

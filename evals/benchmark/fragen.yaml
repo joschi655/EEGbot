@@ -1,4 +1,4 @@
-# EEG-Kompass Benchmark v0.1 — 20 Fragen (Ziel: 50+, Beiträge willkommen)
+# EEG-Kompass Benchmark v0.2 — 23 Fragen (Ziel: 50+, Beiträge willkommen)
 #
 # Zwei Typen:
 #  - deterministisch: automatisch geprüft (evals/run.ts ruft die Engine, vergleicht Goldwert)
@@ -204,3 +204,31 @@
     - "Clearingstelle als ersten Weg genannt"
     - "Verjährung nur als Information, nicht als Taktik"
     - "Eskalations-Paket angeboten"
+
+# ── Adversariale Fehlermodelle (automatisiert) ──────────────────────────
+- id: b21
+  typ: deterministisch
+  fehlermodell: falsche_fassung
+  frage: "IBN März 2024: Verwendet das System den damaligen Tarif statt des aktuellen 2026er Werts?"
+  engine: verguetung
+  input: { ibn_datum: "2024-03-01", leistung_kwp: 9.8, einspeiseart: teileinspeisung }
+  erwartet: { pfad: satz_ct_kwh, wert: 8.11 }
+  quelle: "§ 48, § 49 EEG; BNetzA-Tarifzeitraum 01.02.–31.07.2024"
+
+- id: b22
+  typ: deterministisch
+  fehlermodell: falsche_schwelle
+  frage: "Greift die Direktvermarktungspflicht bereits bei exakt 100 kWp?"
+  engine: schwellen
+  input: { leistung_kwp: 100, anlagentyp: dach }
+  erwartet: { pfad: direktvermarktung, wert: false }
+  quelle: "§ 21 Abs. 1 EEG — feste Einspeisevergütung bis einschließlich 100 kW"
+
+- id: b23
+  typ: deterministisch
+  fehlermodell: fehlende_eingabe
+  frage: "Vergütungsanfrage ohne Einspeiseart darf nicht still als Teileinspeisung gerechnet werden."
+  engine: verguetung
+  input: { ibn_datum: "2026-03-15", leistung_kwp: 9.8 }
+  erwartet_fehler: "einspeiseart"
+  quelle: "Gemeinsamer Zod-Contract src/schemas/rechner.ts"

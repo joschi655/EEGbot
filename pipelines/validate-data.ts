@@ -48,6 +48,8 @@ for (const pfad of dateien("parameters")) {
       if (!prev.gueltig_bis) fail(`${name}: Zeitraum ab ${prev.gueltig_von} ist offen, aber es folgt ${cur.gueltig_von}`);
       else if (prev.gueltig_bis >= cur.gueltig_von) fail(`${name}: Überlappung ${prev.gueltig_bis} / ${cur.gueltig_von}`);
     }
+    if (p.id.startsWith("verguetung.solar.") && !sortiert.at(-1)?.gueltig_bis)
+      fail(`${name}: letzter Vergütungszeitraum ist offen; amtlich veröffentlichte Halbjahressätze brauchen ein gueltig_bis (Freshness-Gate)`);
     ok(`parameters/${name}`);
   } catch (e) {
     fail(`parameters/${name}: ${e instanceof Error ? e.message : e}`);

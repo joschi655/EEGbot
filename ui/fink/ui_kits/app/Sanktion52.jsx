@@ -30,6 +30,7 @@ function Sanktion52({ onNav }) {
   const [verstoesse, setVerstoesse] = React.useState([{ kategorie: '11', beginn: '', ende: '', geheilt: false }]);
   const [gefordert, setGefordert] = React.useState('');
   const [ergebnis, setErgebnis] = React.useState(null);
+  const [rechenInput, setRechenInput] = React.useState(null);
   const [laden, setLaden] = React.useState(false);
   const [fehler, setFehler] = React.useState(null);
   React.useEffect(() => { setTimeout(() => window.lucide && lucide.createIcons(), 10); });
@@ -45,6 +46,7 @@ function Sanktion52({ onNav }) {
 
   const berechnen = async (payload) => {
     setLaden(true); setFehler(null);
+    setRechenInput(payload);
     try {
       const res = await fetch('/api/sanktion52', {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
@@ -87,7 +89,7 @@ function Sanktion52({ onNav }) {
   return (
     <AppShell active="sanktion52" onNav={onNav} title="Rückforderungs-Check" subtitle="§ 52 EEG: Was darf der Netzbetreiber wirklich fordern? Exposure, Verjährung, Heilung">
       <div className="fk-screen">
-        <div className="fk-screen__inner" style={{ display: 'grid', gridTemplateColumns: '400px minmax(0, 1fr)', gap: 24, alignItems: 'start' }}>
+        <div className="fk-screen__inner fk-calculator-layout fk-calculator-layout--wide">
           <Card title="Ihr Fall" subtitle="Verstoß-Zeiträume erfassen — die Engine rechnet Monat für Monat">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <Button variant="secondary" fullWidth onClick={beispielLaden} iconLeft={<i data-lucide="gavel"></i>}>
@@ -180,6 +182,20 @@ function Sanktion52({ onNav }) {
                     <span key={i} style={{ color: 'var(--text-muted)', font: 'var(--font-caption)', marginRight: 12 }}>{q}</span>
                   ))}
                 </div>
+                <Rechenweg
+                  inputs={{ Leistung_kW: rechenInput?.leistung_kw, Stichtag: rechenInput?.stichtag || 'heute', Verstöße: (rechenInput?.verstoesse || []).map((v) => `${v.kategorie}: ${v.beginn}–${v.ende || 'offen'}${v.geheilt ? ' (geheilt)' : ''}`) }}
+                  schritte={[
+                    'Jeden berührten Kalendermonat je Verstoß bestimmen.',
+                    'Regelsatz 10 €/kW/Monat bzw. nach anwendbarer Heilung 2 €/kW/Monat anwenden.',
+                    'Monatliche Kappung und Verjährung nach § 52 Abs. 5 und 6 berücksichtigen.',
+                    `${ergebnis.monate.filter((m) => !m.verjaehrt).length} nicht verjährte Monatspositionen zu ${s52Eur(ergebnis.exposure_gesamt_eur)} summieren.`,
+                  ]}
+                  parameterstand={ergebnis.parameterstand
+                    ? `${ergebnis.parameterstand.gueltig_von} bis ${ergebnis.parameterstand.gueltig_bis || 'offen'}: ${ergebnis.parameterstand.regelsatz_eur_kw_monat} €/kW/Monat, Heilung ${ergebnis.parameterstand.heilungssatz_eur_kw_monat} €/kW/Monat`
+                    : `§-52-Parameter zum Stichtag ${rechenInput?.stichtag || 'heute'}`}
+                  normen={['§ 52 Abs. 2–6 EEG 2023']}
+                  quellen={ergebnis.quellen || []}
+                />
               </React.Fragment>
             )}
           </div>

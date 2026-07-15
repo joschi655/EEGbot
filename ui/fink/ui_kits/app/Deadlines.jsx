@@ -47,6 +47,7 @@ function Deadlines({ onNav }) {
         ...(profil.mastr_registrierung_datum ? { mastr_registrierung_datum: profil.mastr_registrierung_datum } : {}),
         veraeusserungsform_gemeldet: !!profil.veraeusserungsform_gemeldet,
         ...(profil.einspeiseart ? { einspeiseart: profil.einspeiseart } : {}),
+        ...(Array.isArray(profil.volleinspeisung_gemeldet_fuer_jahr) ? { volleinspeisung_gemeldet_fuer_jahr: profil.volleinspeisung_gemeldet_fuer_jahr } : {}),
       }),
     })
       .then(async (r) => { const d = await r.json(); if (!r.ok) throw new Error(d.fehler || `HTTP ${r.status}`); return d; })
@@ -76,6 +77,16 @@ function Deadlines({ onNav }) {
               <Group title="Überschritten" color="var(--klein-600)" items={fristen.filter((f) => f.status === 'ueberschritten')} />
               <Group title="Offen" color="var(--klein-500)" items={fristen.filter((f) => f.status === 'offen')} />
               <Group title="Erledigt" color="var(--gray-300)" items={fristen.filter((f) => f.status === 'erledigt')} />
+              <Rechenweg
+                inputs={{ Inbetriebnahme: profil.ibn_datum, MaStR_registriert: profil.mastr_registriert, Veräußerungsform_gemeldet: profil.veraeusserungsform_gemeldet, Einspeiseart: profil.einspeiseart, Volleinspeisung_gemeldet_für: profil.volleinspeisung_gemeldet_fuer_jahr || [] }}
+                schritte={fristen.map((f) => `${f.bezeichnung}: ${f.deadline} → ${f.status}`)}
+                parameterstand="Kalenderarithmetik zum heutigen Stichtag"
+                normen={[...new Set(fristen.map((f) => f.norm))]}
+                quellen={[
+                  { bezeichnung: 'MaStRV', fundstelle: '§ 5', url: 'https://www.gesetze-im-internet.de/mastrv/__5.html' },
+                  { bezeichnung: 'BGB', fundstelle: '§ 188 Abs. 3', url: 'https://www.gesetze-im-internet.de/bgb/__188.html' },
+                ]}
+              />
               <p style={{ font: 'var(--font-caption)', color: 'var(--text-muted)', marginTop: 18, maxWidth: 720 }}>
                 Hinweis: Die Meldung der <strong>Veräußerungsform</strong> (§ 21b, § 21c EEG) ist eine separate Meldung
                 an den Netzbetreiber — sie passiert NICHT automatisch mit der MaStR-Registrierung und ist nicht

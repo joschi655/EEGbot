@@ -87,9 +87,12 @@ bun run ingest:dokumente
 
 PDF-Text wird extrahiert, Scans und Fotos werden per OCR (tesseract.js, deutsch)
 durchsuchbar, **Pläne und Fotos liest Claude zusätzlich im Original** (Vision).
-Die Workflows ziehen Daten (IBN-Datum, Leistung, Netzbetreiber …) aus deinen
-Unterlagen, statt dich abzufragen. Alles bleibt lokal und gitignored —
-nichts wird hochgeladen oder committet.
+Die lokale Ingestion und Suche ziehen Daten (IBN-Datum, Leistung,
+Netzbetreiber …) aus deinen Unterlagen, statt dich abzufragen. Originaldateien,
+Extrakte und Indizes bleiben gitignored und werden nicht committet. Nur wenn du
+in der Web-App ausdrücklich die optionale KI-Vorbefüllung startest, werden die
+zuvor vollständig angezeigten Dokumentauszüge und dein Freitext nach deiner
+Einwilligung an die Anthropic API übertragen.
 
 Optionale Wissensquellen (je ein Befehl, lokal gebaut): Clearingstelle-FAQ +
 Voten (`ingest:clearingstelle`), BGH-Rechtsprechung (`ingest:rechtsprechung`),
@@ -138,8 +141,8 @@ changefeed` überwacht BGBl, QuantLaw-Delta und Bundestags-Vorhaben.
 
 ```bash
 # Voraussetzung: bun run setup (Graph-Tests lesen die lokal gebaute Wissensbasis)
-bun test              # 118 Tests: Normgraph, Engines, Förder-Matcher (BGH-/Clearingstelle-Fixtures)
-bun run evals         # EEG-Benchmark: 16 deterministische + 4 interpretative Fragen
+bun test              # 137 Tests: Normgraph, Engines, Contracts, Profile (BGH-/Clearingstelle-Fixtures)
+bun run evals         # EEG-Benchmark: 19 deterministische + 4 interpretative Fragen
 bun run validate:data # Schema- + Konsistenz-Gate für alle data/-Artefakte
 bun run crosscheck:catala # Catala-Spezifikation ⇄ TS-Engine (12 Szenarien; Catala via opam, sonst nur TS-Seite)
 ```
@@ -183,9 +186,11 @@ Hinweis: die Gilmer-Fonts sind kommerziell lizenziert und nicht im Repo
 
 **Weniger tippen — KI-Vorbefüllung:** Der Fahrplan-Screen kann die Fall-Felder
 automatisch aus deinen Unterlagen (`dokumente/` + `bun run ingest:dokumente`)
-und einem Freitext-Satz vorbefüllen (`POST /api/intake`). Die KI schlägt nur
-belegte Werte vor (Quelle + wörtliches Zitat, sonst verworfen), du prüfst,
-die deterministische Engine rechnet. Dafür wird ein Anthropic-API-Key benötigt
+und einem Freitext-Satz vorbefüllen (`POST /api/intake`). Vorher zeigt
+`POST /api/intake/vorschau` die vollständig übertragenen Inhalte, den Empfänger
+und den Zweck; der eigentliche Aufruf verlangt eine ausdrückliche Einwilligung.
+Die KI schlägt nur belegte Werte vor (Quelle + wörtliches Zitat, sonst
+verworfen), du prüfst, die deterministische Engine rechnet. Dafür wird ein Anthropic-API-Key benötigt
 (`ANTHROPIC_API_KEY` in `.env`); ohne Key funktioniert alles Übrige unverändert —
 in Claude Code liest Claude die Unterlagen ohnehin direkt (Skill „Unterlagen").
 

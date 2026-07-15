@@ -100,7 +100,7 @@ function FpSchritt({ s }) {
   );
 }
 
-function FpErgebnis({ f, netzbetreiber }) {
+function FpErgebnis({ f, netzbetreiber, input }) {
   const { Card, Badge } = window.FinkDesignSystem_4f2014;
   const e = f.empfehlung;
   const nb = netzbetreiber && !netzbetreiber.fehler && netzbetreiber.netzbetreiber?.length ? netzbetreiber : null;
@@ -207,6 +207,17 @@ function FpErgebnis({ f, netzbetreiber }) {
         </Card>
       )}
 
+      <Rechenweg
+        inputs={{ Maßnahme: input.massnahme?.typ, Kosten_EUR: input.massnahme?.kosten_eur ?? 'nicht angegeben', Eigentumsform: input.eigentumsform, Selbstnutzung: input.antragsteller?.selbstnutzend }}
+        schritte={[
+          ...f.schritte.map((s) => `${s.nr}. ${s.titel}`),
+          ...(e ? [`Fördersätze prüfen und auf ${e.kosten_angesetzt_eur ?? 'die förderfähigen Kosten'} € anwenden.`] : []),
+        ]}
+        parameterstand={f.stand}
+        normen={e?.saetze?.map((s) => s.bezeichnung) || []}
+        quellen={f.schritte.flatMap((s) => s.quellen || [])}
+      />
+
       <p style={{ font: 'var(--font-caption)', color: 'var(--text-muted)' }}>
         Stand der Programmdaten: {f.stand}. {f.disclaimer}
       </p>
@@ -228,6 +239,8 @@ function Fahrplan({ onNav }) {
   const [kiLaden, setKiLaden] = React.useState(false);
   const [kiErgebnis, setKiErgebnis] = React.useState(null);
   const [kiFehler, setKiFehler] = React.useState(null);
+  const [kiVorschau, setKiVorschau] = React.useState(null);
+  const [kiEinwilligung, setKiEinwilligung] = React.useState(false);
   React.useEffect(() => { setTimeout(() => window.lucide && lucide.createIcons(), 10); });
 
   const set = (k) => (ev) => setForm({ ...form, [k]: ev.target.type === 'checkbox' ? ev.target.checked : ev.target.value });
@@ -263,7 +276,7 @@ function Fahrplan({ onNav }) {
       const res = await fetch('/api/intake', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ freitext: form.freitext }),
+        body: JSON.stringify({ freitext: form.freitext, einwilligung_externe_uebertragung: true }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.fehler || `HTTP ${res.status}`);
@@ -276,6 +289,23 @@ function Fahrplan({ onNav }) {
       setForm((f) => ({ ...f, ...neu }));
       setKiErgebnis(data);
     } catch (e) {
+      setKiFehler(String(e.message || e));
+    } finally {
+      setKiLaden(false);
+    }
+  };
+
+  const kiVorschauLaden = async () => {
+    setKiLaden(true); setKiFehler(null); setKiErgebnis(null); setKiEinwilligung(false);
+    try {
+      const res = await fetch('/api/intake/vorschau', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ freitext: form.freitext }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.fehler || `HTTP ${res.status}`);
+      setKiVorschau(data);
+    } catch (e) {
+      setKiVorschau(null);
       setKiFehler(String(e.message || e));
     } finally {
       setKiLaden(false);
@@ -304,7 +334,7 @@ function Fahrplan({ onNav }) {
   return (
     <AppShell active="fahrplan" onNav={onNav} title="Förder-Fahrplan" subtitle="Deterministische Engine — jede Zahl aus bequellten Programmdaten" search={false}>
       <div className="fk-screen">
-        <div className="fk-screen__inner" style={{ display: 'grid', gridTemplateColumns: '380px minmax(0, 1fr)', gap: 24, alignItems: 'start' }}>
+        <div className="fk-screen__inner fk-calculator-layout">
           <Card title="Ihr Vorhaben" subtitle="Angaben bestimmen Programme, Boni und Reihenfolge">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div style={{ padding: '12px 14px', border: '1px dashed var(--klein-600)', borderRadius: 'var(--radius-md)', display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -313,18 +343,44 @@ function Fahrplan({ onNav }) {
                 </span>
                 <span style={{ font: 'var(--font-caption)', color: 'var(--text-muted)' }}>
                   Legen Sie Angebote, Bescheide, Datenblätter in <code>dokumente/</code> ab (<code>bun run ingest:dokumente</code>) und/oder
-                  beschreiben Sie Ihr Vorhaben — die KI schlägt Feldwerte mit Beleg vor, Sie prüfen, die Engine rechnet.
+                  beschreiben Sie Ihr Vorhaben. Vor dem externen KI-Aufruf sehen Sie exakt, welche Auszüge übertragen werden.
                 </span>
                 <textarea
                   value={form.freitext}
-                  onChange={set('freitext')}
+                  onChange={(ev) => {
+                    setForm({ ...form, freitext: ev.target.value });
+                    setKiVorschau(null);
+                    setKiEinwilligung(false);
+                  }}
                   placeholder="z. B.: Wir tauschen die Gasheizung von 1998 gegen eine Wärmepumpe, Angebot 38.000 €, Haus in München, wir wohnen selbst darin…"
                   rows={3}
                   style={{ width: '100%', resize: 'vertical', font: 'var(--font-body)', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)', padding: '8px 10px', background: 'transparent' }}
                 />
-                <Button variant="secondary" fullWidth onClick={kiVorbefuellen} disabled={kiLaden} iconLeft={<i data-lucide="sparkles"></i>}>
-                  {kiLaden ? 'KI liest…' : 'Felder automatisch vorbefüllen'}
+                <Button variant="secondary" fullWidth onClick={kiVorschauLaden} disabled={kiLaden} iconLeft={<i data-lucide="eye"></i>}>
+                  {kiLaden ? 'Lade Vorschau…' : 'Übertragung prüfen'}
                 </Button>
+                {kiVorschau && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <span style={{ font: 'var(--font-caption)', color: 'var(--text-muted)' }}>
+                      Empfänger: <strong>{kiVorschau.empfaenger}</strong> · Zweck: {kiVorschau.zweck} · {kiVorschau.zeichen.toLocaleString('de-DE')} Zeichen
+                    </span>
+                    <details>
+                      <summary style={{ cursor: 'pointer', font: 'var(--font-caption)', color: 'var(--klein-600)' }}>
+                        Übertragene Inhalte anzeigen ({kiVorschau.dokumente.length} Dokumente)
+                      </summary>
+                      <pre style={{ whiteSpace: 'pre-wrap', maxHeight: 240, overflow: 'auto', padding: 10, border: '1px solid var(--border-subtle)', font: 'var(--font-data)', fontSize: 11 }}>
+                        {kiVorschau.uebertragener_inhalt || 'Keine Inhalte vorhanden.'}
+                      </pre>
+                    </details>
+                    <label style={{ display: 'flex', gap: 8, alignItems: 'flex-start', font: 'var(--font-caption)', color: 'var(--text-primary)' }}>
+                      <input type="checkbox" checked={kiEinwilligung} onChange={(ev) => setKiEinwilligung(ev.target.checked)} />
+                      Ich habe die Vorschau geprüft und willige in die Übertragung der angezeigten Inhalte an die Anthropic API ein.
+                    </label>
+                    <Button fullWidth onClick={kiVorbefuellen} disabled={kiLaden || !kiEinwilligung || !kiVorschau.uebertragener_inhalt} iconLeft={<i data-lucide="sparkles"></i>}>
+                      {kiLaden ? 'KI liest…' : 'Mit KI vorbefüllen'}
+                    </Button>
+                  </div>
+                )}
                 {kiFehler && <FpWarnung text={kiFehler} />}
                 {kiErgebnis && (
                   <div style={{ font: 'var(--font-caption)', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -371,7 +427,7 @@ function Fahrplan({ onNav }) {
 
           <div>
             {ergebnis ? (
-              <FpErgebnis f={ergebnis} netzbetreiber={netzbetreiber} />
+              <FpErgebnis f={ergebnis} netzbetreiber={netzbetreiber} input={baueFall()} />
             ) : (
               <Card title="Noch kein Fahrplan berechnet" subtitle="Links den Fall erfassen und berechnen">
                 <p style={{ font: 'var(--font-body)', color: 'var(--text-muted)' }}>

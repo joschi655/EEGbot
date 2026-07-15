@@ -12,8 +12,8 @@ const ue20Datum = (iso) => {
 
 /* €/Jahr deutsch (2 Nachkommastellen). Fehlender Wert → null (Anzeige „—"). */
 const ue20Eur = (n) =>
-  Number.isFinite(Number(n))
-    ? Number(n).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  typeof n === 'number' && Number.isFinite(n)
+    ? n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
     : null;
 
 /* Rot NUR hier. */
@@ -56,7 +56,7 @@ function Ue20Liste({ titel, eintraege, farbe }) {
   );
 }
 
-function Ue20Ergebnis({ d }) {
+function Ue20Ergebnis({ d, input }) {
   const { Card, Badge } = window.FinkDesignSystem_4f2014;
   const optionen = Array.isArray(d.optionen) ? d.optionen : [];
   const warnungen = Array.isArray(d.warnungen) ? d.warnungen : [];
@@ -64,8 +64,8 @@ function Ue20Ergebnis({ d }) {
   // Beste Option = höchster jahresertrag_eur unter den Optionen mit Zahlwert.
   let besteIdx = -1; let besterWert = -Infinity;
   optionen.forEach((o, i) => {
-    const w = Number(o.jahresertrag_eur);
-    if (Number.isFinite(w) && w > besterWert) { besterWert = w; besteIdx = i; }
+    const w = o.jahresertrag_eur;
+    if (typeof w === 'number' && Number.isFinite(w) && w > besterWert) { besterWert = w; besteIdx = i; }
   });
 
   return (
@@ -73,16 +73,17 @@ function Ue20Ergebnis({ d }) {
       <div className="fk-row" style={{ gap: 10, alignItems: 'center' }}>
         {d.ist_ausgefoerdert
           ? <Badge tone="overdue" size="lg">Ausgefördert seit {ue20Datum(d.foerderende)}</Badge>
-          : <Badge tone="compliant" size="lg">Förderung läuft bis {ue20Datum(d.foerderende)}</Badge>}
+          : <Badge tone="neutral" size="lg">Vorschau · Förderung läuft bis {ue20Datum(d.foerderende)}</Badge>}
       </div>
 
       {warnungen.map((w, i) => <Ue20Warnung key={i} text={w} />)}
 
       {optionen.length === 0 && (
-        <Card title="Keine Optionen ermittelt" subtitle="Auf Basis der Angaben liefert die Engine keine Handlungsoption">
+        <Card title={d.modus === 'vorschau' ? 'Noch kein Ü20-Vergleich' : 'Keine Optionen ermittelt'} subtitle={d.modus === 'vorschau' ? 'Heutige Marktwerte werden nicht auf das Förderende fortgeschrieben' : 'Auf Basis der Angaben liefert die Engine keine Handlungsoption'}>
           <p style={{ font: 'var(--font-body)', color: 'var(--text-muted)' }}>
-            Ergänzen Sie Jahresertrag, Eigenverbrauchsanteil und Strompreis für eine belastbare Ertragsschätzung —
-            oder prüfen Sie das Inbetriebnahmedatum.
+            {d.modus === 'vorschau'
+              ? 'Die Engine zeigt den Förderhorizont, erzeugt aber bewusst keine scheinpräzisen Ertragsoptionen für einen zukünftigen Markt- und Rechtsstand.'
+              : 'Ergänzen Sie Jahresertrag, Eigenverbrauchsanteil und Strompreis für eine belastbare Ertragsschätzung — oder prüfen Sie das Inbetriebnahmedatum.'}
           </p>
         </Card>
       )}
@@ -108,6 +109,15 @@ function Ue20Ergebnis({ d }) {
       })}
 
       <Ue20Quellen quellen={d.quellen} />
+      <Rechenweg
+        inputs={{ Inbetriebnahme: input.ibn_datum, Leistung_kWp: input.leistung_kwp, Jahresertrag_kWh: input.jahresertrag_kwh || 'Engine-Standard', Eigenverbrauch_Prozent: input.eigenverbrauchsanteil_prozent || 'Engine-Standard', Strompreis_ct_kWh: input.strompreis_ct_kwh || 'Engine-Standard' }}
+        schritte={optionen.flatMap((o) => o.annahmen || [])}
+        parameterstand={d.modus === 'vorschau'
+          ? 'Keine Zukunftsfortschreibung; nur Förderhorizont'
+          : d.parameterstand ? `${d.parameterstand.id}: ${d.parameterstand.gueltig_von} bis ${d.parameterstand.gueltig_bis || 'bis zur nächsten Veröffentlichung'} (${d.parameterstand.quelle})` : 'Jahresmarktwert zum gewählten Stichtag'}
+        normen={['§ 25 EEG', '§ 21 Abs. 1 Nr. 3 EEG', 'Anlage 1 EEG']}
+        quellen={d.quellen}
+      />
     </div>
   );
 }
@@ -160,7 +170,7 @@ function Ue20({ onNav }) {
   return (
     <AppShell active="ue20" onNav={onNav} title="Nach der Förderung" subtitle="Was tun, wenn die 20 Jahre EEG-Vergütung enden? Optionen im Vergleich" search={false}>
       <div className="fk-screen">
-        <div className="fk-screen__inner" style={{ display: 'grid', gridTemplateColumns: '380px minmax(0, 1fr)', gap: 24, alignItems: 'start' }}>
+        <div className="fk-screen__inner fk-calculator-layout">
           <Card title="Ihre Anlage" subtitle="Ertragsdaten schärfen die Schätzung, sind aber optional">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {profil && (
@@ -180,7 +190,7 @@ function Ue20({ onNav }) {
 
           <div>
             {ergebnis ? (
-              <Ue20Ergebnis d={ergebnis} />
+              <Ue20Ergebnis d={ergebnis} input={form} />
             ) : (
               <Card title="Noch nichts berechnet" subtitle="Links die Anlage erfassen und Optionen vergleichen">
                 <p style={{ font: 'var(--font-body)', color: 'var(--text-muted)' }}>

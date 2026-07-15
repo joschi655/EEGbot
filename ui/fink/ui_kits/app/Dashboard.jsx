@@ -47,6 +47,7 @@ function Dashboard({ onNav }) {
       ...(profil.mastr_registrierung_datum ? { mastr_registrierung_datum: profil.mastr_registrierung_datum } : {}),
       veraeusserungsform_gemeldet: !!profil.veraeusserungsform_gemeldet,
       ...(profil.einspeiseart ? { einspeiseart: profil.einspeiseart } : {}),
+      ...(Array.isArray(profil.volleinspeisung_gemeldet_fuer_jahr) ? { volleinspeisung_gemeldet_fuer_jahr: profil.volleinspeisung_gemeldet_fuer_jahr } : {}),
     }).then((d) => aktiv && setFristen(d)).catch(() => aktiv && setFristen([]));
 
     post('/api/verguetung', { ibn_datum: profil.ibn_datum, leistung_kwp: Number(profil.leistung_kwp), einspeiseart: profil.einspeiseart })

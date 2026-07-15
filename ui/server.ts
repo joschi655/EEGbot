@@ -11,7 +11,9 @@
  *   GET  /api/status                          Wissensbasis-/Index-Status
  *   POST /api/frage        {frage, stichtag?} BM25-Normsuche (+ Clearingstelle/Rechtsprechung falls Indizes da)
  *   POST /api/fahrplan     {fall}             Deterministischer Förderfahrplan (src/rules/fahrplan.ts) + Markdown
- *   POST /api/intake       {freitext?}        KI-Vorbefüllung aus dokumente/ + Freitext (braucht ANTHROPIC_API_KEY)
+ *   POST /api/intake/vorschau {freitext?}     Lokal: zeigt die später übertragenen Inhalte
+ *   POST /api/intake       {freitext?, einwilligung_externe_uebertragung:true}
+ *                                                KI-Vorbefüllung (braucht ANTHROPIC_API_KEY)
  *   GET  /api/norm         ?slug&enbez&datum  Norm-Fassung zum Stichtag
  *   GET  /api/cascade      ?slug&enbez&datum&tiefe   Querverweis-Kaskade
  *   GET  /api/uebergangsrecht ?ibn            §100-Resolver (Versteinerung)
@@ -26,7 +28,7 @@ import { join, resolve, sep } from "node:path";
 import { crossRefs, normAtDate, oeffneGraph } from "../src/graph/query.ts";
 import { resolveUebergangsrecht } from "../src/graph/uebergangsrecht.ts";
 import { sucheNormen } from "../src/rag/suche.ts";
-import { extrahiereFall } from "../src/rag/intake.ts";
+import { erstelleIntakeVorschau, extrahiereFall } from "../src/rag/intake.ts";
 import { netzbetreiberFuerPlz } from "../src/apis/netzbetreiber.ts";
 import { erstelleFahrplan, renderFahrplanMarkdown } from "../src/rules/fahrplan.ts";
 import { berechneSanktion52, VERSTOSS_KATEGORIEN } from "../src/rules/sanktion52.ts";
@@ -34,6 +36,15 @@ import { berechneVerguetung } from "../src/rules/verguetung.ts";
 import { pruefeFristen } from "../src/rules/fristen.ts";
 import { pruefeSchwellen } from "../src/rules/schwellen.ts";
 import { vergleicheAusgefoerderteOptionen } from "../src/rules/ausgefoerderte.ts";
+import { FachlicherFehler } from "../src/lib/fehler.ts";
+import {
+  AusgefoerderteInputSchema,
+  FristenInputSchema,
+  Sanktion52InputSchema,
+  SchwellenInputSchema,
+  VerguetungInputSchema,
+} from "../src/schemas/rechner.ts";
+import { z } from "zod";
 
 const REPO = new URL("..", import.meta.url).pathname;
 const APP_DIR = join(REPO, "ui", "fink", "ui_kits", "app");
@@ -58,18 +69,44 @@ const VENDOR: Record<string, string> = {
 const json = (x: unknown, status = 200) =>
   new Response(JSON.stringify(x, null, 1), { status, headers: { "content-type": "application/json; charset=utf-8" } });
 
-/**
- * Engine-Aufruf als Response. Engine-Throws sind nutzerlesbare Validierungs-
- * Meldungen (z. B. "IBN vor 30.07.2022 wird nicht abgedeckt") — deshalb 400
- * mit Originaltext statt generischem 500.
- */
-const engine = async (fn: () => unknown) => {
+const validierungsFehler = (issues: z.ZodIssue[]) =>
+  issues.map((issue) => `${issue.path.join(".") || "body"}: ${issue.message}`).join("; ");
+
+class JsonRequestFehler extends Error {}
+
+async function requestJson(req: Request): Promise<unknown> {
   try {
-    return json(await fn());
+    return await req.json();
+  } catch {
+    throw new JsonRequestFehler("Ungültiges JSON im Request-Body.");
+  }
+}
+
+/** Gemeinsamer REST-Adapter: JSON 400, Contract 422, Fachablehnung 422, Bug 500. */
+export const engineResponse = async <T>(req: Request, schema: z.ZodType<T>, fn: (input: T) => unknown) => {
+  let body: unknown;
+  try {
+    body = await requestJson(req);
+  } catch {
+    return json({ fehler: "Ungültiges JSON im Request-Body." }, 400);
+  }
+  const parsed = schema.safeParse(body);
+  if (!parsed.success) return json({ fehler: validierungsFehler(parsed.error.issues) }, 422);
+  try {
+    return json(await fn(parsed.data));
   } catch (e) {
-    return json({ fehler: e instanceof Error ? e.message : String(e) }, 400);
+    if (e instanceof FachlicherFehler) return json({ fehler: e.message }, 422);
+    console.error("Unerwarteter Engine-Fehler", e);
+    return json({ fehler: "Interner Serverfehler. Details wurden serverseitig protokolliert." }, 500);
   }
 };
+
+const IntakeVorschauSchema = z.object({ freitext: z.string().max(20_000).optional() }).strict();
+const IntakeRequestSchema = IntakeVorschauSchema.extend({
+  einwilligung_externe_uebertragung: z.literal(true, {
+    errorMap: () => ({ message: "Ausdrückliche Einwilligung zur externen Übertragung fehlt" }),
+  }),
+}).strict();
 
 async function sucheZusatz(indexName: string, query: string, limit = 5): Promise<unknown[]> {
   const pfad = join(REPO, "knowledge", "index", `${indexName}.json`);
@@ -86,10 +123,7 @@ async function sucheZusatz(indexName: string, query: string, limit = 5): Promise
   return erg.slice(0, limit);
 }
 
-Bun.serve({
-  port: PORT,
-  hostname: HOST,
-  async fetch(req) {
+export async function handleRequest(req: Request): Promise<Response> {
     const url = new URL(req.url);
     const p = url.pathname;
 
@@ -108,7 +142,7 @@ Bun.serve({
       }
 
       if (p === "/api/frage" && req.method === "POST") {
-        const { frage, stichtag } = (await req.json()) as { frage: string; stichtag?: unknown };
+        const { frage, stichtag } = (await requestJson(req)) as { frage: string; stichtag?: unknown };
         if (!frage?.trim()) return json({ fehler: "frage fehlt" }, 400);
         // Nur wohlgeformte Stichtage durchreichen — alles andere fällt auf "heute" zurück.
         const st = typeof stichtag === "string" && /^\d{4}-\d{2}-\d{2}$/.test(stichtag.trim()) ? stichtag.trim() : undefined;
@@ -120,7 +154,7 @@ Bun.serve({
         return json({ frage, stichtag: st ?? "aktuell", normen, clearingstelle, rechtsprechung });
       }
 
-      if (p === "/api/intake" && req.method === "POST") {
+      if ((p === "/api/intake" || p === "/api/intake/vorschau") && req.method === "POST") {
         // Öffentliche Instanz (fink.aiwerke.de): Intake ruft die Anthropic-API mit
         // Server-Key auf — ungeschützt wäre das ein offener Kosten-Endpunkt.
         if (process.env.EEGBOT_PUBLIC === "1")
@@ -128,16 +162,15 @@ Bun.serve({
             { fehler: "KI-Intake ist auf der öffentlichen Demo deaktiviert. Lokal verfügbar: git clone → bun run setup (siehe README) — dort läuft er ohne API-Key direkt in Claude Code." },
             403,
           );
-        const { freitext } = (await req.json().catch(() => ({}))) as { freitext?: string };
-        try {
-          return json(await extrahiereFall({ freitext }));
-        } catch (e) {
-          return json({ fehler: e instanceof Error ? e.message : String(e) }, 400);
-        }
+        if (p === "/api/intake/vorschau")
+          return engineResponse(req, IntakeVorschauSchema, ({ freitext }) => erstelleIntakeVorschau({ freitext }));
+        return engineResponse(req, IntakeRequestSchema, ({ freitext, einwilligung_externe_uebertragung }) =>
+          extrahiereFall({ freitext, einwilligung_externe_uebertragung }),
+        );
       }
 
       if (p === "/api/fahrplan" && req.method === "POST") {
-        const { fall } = (await req.json()) as { fall: Record<string, unknown> };
+        const { fall } = (await requestJson(req)) as { fall: Record<string, unknown> };
         if (!fall) return json({ fehler: "fall fehlt" }, 400);
         const fahrplan = await erstelleFahrplan(fall);
         // Rand-Anreicherung (Live-API bleibt außerhalb der puren Engine):
@@ -153,24 +186,19 @@ Bun.serve({
       // ── B2C-Rechner: dieselben Engines wie mcp/rechner/server.ts, dünn verdrahtet ──
       if (p === "/api/sanktion52") {
         if (req.method === "GET") return json({ kategorien: VERSTOSS_KATEGORIEN });
-        const body = await req.json();
-        return engine(() => berechneSanktion52(body));
+        return engineResponse(req, Sanktion52InputSchema, berechneSanktion52);
       }
       if (p === "/api/verguetung" && req.method === "POST") {
-        const body = await req.json();
-        return engine(() => berechneVerguetung(body));
+        return engineResponse(req, VerguetungInputSchema, berechneVerguetung);
       }
       if (p === "/api/fristen" && req.method === "POST") {
-        const body = await req.json();
-        return engine(() => pruefeFristen(body));
+        return engineResponse(req, FristenInputSchema, pruefeFristen);
       }
       if (p === "/api/schwellen" && req.method === "POST") {
-        const body = await req.json();
-        return engine(() => pruefeSchwellen(body));
+        return engineResponse(req, SchwellenInputSchema, pruefeSchwellen);
       }
       if (p === "/api/ue20" && req.method === "POST") {
-        const body = await req.json();
-        return engine(() => vergleicheAusgefoerderteOptionen(body));
+        return engineResponse(req, AusgefoerderteInputSchema, vergleicheAusgefoerderteOptionen);
       }
 
       if (p === "/api/norm") {
@@ -310,9 +338,13 @@ Bun.serve({
 
       return json({ fehler: `Nicht gefunden: ${p}` }, 404);
     } catch (e) {
-      return json({ fehler: e instanceof Error ? e.message : String(e) }, 500);
+      if (e instanceof JsonRequestFehler) return json({ fehler: e.message }, 400);
+      console.error("Unerwarteter HTTP-Fehler", e);
+      return json({ fehler: "Interner Serverfehler. Details wurden serverseitig protokolliert." }, 500);
     }
-  },
-});
+}
 
-console.log(`fink Dev-Server läuft: http://localhost:${PORT}/app/  (API unter /api/*)`);
+if (import.meta.main) {
+  Bun.serve({ port: PORT, hostname: HOST, fetch: handleRequest });
+  console.log(`fink Dev-Server läuft: http://localhost:${PORT}/app/  (API unter /api/*)`);
+}

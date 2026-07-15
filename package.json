@@ -7,6 +7,7 @@
   "private": false,
   "scripts": {
     "test": "bun test",
+    "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit",
     "validate:data": "bun run pipelines/validate-data.ts",
     "build:knowledge": "bun run pipelines/ingest-gesetze.ts && bun run pipelines/build-normgraph.ts && bun run pipelines/build-index.ts",
@@ -43,6 +44,7 @@
     "zod": "^3.23.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.54.0",
     "@types/bun": "latest",
     "typescript": "^5.6.0"
   }

@@ -10,11 +10,11 @@ Alle Quellen des Frameworks mit Nutzungsart und Status. Neue Quellen hier eintra
 | recht.bund.de BGBl-RSS | `changefeed` | Neue Verkündungen (Frühwarnung) | GEBAUT (v0.2.0) |
 | DIP Bundestag API | `changefeed`, `eeg-daten` MCP | Laufende Gesetzesvorhaben | GEBAUT (Demo-Key; eigener Key via DIP_API_KEY) |
 | Open Legal Data | `ingest-rechtsprechung` | 8 BGH-Kernurteile + EEG-Breitensuche (38 lokal) | GEBAUT (v0.2.0); Listen-Endpunkt ohne Volltext → Detail-Fetch |
+| ÜNB / netztransparenz.de | `ingest-markt` + `data/parameters/markt.jahresmarktwert_solar.yaml` | Jahresmarktwerte Solar; 2025 amtlich: 4,508 ct/kWh | VERIFIZIERT 15.07.2026 über Marktwertübersicht |
+| Bundesnetzagentur | `data/parameters/verguetung.solar.*.yaml` | Halbjährliche anzulegende Werte Solar; aktuell veröffentlicht bis 31.07.2026 | VERIFIZIERT 15.07.2026 über Vergütungssatz-Archiv; August-Periode noch nicht veröffentlicht |
 | Clearingstelle EEG\|KWKG FAQ | `ingest-clearingstelle` | 283 FAQ lokal indexiert (Rest ~198–330 per Resume-Lauf) | GEBAUT (v0.2.0); Drosselung nach ~200 Requests |
 | SMARD API | `ingest-markt` | Monatsmarktwerte live | GEBAUT (v0.2.0) |
 | MaStR Web-Such-API | `eeg-daten` MCP, `netzbetreiber_fuer_plz` | Öffentliche Anlagendaten (Registrierungs-Check, PLZ→VNB) | DL-DE-BY-2.0, Namensnennung BNetzA |
-| BNetzA anzulegende Werte | `data/parameters/verguetung.*` | Vergütungssätze je IBN-Fenster (manuell kuratiert) | amtlich; Stand 02/2026 verifiziert 10.07.2026 |
-| netztransparenz.de Marktwerte | `data/parameters/markt.*`, optional `ingest-markt` | Jahresmarktwert Solar | Werte 2023/2024 verifiziert; API-Automatisierung offen (NT_CLIENT_*-Credentials) |
 | EEG-2027-RefE (Sekundärquellen: SUER-Synopse, Kanzlei-Analysen) | `build-eeg2027-entwurf` | Kuratierte Entwurfs-Normen als ENTWURF-Snapshot 2027-01-01 | GEBAUT 10.07.2026; kein amtlicher Wortlaut, Review Sophia |
 
 ## Referenziert (nicht redistribuiert)

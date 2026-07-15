@@ -8,6 +8,7 @@
  * Ablehnung statt plausibler Falschwert); historische Sätze folgen als Daten-Erweiterung.
  */
 import { parameterStaffel } from "../lib/parameter.ts";
+import { FachlicherFehler } from "../lib/fehler.ts";
 
 export interface VerguetungInput {
   ibn_datum: string;
@@ -21,23 +22,25 @@ export interface VerguetungErgebnis {
   foerderende: string; // 31.12. des 20. Jahres nach IBN-Jahr
   hinweise: string[];
   quelle: string;
+  quelle_url?: string;
+  parameterstand: { gueltig_von: string; gueltig_bis?: string };
 }
 
 export async function berechneVerguetung(input: VerguetungInput): Promise<VerguetungErgebnis> {
   const { ibn_datum, leistung_kwp, einspeiseart } = input;
-  if (leistung_kwp <= 0) throw new Error("leistung_kwp muss > 0 sein");
+  if (leistung_kwp <= 0) throw new FachlicherFehler("leistung_kwp muss > 0 sein");
   if (ibn_datum < "2022-07-30")
-    throw new Error(
+    throw new FachlicherFehler(
       `IBN ${ibn_datum} liegt vor dem 30.07.2022 — historische Vergütungssätze sind noch nicht als Parameter erfasst. ` +
         `Vergütungsregime über resolve_uebergangsrecht bestimmen und Satz aus der Fassung bei IBN ermitteln (norm_at_date).`,
     );
   if (leistung_kwp > 100)
-    throw new Error(
+    throw new FachlicherFehler(
       "Feste Einspeisevergütung nur bis 100 kWp (§ 21 Abs. 1 EEG); ab 100 kWp Direktvermarktungspflicht — anzulegender Wert statt fester Vergütung.",
     );
 
   const id = einspeiseart === "volleinspeisung" ? "verguetung.solar.volleinspeisung" : "verguetung.solar.teileinspeisung";
-  const { stufen, quelle } = await parameterStaffel(id, ibn_datum);
+  const { stufen, quelle, quelle_url, gueltig_von, gueltig_bis } = await parameterStaffel(id, ibn_datum);
 
   // anteilige Mischvergütung über die Staffel
   let rest = leistung_kwp;
@@ -72,5 +75,7 @@ export async function berechneVerguetung(input: VerguetungInput): Promise<Vergue
     foerderende: `${ibnJahr + 20}-12-31`,
     hinweise,
     quelle,
+    quelle_url,
+    parameterstand: { gueltig_von, gueltig_bis },
   };
 }

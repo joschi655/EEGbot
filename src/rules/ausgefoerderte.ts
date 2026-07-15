@@ -30,9 +30,11 @@ export interface OptionsErgebnis {
 export interface AusgefoerderteErgebnis {
   foerderende: string;
   ist_ausgefoerdert: boolean;
+  modus: "aktuell" | "vorschau";
   optionen: OptionsErgebnis[];
   warnungen: string[];
-  quellen: string[];
+  quellen: { bezeichnung: string; fundstelle?: string; url?: string }[];
+  parameterstand: { id: string; gueltig_von: string; gueltig_bis?: string; quelle: string; quelle_url?: string };
 }
 
 // § 53 S. 1 Nr. 2 EEG: Verringerung um 0,4 ct/kWh für Solar (Wortlaut im Normgraph
@@ -53,7 +55,7 @@ export async function vergleicheAusgefoerderteOptionen(input: AusgefoerderteInpu
   const jw = await parameterWert("markt.jahresmarktwert_solar", stichtag);
   const anschlussSatz = Number(jw.wert) - VERMARKTUNGSKOSTENPAUSCHALE_CT;
 
-  const optionen: OptionsErgebnis[] = [
+  const berechneteOptionen: OptionsErgebnis[] = [
     {
       option: "Anschlussvergütung (Volleinspeisung weiterlaufen lassen)",
       jahresertrag_eur: Math.round(ertragKwh * anschlussSatz) / 100,
@@ -94,7 +96,16 @@ export async function vergleicheAusgefoerderteOptionen(input: AusgefoerderteInpu
     },
   ];
 
+  // Für noch geförderte Anlagen sind die heutigen Marktwerte und Angebote kein
+  // seriöser Zukunftsvergleich. Der Screen zeigt daher nur den Förderhorizont.
+  const optionen = ausgefoerdert ? berechneteOptionen : [];
+
   const warnungen = [
+    ...(!ausgefoerdert
+      ? [
+          `Vorschau: Die Anlage ist noch bis ${foerderende} gefördert. Ü20-Ertragsoptionen werden erst nach Förderende mit dem dann geltenden Markt- und Rechtsstand berechnet.`,
+        ]
+      : []),
     "Die Anlage bleibt auch nach Förderende EE-Anlage i.S.d. EEG (BNetzA-FAQ): MaStR-Pflichten und § 52-Sanktionsregime gelten WEITER. Bei 5 kWp übersteigt die §52-Strafzahlung (50 €/Monat) die Jahres-Anschlussvergütung in ~4 Monaten.",
     "Betreiberwechsel (z. B. Hausverkauf) ist im MaStR zu melden.",
     "Dies ist ein ökonomischer Kategorienvergleich, keine individuelle Beratung; steuerliche Folgen → Steuerberater.",
@@ -103,12 +114,37 @@ export async function vergleicheAusgefoerderteOptionen(input: AusgefoerderteInpu
   return {
     foerderende,
     ist_ausgefoerdert: ausgefoerdert,
+    modus: ausgefoerdert ? "aktuell" : "vorschau",
     optionen,
     warnungen,
+    parameterstand: {
+      id: "markt.jahresmarktwert_solar",
+      gueltig_von: jw.gueltig_von,
+      gueltig_bis: jw.gueltig_bis,
+      quelle: jw.quelle,
+      quelle_url: jw.quelle_url,
+    },
     quellen: [
-      "§ 25 EEG (Vergütungsdauer)",
-      "§ 21 Abs. 1 Nr. 3, Anlage 1 EEG (Anschlussvergütung ausgeförderte Anlagen, bis 2032 verlängert durch Solarpaket I)",
-      "Clearingstelle EEG|KWKG FAQ-Bereich ausgeförderte Anlagen",
+      {
+        bezeichnung: "Jahresmarktwert Solar",
+        fundstelle: jw.quelle,
+        url: jw.quelle_url,
+      },
+      {
+        bezeichnung: "Erneuerbare-Energien-Gesetz",
+        fundstelle: "§ 25 EEG (Vergütungsdauer)",
+        url: "https://www.gesetze-im-internet.de/eeg_2014/__25.html",
+      },
+      {
+        bezeichnung: "Erneuerbare-Energien-Gesetz",
+        fundstelle: "§ 21 Abs. 1 Nr. 3 und Anlage 1 EEG (Anschlussvergütung)",
+        url: "https://www.gesetze-im-internet.de/eeg_2014/__21.html",
+      },
+      {
+        bezeichnung: "Clearingstelle EEG|KWKG",
+        fundstelle: "FAQ-Bereich ausgeförderte Anlagen",
+        url: "https://www.clearingstelle-eeg-kwkg.de/haeufige-rechtsfrage/190",
+      },
     ],
   };
 }

@@ -22,7 +22,14 @@ if (await Bun.file(DB_PFAD).exists()) {
   entwurfImGraph = (r?.c ?? 0) > 0;
 }
 
-(entwurfImGraph ? describe : describe.skip)("EEG-2027-Entwurf: Vollständigkeits-Invariante", () => {
+const entwurfPflicht = process.env.REQUIRE_EEG2027 === "1";
+
+(entwurfImGraph || entwurfPflicht ? describe : describe.skip)("EEG-2027-Entwurf: Vollständigkeits-Invariante", () => {
+  test("Entwurf ist im Normgraph vorhanden (CI darf nicht still skippen)", () => {
+    expect(entwurfImGraph).toBe(true);
+    expect(db).not.toBeNull();
+  });
+
   test("geschlossen werden genau die kuratierten ersetzen/aufheben-Normen", async () => {
     const entwurf = (await Bun.file(ENTWURF_PFAD).json()) as { aenderungen: { aktion: string }[] };
     const erwartet = entwurf.aenderungen.filter((a) => a.aktion !== "neu").length;

@@ -172,6 +172,26 @@ describe("Fristen & Schwellen", () => {
     expect(vf.folge_bei_verstoss).toMatch(/0 ct\/kWh/);
   });
 
+  test("MaStR-Monatsfrist folgt § 188 Abs. 3 BGB an Monatsenden und im Schaltjahr", () => {
+    const basis = { mastr_registriert: false, veraeusserungsform_gemeldet: true };
+    expect(pruefeFristen({ ...basis, ibn_datum: "2024-01-31", stichtag: "2024-02-01" })[0]!.deadline).toBe("2024-02-29");
+    expect(pruefeFristen({ ...basis, ibn_datum: "2023-01-31", stichtag: "2023-02-01" })[0]!.deadline).toBe("2023-02-28");
+    expect(pruefeFristen({ ...basis, ibn_datum: "2024-02-29", stichtag: "2024-03-01" })[0]!.deadline).toBe("2024-03-29");
+  });
+
+  test("bestätigte jährliche Volleinspeisungs-Mitteilung ist erledigt", () => {
+    const frist = pruefeFristen({
+      ibn_datum: "2023-05-10",
+      mastr_registriert: true,
+      veraeusserungsform_gemeldet: true,
+      einspeiseart: "volleinspeisung",
+      volleinspeisung_gemeldet_fuer_jahr: [2027],
+      stichtag: "2026-12-15",
+    }).find((f) => f.bezeichnung.includes("2027"));
+    expect(frist?.status).toBe("erledigt");
+    expect(frist?.tage_verbleibend).toBeUndefined();
+  });
+
   test("Schwellen: 0,8-kW-Balkonkraftwerk und 120-kWp-Gewerbedach", () => {
     const bkw = pruefeSchwellen({ leistung_kwp: 0.8, wechselrichter_va: 800, anlagentyp: "steckersolar" });
     expect(bkw.find((s) => s.thema === "Steckersolargerät")!.zutreffend).toBe(true);
@@ -189,8 +209,17 @@ describe("Ausgeförderte Ü20", () => {
     const anschluss = r.optionen[0]!.jahresertrag_eur!;
     const ev = r.optionen[1]!.jahresertrag_eur!;
     expect(ev).toBeGreaterThan(anschluss);
-    expect(anschluss).toBeCloseTo((5 * 950 * (4.51 - 0.4)) / 100, 0); // ~195 €
+    expect(anschluss).toBeCloseTo((5 * 950 * (4.508 - 0.4)) / 100, 0); // ~195 €
     expect(r.warnungen.join(" ")).toMatch(/§52|§ 52/);
+  });
+
+  test("noch geförderte Anlage liefert nur klaren Vorschau-Horizont", async () => {
+    const r = await vergleicheAusgefoerderteOptionen({ ibn_datum: "2023-05-10", leistung_kwp: 9.8, stichtag: "2026-07-15" });
+    expect(r.ist_ausgefoerdert).toBe(false);
+    expect(r.modus).toBe("vorschau");
+    expect(r.optionen).toEqual([]);
+    expect(r.warnungen[0]).toContain("Vorschau");
+    expect(r.quellen[0]?.bezeichnung).not.toBeUndefined();
   });
 });
 

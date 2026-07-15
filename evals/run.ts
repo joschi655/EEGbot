@@ -13,6 +13,14 @@ import { pruefeFristen } from "../src/rules/fristen.ts";
 import { pruefeSchwellen } from "../src/rules/schwellen.ts";
 import { vergleicheAusgefoerderteOptionen } from "../src/rules/ausgefoerderte.ts";
 import { resolveUebergangsrecht } from "../src/graph/uebergangsrecht.ts";
+import {
+  AnlagenzusammenfassungInputSchema,
+  AusgefoerderteInputSchema,
+  FristenInputSchema,
+  Sanktion52InputSchema,
+  SchwellenInputSchema,
+  VerguetungInputSchema,
+} from "../src/schemas/rechner.ts";
 
 interface Frage {
   id: string;
@@ -21,6 +29,8 @@ interface Frage {
   engine?: string;
   input?: Record<string, unknown>;
   erwartet?: { pfad: string; wert: unknown };
+  erwartet_fehler?: string;
+  fehlermodell?: "falsche_fassung" | "falsche_schwelle" | "fehlende_eingabe";
   quelle?: string;
 }
 
@@ -28,19 +38,22 @@ const fragen = parse(await Bun.file(new URL("./benchmark/fragen.yaml", import.me
 
 // Engine-Dispatch — "schwellen" liefert Array → für Vergleich auf Map reduziert
 const ENGINES: Record<string, (input: Record<string, unknown>) => Promise<unknown>> = {
-  sanktion52: (i) => berechneSanktion52(i as never),
-  verguetung: (i) => berechneVerguetung(i as never),
-  zusammenfassung: async (i) => pruefeZusammenfassung((i as never)["anlage_a"], (i as never)["anlage_b"]),
-  fristen: async (i) => pruefeFristen(i as never),
+  sanktion52: (i) => berechneSanktion52(Sanktion52InputSchema.parse(i)),
+  verguetung: (i) => berechneVerguetung(VerguetungInputSchema.parse(i)),
+  zusammenfassung: async (i) => {
+    const { anlage_a, anlage_b } = AnlagenzusammenfassungInputSchema.parse(i);
+    return pruefeZusammenfassung(anlage_a, anlage_b);
+  },
+  fristen: async (i) => pruefeFristen(FristenInputSchema.parse(i)),
   schwellen: async (i) => {
-    const befunde = pruefeSchwellen(i as never);
+    const befunde = pruefeSchwellen(SchwellenInputSchema.parse(i));
     return {
       direktvermarktung: befunde.find((b) => b.thema === "Direktvermarktungspflicht")?.zutreffend,
       steckersolar: befunde.find((b) => b.thema === "Steckersolargerät")?.zutreffend,
       befunde,
     };
   },
-  ausgefoerderte: (i) => vergleicheAusgefoerderteOptionen(i as never),
+  ausgefoerderte: (i) => vergleicheAusgefoerderteOptionen(AusgefoerderteInputSchema.parse(i)),
   uebergangsrecht: (i) => resolveUebergangsrecht((i as never)["ibn_datum"], (i as never)["stichtag"]),
 };
 
@@ -54,26 +67,39 @@ for (const f of fragen) {
     continue;
   }
   const engine = ENGINES[f.engine ?? ""];
-  if (!engine || !f.erwartet) {
-    console.error(`✗ ${f.id}: unbekannte Engine '${f.engine}' oder kein Goldwert`);
+  if (!engine || (!f.erwartet && !f.erwartet_fehler)) {
+    console.error(`✗ ${f.id}: unbekannte Engine '${f.engine}' oder kein Goldwert/Goldfehler`);
     fehlgeschlagen++;
     continue;
   }
   try {
     const ergebnis = await engine(f.input ?? {});
-    const ist = feldWert(ergebnis, f.erwartet.pfad);
-    const soll = f.erwartet.wert;
+    if (f.erwartet_fehler) {
+      console.error(`✗ ${f.id}: erwarteter Fehler '${f.erwartet_fehler}', Engine akzeptierte die Eingabe`);
+      fehlgeschlagen++;
+      continue;
+    }
+    const erwartet = f.erwartet;
+    if (!erwartet) throw new Error("Interner Benchmarkfehler: Goldwert fehlt");
+    const ist = feldWert(ergebnis, erwartet.pfad);
+    const soll = erwartet.wert;
     const ok = typeof soll === "number" && typeof ist === "number" ? Math.abs(ist - soll) < 0.005 : ist === soll;
     if (ok) {
       console.log(`✓ ${f.id}: ${f.frage.slice(0, 70)}…`);
       bestanden++;
     } else {
-      console.error(`✗ ${f.id}: erwartet ${JSON.stringify(soll)} an '${f.erwartet.pfad}', erhalten ${JSON.stringify(ist)}`);
+      console.error(`✗ ${f.id}: erwartet ${JSON.stringify(soll)} an '${erwartet.pfad}', erhalten ${JSON.stringify(ist)}`);
       fehlgeschlagen++;
     }
   } catch (e) {
-    console.error(`✗ ${f.id}: Engine-Fehler — ${e instanceof Error ? e.message : e}`);
-    fehlgeschlagen++;
+    const meldung = e instanceof Error ? e.message : String(e);
+    if (f.erwartet_fehler && meldung.includes(f.erwartet_fehler)) {
+      console.log(`✓ ${f.id}: erwartete Ablehnung (${f.fehlermodell ?? "Fehlermodell"})`);
+      bestanden++;
+    } else {
+      console.error(`✗ ${f.id}: Engine-Fehler — ${meldung}`);
+      fehlgeschlagen++;
+    }
   }
 }
 

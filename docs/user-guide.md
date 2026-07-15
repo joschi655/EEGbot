@@ -116,13 +116,19 @@ als 30 Tage ist.
 ## 6. FAQ
 
 **Brauche ich API-Keys?**
-Nur Claude (über Claude Code). Optional: `DIP_API_KEY` (kostenlos,
-Bundestags-API) für Gesetzesvorhaben-Tracking, `NT_CLIENT_ID`/`NT_CLIENT_SECRET`
-(kostenlos, netztransparenz.de) für automatischen Marktwert-Abgleich.
+Für Wissensbasis und Rechner: nein. Die optionale KI-Vorbefüllung der Web-App
+braucht `ANTHROPIC_API_KEY` und überträgt nur nach Vorschau und Einwilligung.
+Optional: `DIP_API_KEY` (kostenlos, Bundestags-API) für
+Gesetzesvorhaben-Tracking, `NT_CLIENT_ID`/`NT_CLIENT_SECRET` (kostenlos,
+netztransparenz.de) für automatischen Marktwert-Abgleich.
 
 **Wo liegen meine Daten?**
-Komplett lokal: `dokumente/` (deine Dateien), `dokumente/.extrakte/`
-(Text-Extrakte), `knowledge/` (Gesetze, Indizes). Alles gitignored.
+`dokumente/` (deine Dateien), `dokumente/.extrakte/` (Text-Extrakte) und
+`knowledge/` (Gesetze, Indizes) liegen lokal und sind gitignored. Die optionale
+KI-Vorbefüllung in der Web-App zeigt vorab exakt die ausgewählten Auszüge und
+den Freitext; erst nach ausdrücklicher Einwilligung werden diese Inhalte zur
+Feldextraktion an die Anthropic API übertragen. Die übrigen Rechner benötigen
+diese Übertragung nicht.
 
 **Ein Scan wird nicht gelesen?**
 `brew install poppler`, dann `bun run ingest:dokumente` erneut. Oder die Seite

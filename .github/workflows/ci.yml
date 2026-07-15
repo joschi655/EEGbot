@@ -35,3 +35,28 @@ jobs:
           ocaml-compiler: "5.2"
       - run: opam install catala.1.2.0 -y
       - run: eval $(opam env) && bun run evals/catala-crosscheck.ts --require-catala
+
+  eeg-2027:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - run: bun run build:knowledge
+      - run: bun run build:eeg2027
+      - run: bun test src/graph/eeg2027.test.ts
+        env:
+          REQUIRE_EEG2027: "1"
+
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - run: bunx playwright install --with-deps chromium
+      - run: bun run test:e2e

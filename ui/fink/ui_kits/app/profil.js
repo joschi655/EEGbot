@@ -3,7 +3,42 @@
    Schema deckt ALLE Engine-Inputs ab (fristen, schwellen, verguetung, ue20). */
 
 (function () {
-  const KEY = 'eegbot.anlage.v1';
+  const VERSION = 2;
+  const KEY = 'eegbot.anlage.v2';
+  const LEGACY_KEYS = ['eegbot.anlage.v1'];
+  const DATUM = /^\d{4}-\d{2}-\d{2}$/;
+  const EINSPEISEART = new Set(['teileinspeisung', 'volleinspeisung']);
+  const ANLAGENTYP = new Set(['dach', 'freiflaeche', 'steckersolar', 'fassade', 'sonstig']);
+
+  const istDatum = (wert) => {
+    if (typeof wert !== 'string' || !DATUM.test(wert)) return false;
+    const datum = new Date(`${wert}T00:00:00Z`);
+    return !Number.isNaN(datum.getTime()) && datum.toISOString().slice(0, 10) === wert;
+  };
+  const positiveZahl = (wert) => typeof wert === 'number' && Number.isFinite(wert) && wert > 0;
+
+  const validiere = (roh) => {
+    if (!roh || typeof roh !== 'object' || Array.isArray(roh)) return { erfolg: false, fehler: 'Profil ist kein Objekt.' };
+    const p = { ...roh, schema_version: VERSION };
+    if (!positiveZahl(p.leistung_kwp)) return { erfolg: false, fehler: 'Leistung muss größer als 0 kWp sein.' };
+    if (!istDatum(p.ibn_datum)) return { erfolg: false, fehler: 'Inbetriebnahme ist kein gültiges Datum.' };
+    if (!EINSPEISEART.has(p.einspeiseart)) return { erfolg: false, fehler: 'Einspeiseart ist ungültig.' };
+    if (p.anlagentyp != null && !ANLAGENTYP.has(p.anlagentyp)) return { erfolg: false, fehler: 'Anlagentyp ist ungültig.' };
+    if (typeof p.mastr_registriert !== 'boolean' || typeof p.veraeusserungsform_gemeldet !== 'boolean')
+      return { erfolg: false, fehler: 'Meldestatus fehlt.' };
+    if (p.mastr_registrierung_datum != null && !istDatum(p.mastr_registrierung_datum))
+      return { erfolg: false, fehler: 'MaStR-Registrierungsdatum ist ungültig.' };
+    for (const feld of ['wechselrichter_va', 'jahresertrag_kwh', 'strompreis_ct_kwh'])
+      if (p[feld] != null && !positiveZahl(p[feld])) return { erfolg: false, fehler: `${feld} muss größer als 0 sein.` };
+    if (p.eigenverbrauchsanteil_prozent != null &&
+        (typeof p.eigenverbrauchsanteil_prozent !== 'number' || !Number.isFinite(p.eigenverbrauchsanteil_prozent) || p.eigenverbrauchsanteil_prozent < 0 || p.eigenverbrauchsanteil_prozent > 100))
+      return { erfolg: false, fehler: 'Eigenverbrauch muss zwischen 0 und 100 % liegen.' };
+    if (p.volleinspeisung_gemeldet_fuer_jahr == null) p.volleinspeisung_gemeldet_fuer_jahr = [];
+    if (!Array.isArray(p.volleinspeisung_gemeldet_fuer_jahr) ||
+        !p.volleinspeisung_gemeldet_fuer_jahr.every((j) => Number.isInteger(j) && j >= 2000 && j <= 2200))
+      return { erfolg: false, fehler: 'Bestätigte Volleinspeisungs-Jahre sind ungültig.' };
+    return { erfolg: true, profil: p };
+  };
 
   /* Engine-Status (pruefeFristen) → Design-System-Badge-Tone */
   const FRIST_STATUS = {
@@ -18,25 +53,46 @@
   };
 
   const lade = () => {
+    let gelesenerKey = KEY;
     try {
-      const raw = localStorage.getItem(KEY);
-      return raw ? JSON.parse(raw) : null;
+      let raw = localStorage.getItem(KEY);
+      let legacyKey = null;
+      if (!raw) {
+        legacyKey = LEGACY_KEYS.find((key) => localStorage.getItem(key));
+        gelesenerKey = legacyKey || KEY;
+        raw = legacyKey ? localStorage.getItem(legacyKey) : null;
+      }
+      if (!raw) return null;
+      const ergebnis = validiere(JSON.parse(raw));
+      if (!ergebnis.erfolg) {
+        localStorage.removeItem(legacyKey || KEY);
+        return null;
+      }
+      // Valide v1-Profile werden einmalig nach v2 migriert.
+      localStorage.setItem(KEY, JSON.stringify(ergebnis.profil));
+      if (legacyKey) localStorage.removeItem(legacyKey);
+      return ergebnis.profil;
     } catch {
+      localStorage.removeItem(gelesenerKey);
       return null;
     }
   };
 
   const speichere = (profil) => {
-    localStorage.setItem(KEY, JSON.stringify(profil));
-    return profil;
+    const ergebnis = validiere(profil);
+    if (!ergebnis.erfolg) throw new Error(ergebnis.fehler);
+    localStorage.setItem(KEY, JSON.stringify(ergebnis.profil));
+    return ergebnis.profil;
   };
 
-  const loesche = () => localStorage.removeItem(KEY);
+  const loesche = () => {
+    localStorage.removeItem(KEY);
+    LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
+  };
 
   /* Minimalanforderung, damit fristen/schwellen/verguetung rechnen können */
   const vollstaendig = (p) =>
-    !!(p && p.ibn_datum && p.leistung_kwp && p.einspeiseart &&
-       typeof p.mastr_registriert === 'boolean' && typeof p.veraeusserungsform_gemeldet === 'boolean');
+    validiere(p).erfolg;
 
   /* Typische private Dachanlage — konform, zeigt den Gutzustand. */
   const beispiel = () => ({
@@ -75,5 +131,5 @@
     strompreis_ct_kwh: 35,
   });
 
-  window.EEGBOT_PROFIL = { lade, speichere, loesche, vollstaendig, beispiel, bghZwilling, FRIST_STATUS, FRIST_LABEL };
+  window.EEGBOT_PROFIL = { VERSION, KEY, lade, speichere, loesche, validiere, vollstaendig, beispiel, bghZwilling, FRIST_STATUS, FRIST_LABEL };
 })();

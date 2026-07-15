@@ -26,12 +26,13 @@ Spiel sind („hier ist der Brief vom Netzbetreiber — was mache ich jetzt?").
 cd ~/Development/EEGbot
 git pull && bun install
 bun run validate:data && bun run build:knowledge && bun run build:eeg2027
-bun test                      # muss 118 grün zeigen
+bun test                      # muss 137 grün zeigen
+bun run evals                 # muss 19/19 deterministisch grün zeigen
 ls dokumente/                 # BGH-Akte da? sonst: cp docs/beispiel-unterlagen-rueckforderung/* dokumente/
-bun run ingest:dokumente      # braucht ANTHROPIC_API_KEY in .env
+bun run ingest:dokumente      # lokale Extraktion/OCR; kein API-Key nötig
 ```
 
-- [ ] `.env` mit `ANTHROPIC_API_KEY` vorhanden (nur für Intake/Claude-Code-Station)
+- [ ] Optional: `.env` mit `ANTHROPIC_API_KEY` für die Web-KI-Vorbefüllung; Vorschau + Einwilligung durchspielen
 - [ ] `bun ui/server.ts` einmal starten und http://localhost:3475/app/ durchklicken
 - [ ] eegbot.aiwerke.de im Browser öffnen, Access-PIN-Login einmal durchspielen
 - [ ] WLAN-Fallback: Screen-Recording des Durchlaufs auf dem Desktop

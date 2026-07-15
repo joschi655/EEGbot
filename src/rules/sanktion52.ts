@@ -69,6 +69,13 @@ export interface Sanktion52Ergebnis {
   monate: MonatsPosten[];
   hinweise: string[];
   quellen: string[];
+  parameterstand: {
+    stichtag: string;
+    regelsatz_eur_kw_monat: number;
+    heilungssatz_eur_kw_monat: number;
+    gueltig_von: string;
+    gueltig_bis?: string;
+  };
 }
 
 const monatVon = (d: string) => d.slice(0, 7);
@@ -195,5 +202,12 @@ export async function berechneSanktion52(input: Sanktion52Input): Promise<Sankti
       "§ 100 Abs. 9 EEG 2023 (Geltung für Bestandsanlagen)",
       "Clearingstelle EEG|KWKG FAQ 236 (Eigenversorger-Bestandsanlagen)",
     ],
+    parameterstand: {
+      stichtag,
+      regelsatz_eur_kw_monat: Number(satz.wert),
+      heilungssatz_eur_kw_monat: Number(heilSatz.wert),
+      gueltig_von: satz.gueltig_von,
+      gueltig_bis: satz.gueltig_bis,
+    },
   };
 }

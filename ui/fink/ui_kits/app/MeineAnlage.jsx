@@ -11,6 +11,7 @@ const MA_ANLAGENTYP = [
   ['dach', 'Dachanlage'], ['freiflaeche', 'Freifläche'], ['steckersolar', 'Steckersolar (Balkonkraftwerk)'],
   ['fassade', 'Fassade'], ['sonstig', 'Sonstige'],
 ];
+const MA_FOLGEJAHR = new Date().getFullYear() + 1;
 
 function MaProfilForm(p) {
   return {
@@ -23,6 +24,7 @@ function MaProfilForm(p) {
     mastr_registriert: !!p?.mastr_registriert,
     mastr_registrierung_datum: p?.mastr_registrierung_datum || '',
     veraeusserungsform_gemeldet: !!p?.veraeusserungsform_gemeldet,
+    volleinspeisung_gemeldet: Array.isArray(p?.volleinspeisung_gemeldet_fuer_jahr) && p.volleinspeisung_gemeldet_fuer_jahr.includes(MA_FOLGEJAHR),
     imsys_vorhanden: !!p?.imsys_vorhanden,
     wechselrichter_va: p?.wechselrichter_va != null ? String(p.wechselrichter_va) : '',
     jahresertrag_kwh: p?.jahresertrag_kwh != null ? String(p.jahresertrag_kwh) : '',
@@ -37,6 +39,7 @@ function MeineAnlage({ onNav }) {
   const [gespeichert, setGespeichert] = React.useState(() => window.EEGBOT_PROFIL.lade());
   const [schwellen, setSchwellen] = React.useState(null);
   const [regime, setRegime] = React.useState(null);
+  const [validierungsfehler, setValidierungsfehler] = React.useState(null);
   React.useEffect(() => { setTimeout(() => window.lucide && lucide.createIcons(), 10); });
 
   const set = (k) => (ev) => setForm({ ...form, [k]: ev.target.type === 'checkbox' ? ev.target.checked : ev.target.value });
@@ -61,6 +64,10 @@ function MeineAnlage({ onNav }) {
   }, [gespeichert]);
 
   const speichern = () => {
+    setValidierungsfehler(null);
+    const bisherigeMeldejahre = Array.isArray(gespeichert?.volleinspeisung_gemeldet_fuer_jahr)
+      ? gespeichert.volleinspeisung_gemeldet_fuer_jahr.filter((j) => j !== MA_FOLGEJAHR)
+      : [];
     const p = {
       name: form.name || 'Meine Anlage',
       energietraeger: 'solar',
@@ -72,23 +79,36 @@ function MeineAnlage({ onNav }) {
       mastr_registriert: form.mastr_registriert,
       ...(form.mastr_registriert && form.mastr_registrierung_datum ? { mastr_registrierung_datum: form.mastr_registrierung_datum } : {}),
       veraeusserungsform_gemeldet: form.veraeusserungsform_gemeldet,
+      volleinspeisung_gemeldet_fuer_jahr: form.volleinspeisung_gemeldet ? [...bisherigeMeldejahre, MA_FOLGEJAHR] : bisherigeMeldejahre,
       imsys_vorhanden: form.imsys_vorhanden,
       ...(form.wechselrichter_va !== '' ? { wechselrichter_va: Number(form.wechselrichter_va) } : {}),
       ...(form.jahresertrag_kwh !== '' ? { jahresertrag_kwh: Number(form.jahresertrag_kwh) } : {}),
       ...(form.eigenverbrauchsanteil_prozent !== '' ? { eigenverbrauchsanteil_prozent: Number(form.eigenverbrauchsanteil_prozent) } : {}),
       ...(form.strompreis_ct_kwh !== '' ? { strompreis_ct_kwh: Number(form.strompreis_ct_kwh) } : {}),
     };
-    window.EEGBOT_PROFIL.speichere(p);
-    setGespeichert(p);
+    try {
+      const gespeichertNeu = window.EEGBOT_PROFIL.speichere(p);
+      setGespeichert(gespeichertNeu);
+    } catch (e) {
+      setValidierungsfehler(String(e.message || e));
+    }
   };
 
-  const vorlage = (p) => { setForm(MaProfilForm(p)); window.EEGBOT_PROFIL.speichere(p); setGespeichert(p); };
-  const kannSpeichern = form.leistung_kwp !== '' && form.ibn_datum !== '';
+  const vorlage = (p) => {
+    const gespeichertNeu = window.EEGBOT_PROFIL.speichere(p);
+    setForm(MaProfilForm(gespeichertNeu));
+    setGespeichert(gespeichertNeu);
+  };
+  const optionalePositiveZahl = (wert) => wert === '' || (Number.isFinite(Number(wert)) && Number(wert) > 0);
+  const kannSpeichern = Number.isFinite(Number(form.leistung_kwp)) && Number(form.leistung_kwp) > 0 && form.ibn_datum !== '' &&
+    optionalePositiveZahl(form.wechselrichter_va) && optionalePositiveZahl(form.jahresertrag_kwh) &&
+    optionalePositiveZahl(form.strompreis_ct_kwh) &&
+    (form.eigenverbrauchsanteil_prozent === '' || (Number(form.eigenverbrauchsanteil_prozent) >= 0 && Number(form.eigenverbrauchsanteil_prozent) <= 100));
 
   return (
     <AppShell active="anlage" onNav={onNav} title="Meine Anlage" subtitle="Einmal erfassen — Fristen, Vergütung und Checks rechnen damit">
       <div className="fk-screen">
-        <div className="fk-screen__inner" style={{ display: 'grid', gridTemplateColumns: '380px minmax(0, 1fr)', gap: 24, alignItems: 'start' }}>
+        <div className="fk-screen__inner fk-calculator-layout">
           <Card title="Anlagenprofil" subtitle="Bleibt lokal in diesem Browser (localStorage)">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div className="fk-row" style={{ gap: 10 }}>
@@ -96,7 +116,7 @@ function MeineAnlage({ onNav }) {
                 <Button size="sm" variant="secondary" onClick={() => vorlage(window.EEGBOT_PROFIL.bghZwilling())}>BGH-Zwilling laden</Button>
               </div>
               <Input label="Bezeichnung" type="text" value={form.name} onChange={set('name')} hint="frei wählbar, z. B. „PV Dach Süd“" />
-              <Input label="Leistung" suffix="kWp" type="number" value={form.leistung_kwp} onChange={set('leistung_kwp')} />
+              <Input label="Leistung" suffix="kWp" type="number" min={0.01} step="0.01" value={form.leistung_kwp} onChange={set('leistung_kwp')} />
               <Input label="Inbetriebnahme" type="date" value={form.ibn_datum} onChange={set('ibn_datum')} hint="erstmalige Stromerzeugung, nicht Zählersetzung" />
               <Select label="Einspeiseart" value={form.einspeiseart} onChange={set('einspeiseart')}>
                 {MA_EINSPEISEART.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
@@ -110,6 +130,9 @@ function MeineAnlage({ onNav }) {
                 <Input label="MaStR-Registrierung am" type="date" value={form.mastr_registrierung_datum} onChange={set('mastr_registrierung_datum')} />
               )}
               <Switch label="Veräußerungsform an Netzbetreiber gemeldet" checked={form.veraeusserungsform_gemeldet} onChange={set('veraeusserungsform_gemeldet')} />
+              {form.einspeiseart === 'volleinspeisung' && (
+                <Switch label={`Volleinspeisungs-Mitteilung für ${MA_FOLGEJAHR} erledigt`} checked={form.volleinspeisung_gemeldet} onChange={set('volleinspeisung_gemeldet')} />
+              )}
               <Switch label="Intelligentes Messsystem (Smart Meter) vorhanden" checked={form.imsys_vorhanden} onChange={set('imsys_vorhanden')} />
               <Input label="Wechselrichter-Scheinleistung" suffix="VA" type="number" value={form.wechselrichter_va} onChange={set('wechselrichter_va')} hint="nur für Steckersolar relevant" />
               <Input label="Jahresertrag" suffix="kWh" type="number" value={form.jahresertrag_kwh} onChange={set('jahresertrag_kwh')} />
@@ -118,6 +141,7 @@ function MeineAnlage({ onNav }) {
                 <Input label="Strompreis" suffix="ct/kWh" type="number" value={form.strompreis_ct_kwh} onChange={set('strompreis_ct_kwh')} />
               </div>
               <Button fullWidth onClick={speichern} disabled={!kannSpeichern} iconLeft={<i data-lucide="save"></i>}>Profil speichern</Button>
+              {validierungsfehler && <p style={{ margin: 0, color: '#C6291F', font: 'var(--font-caption)' }}>{validierungsfehler}</p>}
               {gespeichert && (
                 <Button fullWidth variant="ghost" onClick={() => { window.EEGBOT_PROFIL.loesche(); setGespeichert(null); setForm(MaProfilForm(null)); }}>
                   Profil löschen

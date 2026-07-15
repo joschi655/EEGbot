@@ -1,7 +1,7 @@
 /* EEGbot B2C — Vergütung: fester Einspeisevergütungssatz nach § 48 EEG.
    Live gegen POST /api/verguetung (deterministische Engine — nichts gemockt,
    FINK_DATA wird hier NICHT gelesen). Farbregel: weiß + Klein-Blau; Rot NUR
-   für Warnungen. HTTP 400 ist FACHLICHER NORMALFALL (IBN vor 30.07.2022 oder
+   für Warnungen. HTTP 422 ist FACHLICHER NORMALFALL (IBN vor 30.07.2022 oder
    > 100 kWp) — data.fehler wird 1:1 als Hinweis gezeigt, nicht als Systemfehler. */
 
 const VG_EINSPEISEART = [
@@ -36,7 +36,7 @@ function VgWarnung({ text, titel = 'Achtung' }) {
   );
 }
 
-function VgErgebnis({ d }) {
+function VgErgebnis({ d, input }) {
   const { Card } = window.FinkDesignSystem_4f2014;
   const stufen = Array.isArray(d.stufen) ? d.stufen : [];
   const hinweise = Array.isArray(d.hinweise) ? d.hinweise : [];
@@ -94,6 +94,13 @@ function VgErgebnis({ d }) {
       {d.quelle && (
         <p style={{ font: 'var(--font-caption)', color: 'var(--text-muted)' }}>Rechtsgrundlage: {d.quelle}</p>
       )}
+      <Rechenweg
+        inputs={{ Inbetriebnahme: input.ibn_datum, Leistung_kWp: input.leistung_kwp, Einspeiseart: input.einspeiseart }}
+        schritte={stufen.map((s) => `${vgNum(s.anteil_kwp)} kWp × ${vgNum(s.satz_ct_kwh)} ct/kWh im Band ${vgNum(s.von_kwp)}–${vgNum(s.bis_kwp)} kWp`)}
+        parameterstand={d.parameterstand ? `${d.parameterstand.gueltig_von} bis ${d.parameterstand.gueltig_bis || 'offen'}` : `Tarifzeitraum des IBN-Datums ${input.ibn_datum}`}
+        normen={['§ 48 EEG 2023', '§ 49 EEG 2023', '§ 25 EEG 2023']}
+        quellen={[{ bezeichnung: d.quelle, url: d.quelle_url }]}
+      />
     </div>
   );
 }
@@ -107,7 +114,7 @@ function Verguetung({ onNav }) {
     einspeiseart: (profil && profil.einspeiseart) || 'teileinspeisung',
   }));
   const [ergebnis, setErgebnis] = React.useState(null);
-  const [hinweis, setHinweis] = React.useState(null);   // fachlicher 400-Fall (nutzerlesbar)
+  const [hinweis, setHinweis] = React.useState(null);   // fachlicher 422-Fall (nutzerlesbar)
   const [fehler, setFehler] = React.useState(null);     // technischer Fehler (Netz/Parse)
   const [laden, setLaden] = React.useState(false);
   React.useEffect(() => { setTimeout(() => window.lucide && lucide.createIcons(), 10); });
@@ -130,7 +137,7 @@ function Verguetung({ onNav }) {
       });
       const data = await res.json();
       if (!res.ok) {
-        // 400 = fachlicher NORMALFALL: data.fehler ist nutzerlesbar, 1:1 als Hinweis.
+        // 422 = fachlicher NORMALFALL: data.fehler ist nutzerlesbar, 1:1 als Hinweis.
         setErgebnis(null);
         setHinweis(data && data.fehler ? data.fehler : `Für diese Angaben gibt es keinen festen Vergütungssatz (HTTP ${res.status}).`);
         return;
@@ -147,7 +154,7 @@ function Verguetung({ onNav }) {
   return (
     <AppShell active="verguetung" onNav={onNav} title="Vergütung" subtitle="Fester Einspeisevergütungssatz nach § 48 EEG — deterministisch berechnet" search={false}>
       <div className="fk-screen">
-        <div className="fk-screen__inner" style={{ display: 'grid', gridTemplateColumns: '380px minmax(0, 1fr)', gap: 24, alignItems: 'start' }}>
+        <div className="fk-screen__inner fk-calculator-layout">
           <Card title="Ihre Anlage" subtitle="Angaben bestimmen den festen Vergütungssatz">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {profil && (
@@ -168,7 +175,7 @@ function Verguetung({ onNav }) {
           <div>
             {hinweis && <VgWarnung text={hinweis} titel="Kein fester Satz" />}
             {ergebnis ? (
-              <VgErgebnis d={ergebnis} />
+              <VgErgebnis d={ergebnis} input={form} />
             ) : !hinweis ? (
               <Card title="Noch nichts berechnet" subtitle="Links die Anlage erfassen und berechnen">
                 <p style={{ font: 'var(--font-body)', color: 'var(--text-muted)' }}>

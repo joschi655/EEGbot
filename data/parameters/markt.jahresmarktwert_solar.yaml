@@ -21,6 +21,10 @@ zeitraeume:
       url: "https://www.netztransparenz.de/de-de/Erneuerbare-Energien-und-Umlagen/EEG/Transparenzanforderungen/Marktpr%C3%A4mie/Marktwert%C3%BCbersicht"
     hinweis: "Verifiziert 10.07.2026 über mehrere konkordante Quellen, die die ÜNB-Veröffentlichung referenzieren."
   - gueltig_von: "2025-01-01"
-    wert: 4.51
+    wert: 4.508
     quelle:
-      bezeichnung: "Jahresmarktwert Solar 2025 (Research-Korpus EEG-Jura, Verbraucherzentrale/Final Report)"
+      bezeichnung: "netztransparenz.de Jahresmarktwert Solar 2025"
+      url: "https://www.netztransparenz.de/de-de/Erneuerbare-Energien-und-Umlagen/EEG/Transparenzanforderungen/Marktpr%C3%A4mie/Marktwert%C3%BCbersicht"
+      fundstelle: "Marktwertübersicht 2025: JW Solar 4,508 ct/kWh"
+      abgerufen_am: "2026-07-15"
+    hinweis: "Amtlicher ÜNB-Wert auf drei Nachkommastellen; ersetzt den zuvor nur aus dem Research-Korpus gerundeten Wert 4,51."

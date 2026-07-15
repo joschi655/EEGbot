@@ -17,9 +17,15 @@ function tageBis(deadline: string, heute: string): number {
   return Math.floor((Date.parse(deadline) - Date.parse(heute)) / 86_400_000);
 }
 function plusMonate(datum: string, n: number): string {
-  const d = new Date(datum + "T00:00:00Z");
-  d.setUTCMonth(d.getUTCMonth() + n);
-  return d.toISOString().slice(0, 10);
+  const jahr = Number(datum.slice(0, 4));
+  const monatNullbasiert = Number(datum.slice(5, 7)) - 1 + n;
+  const tag = Number(datum.slice(8, 10));
+  const zielJahr = jahr + Math.floor(monatNullbasiert / 12);
+  const zielMonat = ((monatNullbasiert % 12) + 12) % 12;
+  // § 188 Abs. 3 BGB: Fehlt der entsprechende Tag im Zielmonat, endet die
+  // Monatsfrist mit dessen letztem Tag (31.01. + 1 Monat = 29.02. im Schaltjahr).
+  const letzterTag = new Date(Date.UTC(zielJahr, zielMonat + 1, 0)).getUTCDate();
+  return `${zielJahr}-${String(zielMonat + 1).padStart(2, "0")}-${String(Math.min(tag, letzterTag)).padStart(2, "0")}`;
 }
 
 export interface FristenInput {
@@ -28,6 +34,7 @@ export interface FristenInput {
   mastr_registrierung_datum?: string;
   veraeusserungsform_gemeldet: boolean;
   einspeiseart?: "teileinspeisung" | "volleinspeisung";
+  volleinspeisung_gemeldet_fuer_jahr?: number[];
   stichtag?: string;
 }
 
@@ -65,14 +72,16 @@ export function pruefeFristen(input: FristenInput): FristErgebnis[] {
   if (input.einspeiseart === "volleinspeisung") {
     const jahr = Number(heute.slice(0, 4));
     const deadline = `${jahr}-11-30`;
+    const folgejahr = jahr + 1;
+    const gemeldet = input.volleinspeisung_gemeldet_fuer_jahr?.includes(folgejahr) ?? false;
     ergebnisse.push({
-      bezeichnung: "Volleinspeisungs-Mitteilung für das Folgejahr (Textform)",
+      bezeichnung: `Volleinspeisungs-Mitteilung für ${folgejahr} (Textform)`,
       deadline,
-      status: deadline < heute ? "ueberschritten" : "offen",
+      status: gemeldet ? "erledigt" : deadline < heute ? "ueberschritten" : "offen",
       folge_bei_verstoss:
         "Verlust des Volleinspeisungszuschlags; § 52 Abs. 1 Nr. 10 (2 €/kW/Monat, ganzes Kalenderjahr, § 52 Abs. 4 Nr. 3). Starre Frist, Textform § 126b BGB (Clearingstelle Hinweis 2024/14-II).",
       norm: "§ 48 Abs. 2a EEG 2023",
-      tage_verbleibend: tageBis(deadline, heute),
+      tage_verbleibend: gemeldet ? undefined : tageBis(deadline, heute),
     });
   }
 

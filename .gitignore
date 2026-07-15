@@ -30,6 +30,10 @@ rules/build/
 rules/_build/
 rules/clerk.toml
 
+# Browser-Testartefakte (Traces/Screenshots nur lokal bzw. als CI-Artefakt)
+test-results/
+playwright-report/
+
 # Catala/clerk Build-Artefakte (Projekt-Root)
 _build/
 clerk.toml

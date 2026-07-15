@@ -65,6 +65,14 @@ export interface IntakeErgebnis {
   hinweis?: string;
 }
 
+export interface IntakeVorschau {
+  dokumente: string[];
+  zeichen: number;
+  uebertragener_inhalt: string;
+  empfaenger: "Anthropic API";
+  zweck: string;
+}
+
 export type AnfrageFn = (system: string, user: string) => Promise<string>;
 
 const MAX_ZEICHEN_PRO_DOKUMENT = 4000;
@@ -87,6 +95,33 @@ async function sammleDokumentKontext(): Promise<{ kontext: string; verwendet: st
     }
   }
   return { kontext: teile.join("\n\n"), verwendet };
+}
+
+/** Lokale Vorschau exakt der nutzerbezogenen Inhalte, die in den API-Prompt gehen. */
+export async function erstelleIntakeVorschau(
+  opts: {
+    freitext?: string;
+    sammleKontext?: () => Promise<{ kontext: string; verwendet: string[] }>;
+  } = {},
+): Promise<IntakeVorschau> {
+  const { kontext, verwendet } = await (opts.sammleKontext ?? sammleDokumentKontext)().catch(() => ({
+    kontext: "",
+    verwendet: [] as string[],
+  }));
+  const freitext = opts.freitext?.trim() ?? "";
+  const uebertragenerInhalt = [
+    freitext ? `## Freitext des Nutzers\n${freitext}` : "",
+    kontext ? `## Unterlagen\n${kontext}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+  return {
+    dokumente: verwendet,
+    zeichen: uebertragenerInhalt.length,
+    uebertragener_inhalt: uebertragenerInhalt,
+    empfaenger: "Anthropic API",
+    zweck: "Belegte Felder für den Förder-Fahrplan extrahieren",
+  };
 }
 
 /** Default-Inferenz: Anthropic-API (claude-sonnet-5). Erwartet ANTHROPIC_API_KEY. */
@@ -151,6 +186,8 @@ export async function extrahiereFall(
     anfrage?: AnfrageFn;
     /** Testbarkeit: Dokument-Kontext-Sammlung injizierbar (Default liest dokumente/.extrakte). */
     sammleKontext?: () => Promise<{ kontext: string; verwendet: string[] }>;
+    /** Pflicht für den produktiven Anthropic-Aufruf; Tests mit injizierter Inferenz bleiben lokal. */
+    einwilligung_externe_uebertragung?: boolean;
   } = {},
 ): Promise<IntakeErgebnis> {
   const { kontext, verwendet } = await (opts.sammleKontext ?? sammleDokumentKontext)().catch(() => ({ kontext: "", verwendet: [] as string[] }));
@@ -166,6 +203,11 @@ export async function extrahiereFall(
   }
 
   const anfrage = opts.anfrage ?? anthropicAnfrage;
+  if (!opts.anfrage && opts.einwilligung_externe_uebertragung !== true) {
+    throw new Error(
+      "Vor der KI-Vorbefüllung müssen Sie die Vorschau prüfen und der Übertragung der angezeigten Inhalte an die Anthropic API ausdrücklich zustimmen.",
+    );
+  }
   const katalog = FELD_KATALOG.map((k) =>
     `- ${k.feld} (${k.typ}${k.erlaubte_werte ? `: ${k.erlaubte_werte.join("|")}` : ""}) — ${k.frage}`,
   ).join("\n");

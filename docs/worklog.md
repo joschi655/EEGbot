@@ -1,5 +1,39 @@
 # Worklog
 
+## 2026-07-15-d — Audit-Härtung und belastbare Demo-Beweiskette
+
+**Anlass:** Umsetzung des priorisierten Audit- und Gewinnplans. Fokus auf
+Korrektheit, Datenschutz, einheitliche Contracts und reproduzierbare Demo-Pfade.
+
+- **Fristen:** Monatsaddition klemmt auf den letzten Tag des Zielmonats gemäß
+  § 188 Abs. 3 BGB (31.01.2024 → 29.02.2024). Jährliche
+  Volleinspeisungs-Mitteilungen sind über bestätigte Kalenderjahre modelliert.
+- **Datenschutz:** `/api/intake/vorschau` zeigt Dokumentauszüge/Freitext,
+  Empfänger und Zweck vollständig. `/api/intake` verlangt ein ausdrückliches
+  Consent-Feld. README, User-Guide und UI beschreiben den tatsächlichen Datenfluss.
+- **Contracts/HTTP:** Alle Rechner-Tools verwenden gemeinsame strikte
+  Zod-Schemas (`src/schemas/rechner.ts`) in MCP, REST und Evals. REST trennt
+  kaputtes JSON (400), Contract-/Fachablehnung (422) und unbekannte Bugs (500,
+  serverseitiges Log, kein Detail-Leak).
+- **Parameter:** Beide Solar-Tarife enden am 31.07.2026; August liefert bewusst
+  eine Datenlücke. `validate:data` verbietet offene letzte Tarifzeiträume.
+  Amtliche Prüfung am 15.07.: BNetzA veröffentlicht weiterhin nur Februar–Juli
+  2026. Jahresmarktwert Solar 2025 auf netztransparenz.de amtlich 4,508 ct/kWh.
+- **P1/UI:** Profil v2 validiert/migriert v1; Null-/Negativleistungen und
+  ungültige Altwerte werden verworfen. Ü20 liefert strukturierte Quellen und
+  für noch geförderte Anlagen keine scheinpräzisen Zukunftsoptionen. Gemeinsame
+  „So wurde gerechnet"-Ansicht zeigt Inputs, Schritte, Parameterstand, Normen
+  und Links. Mobile Navigation und Rechner wechseln unter 760 px auf eine Spalte.
+- **CI/Evals:** Drei Playwright-Golden-Paths laufen auf Desktop und Pixel-7-
+  Viewport. EEG-2027 hat einen Pflichtjob mit `REQUIRE_EEG2027=1`. Benchmark um
+  falsche Fassung, falsche Schwelle und fehlende Eingabe erweitert.
+- **Verifiziert:** `bun test` 137/137, `bun run evals` 19/19 deterministisch
+  (4 interpretativ gelistet), `bun run test:e2e` 6/6, `tsc --noEmit`,
+  `validate:data`, EEG-2027-Pflichtsuite 4/4.
+- **Bewusst offen (extern/operativ):** schriftliche energierechtliche Abzeichnung,
+  fünf Nutzerinterviews, drei fehlerfreie Fünf-Minuten-Durchläufe plus lokales
+  Recording und der Obsidian-Architekturspiegel.
+
 ## 2026-06-12 — v0.1.0 Initial Build (Phasen 0–5)
 
 - **Phase 0:** Repo-Scaffold — bun/TS, zod-Schemas für programs/workflows/forms/

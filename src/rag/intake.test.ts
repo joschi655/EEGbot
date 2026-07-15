@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { extrahiereFall, FELD_KATALOG, type AnfrageFn } from "./intake.ts";
+import { erstelleIntakeVorschau, extrahiereFall, FELD_KATALOG, type AnfrageFn } from "./intake.ts";
 
 const fakeAnfrage =
   (antwort: string): AnfrageFn =>
@@ -74,6 +74,18 @@ describe("KI-Intake — extrahiereFall (injizierte Inferenz, kein API-Key nötig
 
   test("kaputtes JSON → verständlicher Fehler", async () => {
     await expect(extrahiereFall({ freitext: "x", anfrage: fakeAnfrage("Hier ist Ihre Antwort: 42") })).rejects.toThrow(/kein valides JSON/);
+  });
+
+  test("Vorschau zeigt exakt die nutzerbezogenen Inhalte vor externer Übertragung", async () => {
+    const vorschau = await erstelleIntakeVorschau({
+      freitext: "Mein Freitext",
+      sammleKontext: async () => ({ kontext: "### Dokument: angebot.pdf\nPrivater Auszug", verwendet: ["angebot.pdf"] }),
+    });
+    expect(vorschau.empfaenger).toBe("Anthropic API");
+    expect(vorschau.dokumente).toEqual(["angebot.pdf"]);
+    expect(vorschau.uebertragener_inhalt).toContain("Mein Freitext");
+    expect(vorschau.uebertragener_inhalt).toContain("Privater Auszug");
+    expect(vorschau.zeichen).toBe(vorschau.uebertragener_inhalt.length);
   });
 });
 

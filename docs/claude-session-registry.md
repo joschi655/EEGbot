@@ -7,6 +7,14 @@ Vor längeren Läufen prüfen, ob eine bestehende Session fortgesetzt werden kan
 |---|---|---|---|
 | 2026-06-12 | v0.1.0 Initial Build (Phasen 0–5) | Komplettes Framework, 40 Tests grün, Benchmark 16/16 | Folge-Phasen, Bugfixes, Daten-Kuratierung |
 
+## Session 2026-07-15-d — Audit-Härtung + Browser-CI
+- P0 geschlossen: Monatsendfrist, Intake-Vorschau/Consent, Tarifende 31.07.2026, gemeinsame Zod-Contracts, HTTP-Fehlerklassen
+- P1: Volleinspeisungs-Meldejahr, Profil v2/Migration, Ü20-Quellen/Vorschau, Mobile-Layouts, „So wurde gerechnet"
+- CI: 3 Golden Paths × Desktop/Mobile; EEG-2027-Pflichtjob ohne stillen Skip
+- Daten: Jahresmarktwert Solar 2025 amtlich 4,508 ct/kWh; BNetzA bestätigt Tarife derzeit nur bis Juli 2026
+- Verifiziert: 137 Unit/Integrationstests, 19/19 deterministische Evals, 6/6 Browserpfade, typecheck, validate:data
+- Offen extern: juristische Abzeichnung, fünf Nutzerinterviews, dreifacher Demo-Run + Recording, Obsidian-Spiegel
+
 ## Session 2026-07-15-c — B2C-Umbau + eegbot.aiwerke.de + Demo-Guide
 - 5 neue Engine-Endpunkte in ui/server.ts (sanktion52/verguetung/fristen/schwellen/ue20), Throws als lesbare 400er
 - UI komplett B2C: Anlagenprofil in localStorage (profil.js), 9 echte Screens, Login/Mocks raus; Forge baute Verguetung/Ue20/Recherche parallel
@@ -33,8 +41,3 @@ Vor längeren Läufen prüfen, ob eine bestehende Session fortgesetzt werden kan
 - EEG-2027-Zeitmaschine: data/entwuerfe/ + build:eeg2027 + demo:zeitmaschine (Δ ~23.567 €)
 - Root-Cause-Fix sucheNormen (Default = heute, kein Entwurfs-Leak)
 - KB-Doc „26.07.10 - Re-Audit & Pitch-Konzept Hackathon" in Obsidian für das Team
-
-## Session 2026-07-03 — Hackathon Phase A
-- Onboarding-PDF Pia (make-pdf), Research-Brief mit Deadlines bis 17.08.
-- fink-DS → ui/fink (Fonts gitignored), Clickdummy-Stories → ui/content
-- ui/server.ts: echte Engine-API + App-Serving, alle Endpunkte curl-verifiziert
