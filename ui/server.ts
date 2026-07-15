@@ -38,6 +38,7 @@ const VENDOR: Record<string, string> = {
   "react-dom.js": "node_modules/react-dom/umd/react-dom.development.js",
   "babel.js": "node_modules/@babel/standalone/babel.min.js",
   "lucide.js": "node_modules/lucide/dist/umd/lucide.min.js",
+  "d3.js": "node_modules/d3/dist/d3.min.js",
 };
 
 const json = (x: unknown, status = 200) =>
@@ -138,7 +139,82 @@ Bun.serve({
         return json(await resolveUebergangsrecht(ibn));
       }
 
+      // Norm-Graph zum Stichtag: Knoten = Normen, Kanten = Querverweise der
+      // geltenden Expressions (aggregiert je enbez-Paar). Optionaler Fall-Modus:
+      // ?fall=§ 52,§ 100&tiefe=2 markiert die crossRefs-Umgebung der Seeds.
+      if (p === "/api/graph") {
+        const slug = url.searchParams.get("slug") ?? "eeg_2014";
+        const roh = url.searchParams.get("stichtag")?.trim() ?? "";
+        const stichtag = /^\d{4}-\d{2}-\d{2}$/.test(roh) ? roh : new Date().toISOString().slice(0, 10);
+        const db = oeffneGraph();
+
+        const exprs = db
+          .query<{ enbez: string; titel: string | null }, [string, string, string]>(
+            `SELECT enbez, titel FROM expression
+             WHERE slug = ? AND fassung_von <= ? AND (fassung_bis IS NULL OR fassung_bis > ?)`,
+          )
+          .all(slug, stichtag, stichtag);
+        const proEnbez = new Map(exprs.map((e) => [e.enbez, e]));
+
+        const qv = db
+          .query<{ von: string; ziel_slug: string | null; ziel_enbez: string }, [string, string, string]>(
+            `SELECT e.enbez von, q.ziel_slug, q.ziel_enbez FROM querverweis q
+             JOIN expression e ON e.id = q.von_expression
+             WHERE e.slug = ? AND e.fassung_von <= ? AND (e.fassung_bis IS NULL OR e.fassung_bis > ?)`,
+          )
+          .all(slug, stichtag, stichtag);
+
+        const kanten = new Map<string, number>();
+        const grad = new Map<string, number>();
+        const extern = new Map<string, number>();
+        for (const k of qv) {
+          if (k.ziel_slug === slug && proEnbez.has(k.ziel_enbez)) {
+            if (k.von === k.ziel_enbez) continue; // Selbstverweise tragen nichts
+            const key = `${k.von}|${k.ziel_enbez}`;
+            kanten.set(key, (kanten.get(key) ?? 0) + 1);
+            grad.set(k.von, (grad.get(k.von) ?? 0) + 1);
+            grad.set(k.ziel_enbez, (grad.get(k.ziel_enbez) ?? 0) + 1);
+          } else {
+            extern.set(k.von, (extern.get(k.von) ?? 0) + 1);
+          }
+        }
+
+        let highlight: string[] | undefined;
+        const fall = url.searchParams.get("fall");
+        if (fall) {
+          const tiefe = Math.min(Number(url.searchParams.get("tiefe") ?? 2) || 2, 3);
+          const seeds = fall.split(",").map((s) => s.trim()).filter(Boolean);
+          const menge = new Set(seeds.filter((s) => proEnbez.has(s)));
+          for (const seed of seeds)
+            for (const kante of crossRefs(db, slug, seed, stichtag, tiefe))
+              if (kante.ziel_slug === slug && proEnbez.has(kante.ziel_enbez)) menge.add(kante.ziel_enbez);
+          highlight = [...menge];
+        }
+
+        return json({
+          slug,
+          stichtag,
+          nodes: [...proEnbez.values()].map((e) => ({
+            enbez: e.enbez,
+            titel: (e.titel ?? "").replace(/^\[ENTWURF EEG 2027\]\s*/, ""),
+            entwurf: (e.titel ?? "").startsWith("[ENTWURF"),
+            grad: grad.get(e.enbez) ?? 0,
+            extern: extern.get(e.enbez) ?? 0,
+          })),
+          edges: [...kanten.entries()].map(([key, n]) => {
+            const [von, nach] = key.split("|");
+            return { von, nach, n };
+          }),
+          highlight,
+        });
+      }
+
       // ── Statics: fink-App + Design-System ──
+      if (p === "/favicon.ico" || p === "/favicon.svg")
+        return new Response(
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#1213BE"/><text x="16" y="23" font-family="system-ui" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">f</text></svg>',
+          { headers: { "content-type": "image/svg+xml" } },
+        );
       if (p.startsWith("/vendor/")) {
         const rel = VENDOR[p.slice("/vendor/".length)];
         if (rel) {

@@ -42,6 +42,7 @@ function AppShell({ active, onNav, title, subtitle, actions, search = true, chil
           <NavItem icon="file-text" label="Berichte" active={active === 'reports'} onClick={() => onNav('reports')} />
           <div className="fk-side__section">Recht</div>
           <NavItem icon="route" label="Förder-Fahrplan" active={active === 'fahrplan'} onClick={() => onNav('fahrplan')} />
+          <NavItem icon="waypoints" label="Norm-Graph" active={active === 'normgraph'} onClick={() => onNav('normgraph')} />
           <NavItem icon="scale" label="EEG-Bibliothek" onClick={() => onNav('reports')} />
           <NavItem icon="sparkles" label="fink Assistent" active={active === 'reports'} onClick={() => onNav('reports')} />
         </nav>
