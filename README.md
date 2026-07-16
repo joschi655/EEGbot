@@ -9,6 +9,8 @@ RDG-Guardrails.
 > Du bringst deinen eigenen Claude mit (Claude Code), das Framework bringt das
 > Energierechts-Wissen, die Rechner und die Leitplanken.
 
+**[Vision: EEGbot macht Energierecht ausführbar.](Vision.md)**
+
 ## Warum das kein „Chatbot über Gesetze" ist
 
 Sprachmodelle raten Vergütungssätze, verwechseln EEG-Fassungen und übersehen
