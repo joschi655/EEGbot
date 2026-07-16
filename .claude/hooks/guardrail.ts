@@ -7,12 +7,14 @@
  * Anweisung, den Ersatztext zu verwenden (transparent für den Nutzer).
  */
 import { klassifiziere } from "../../src/rules/guardrailClassifier.ts";
+import { speichereGuardrailBefund } from "./guardrail-state.ts";
 
-const input = (await Bun.stdin.json()) as { prompt?: string };
+const input = (await Bun.stdin.json()) as { prompt?: string; session_id?: string };
 const prompt = input.prompt ?? "";
 if (!prompt.trim()) process.exit(0);
 
 const befund = await klassifiziere(prompt);
+await speichereGuardrailBefund(input.session_id, befund);
 
 let kontext = "";
 if (befund.ampel === "rot") {

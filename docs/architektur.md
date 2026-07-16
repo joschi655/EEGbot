@@ -18,9 +18,9 @@ Schritt-Ebene, nicht auf Agenten-Ebene — jeder Workflow mischt Tool-Schritte
 | Experience | Zwei Ebenen, ein Produkt: **Web-UI** (`bun ui/server.ts` → `/app/`, React/Babel/d3 lokal über `/vendor/*`, läuft ohne Netz) mit 10 B2C-Screens live gegen die Engines — Übersicht, Meine Anlage (versioniertes localStorage-Profil), Fristen, Rückforderungs-Check (§ 52), Vergütung, Solarspitzen, Ü20, Förder-Fahrplan, Recherche, Norm-Graph. **Claude Code** als agentische Ebene obendrauf (eigene PDFs, Freitext, Workflows, RDG-Guardrail). REST-Wrapper in `ui/server.ts`: `/api/{frage,fahrplan,intake,intake/vorschau,norm,cascade,uebergangsrecht,graph,sanktion52,verguetung,fristen,schwellen,solarspitzen,ue20,status}`. Rechner-REST und MCP verwenden dieselben Zod-Contracts aus `src/schemas/rechner.ts`; JSON-Fehler liefern 400, Contract-/Fachablehnungen 422 und unbekannte Fehler 500. Die optionale Anthropic-Extraktion verlangt Vorschau plus Einwilligung. Gehostet: fink.aiwerke.de (B2B-Artefakt, gepinnt) + eegbot.aiwerke.de (B2C, hinter Cloudflare Access) |
 | Orchestrierung | Skills: `Intake` (Fall-Strukturierung + Routing) → `Workflow`-Runner (interpretiert `data/workflows/*.yaml` State-Machines) |
 | Deterministische Engines | `src/rules/` (TypeScript) + `rules/*.catala_en` (formale Spezifikation) — §52, Vergütung, §24, Fristen, Schwellen, Solarspitzen (§§ 9/51/51a), Ü20, Förder-Matcher, Guardrail-Classifier |
-| Agenten | `.claude/agents/`: intake, eligibility, process-navigator, document-prep, compliance-guardrail, eskalation, research |
+| Agenten | `.claude/agents/`: intake, eligibility, process-navigator, document-prep, compliance-guardrail, eskalation, research. Ohne `tools`-Allowlist: sie erben sämtliche Built-ins und freigegebenen MCPs der Hauptsession. |
 | Wissens-Layer | `knowledge/`: temporaler Normgraph (SQLite) + 4 BM25-Indizes (Normen, Clearingstelle, Rechtsprechung, Nutzer-Dokumente), gebaut aus QuantLaw-Snapshots, Clearingstelle, Open Legal Data und `dokumente/` |
-| Dokumente-Layer | `dokumente/` (privat, gitignored): PDF-Extraktion (unpdf), OCR (tesseract.js deu+eng), DOCX/TXT, Bilder/Pläne → Claude-Vision-Routing; MCP `eeg-dokumente` |
+| Dokumente-Layer | `dokumente/` (privat, gitignored): PDF-Extraktion (unpdf), OCR (tesseract.js deu+eng), DOCX/TXT, Bilder/Pläne → Claude-Vision-Routing; MCP `eeg-dokumente`. Speicherung/Suche laufen lokal, gelesene Treffer und Originale gelangen jedoch in den Modellkontext des konfigurierten Anbieters. |
 
 ## Temporaler Normgraph (SAT-Graph-RAG-Pattern, arXiv 2505.00039)
 
@@ -78,17 +78,24 @@ die Cross-Check-Szenarien sind so gewählt, dass sie nicht greifen.
 
 ## Guardrails (RDG/StBerG)
 
-Zweistufig: (1) deterministischer Classifier (`data/guardrails/policy.yaml`,
-Muster-Matching, < 100 ms) im UserPromptSubmit-Hook — Rot erzwingt Ersatztext +
-Eskalation, (2) Compliance-Agent für Gelb (Formulierungs-Prüfung:
-Kategorie-Ebene, Unsicherheits-Kennzeichnung, Quellenpflicht). Begründungen je
-Kategorie stehen in der Policy (BGH I ZR 113/20 Smartlaw; § 2 RDG; StBerG).
+Dreistufig: (1) deterministischer Classifier (`data/guardrails/policy.yaml`,
+Muster-Matching, < 100 ms) im UserPromptSubmit-Hook; sein Ampelbefund wird ohne
+Prompttext sitzungsbezogen im geschützten System-Temp-Verzeichnis abgelegt.
+(2) Ein Stop-Hook validiert `last_assistant_message`, bevor Claude den Turn
+beendet: Rot verlangt klare Ablehnung + passenden Eskalationsweg und darf keinen
+ROT-Trigger wiederholen; Gelb verlangt Unsicherheitskennzeichnung, Norm/Fassung
+oder Fundstelle, Eskalationsoption und RDG-Disclaimer. Bei Verstoß erhält Claude
+`decision: block` und muss neu formulieren. (3) Der Compliance-Agent hilft bei
+gelben Grenzfällen. Begründungen je Kategorie stehen in der Policy (BGH I ZR
+113/20 Smartlaw; § 2 RDG; StBerG).
 
 ## RAG-Topologie — wo welcher Index läuft
 
-Alles läuft **lokal** (bun:sqlite + MiniSearch-JSON), kein externer Dienst,
-keine Embeddings-API. Vier getrennte Retrieval-Quellen, alle über MCP-Server
-abrufbar:
+Speicherung, Indexierung und Retrieval laufen **lokal** (bun:sqlite +
+MiniSearch-JSON), ohne Embeddings-API. Das bedeutet nicht lokale Inferenz:
+MCP-Ergebnisse und per Read/Vision gelesene Dateien werden Teil der
+Claude-Code-Sitzung und an den konfigurierten Modellanbieter übertragen. Vier
+getrennte Retrieval-Quellen sind über MCP-Server abrufbar:
 
 | Index | Quelle | Datei | Pipeline | MCP-Tool |
 |---|---|---|---|---|
@@ -115,6 +122,22 @@ fürs Claude-Vision-Lesen (Pläne, Fotos, Handschrift — kein eigener Plan-Pars
 das Modell liest Bilder nativ via Read-Tool) → DOCX via `unzip` →
 idempotent über SHA-256-Manifest. Der Skill `Unterlagen` routet: Suche über
 BM25-Extrakte, inhaltliches Verständnis über das Originalbild.
+
+Datenschutzgrenze: Dateien, Extrakte und Indizes bleiben auf dem lokalen
+Datenträger und sind gitignored. Der Skill weist bei ausdrücklichen
+Dokumentenaufträgen auf die Modellübertragung hin; ohne solchen Auftrag verlangt
+er vor dem ersten inhaltlichen Zugriff eine Bestätigung. Suche/Chunks gehen vor
+Volltext, um die übertragenen Inhalte zu minimieren.
+
+## Distribution
+
+v0.x bleibt bewusst ein eigenständiges Projekt-Repository: Wissensbasis,
+Dokumentordner, generierte Indizes, Workflows und Web-App gehören zu einem
+abgegrenzten Arbeitsbereich. Die fünf Projekt-MCPs stehen in `.mcp.json` und
+werden nach einmaliger Workspace-/MCP-Freigabe von Claude Code gestartet. Ein
+Claude-Code-Plugin bleibt Roadmap für eine spätere Installation in beliebigen
+Projekten; dafür müssen persistente Datenpfade, Setup/Updates und der Umgang mit
+Nutzerunterlagen zuerst plugin-tauglich entkoppelt werden.
 
 ## Agent-SDK-Portierbarkeit (B2B-Phase)
 

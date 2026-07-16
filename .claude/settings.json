@@ -19,6 +19,17 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR/.claude/hooks/guardrail-output.ts\"",
+            "timeout": 5
+          }
+        ]
+      }
     ]
   }
 }

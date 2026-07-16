@@ -10,7 +10,7 @@ import { pruefeZusammenfassung, type AnlageZsf } from "./anlagenzusammenfassung.
 import { pruefeFristen } from "./fristen.ts";
 import { pruefeSchwellen } from "./schwellen.ts";
 import { vergleicheAusgefoerderteOptionen } from "./ausgefoerderte.ts";
-import { klassifiziere } from "./guardrailClassifier.ts";
+import { klassifiziere, pruefeGuardrailAusgabe } from "./guardrailClassifier.ts";
 
 describe("§52 Liability Radar", () => {
   test("3-MW-Eigenversorger, Doppelpflichtverstoß → 30.000 €/Monat (Kappung Abs. 5)", async () => {
@@ -246,5 +246,37 @@ describe("Guardrail-Classifier (RDG-Ampel)", () => {
     const r = await klassifiziere("Wie melde ich mein Balkonkraftwerk im MaStR an?");
     expect(r.ampel).toBe("gruen");
     expect(r.disclaimer.length).toBeGreaterThan(50);
+  });
+
+  test("Stop-Prüfung blockiert eine inhaltliche ROT-Antwort", async () => {
+    const prompt = await klassifiziere("Soll ich den Netzbetreiber verklagen?");
+    const r = await pruefeGuardrailAusgabe(
+      prompt,
+      "Sie sollten Klage erheben und zunächst mit einer einstweiligen Verfügung Druck machen.",
+    );
+    expect(r.erlaubt).toBe(false);
+    expect(r.gruende.join(" ")).toMatch(/ROT-Trigger|Ablehnung|Eskalationsweg/);
+  });
+
+  test("Stop-Prüfung akzeptiert den freigegebenen ROT-Ersatz mit Eskalation", async () => {
+    const prompt = await klassifiziere("Soll ich den Netzbetreiber verklagen?");
+    const r = await pruefeGuardrailAusgabe(
+      prompt,
+      `${prompt.ersatztext} Für die verbindliche Einzelfallprüfung wenden Sie sich an die Clearingstelle oder einen Fachanwalt.`,
+    );
+    expect(r).toEqual({ erlaubt: true, gruende: [] });
+  });
+
+  test("Stop-Prüfung verlangt bei GELB Unsicherheit, Quelle, Eskalation und Disclaimer", async () => {
+    const prompt = await klassifiziere("Gilt das für mich in meinem konkreten Fall?");
+    const unsicher = await pruefeGuardrailAusgabe(prompt, "Ja, das gilt eindeutig für Sie.");
+    expect(unsicher.erlaubt).toBe(false);
+    expect(unsicher.gruende).toHaveLength(4);
+
+    const abgesichert = await pruefeGuardrailAusgabe(
+      prompt,
+      "Die Einordnung hängt von der Würdigung des Einzelfalls ab. Maßgeblich ist § 24 EEG in der einschlägigen Fassung. Eine verbindliche Prüfung kann ein Fachanwalt oder die Clearingstelle übernehmen. Das ist allgemeine Rechtsinformation, keine Rechtsberatung im Einzelfall (§ 2 RDG).",
+    );
+    expect(abgesichert).toEqual({ erlaubt: true, gruende: [] });
   });
 });

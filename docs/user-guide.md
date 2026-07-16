@@ -64,7 +64,9 @@ bun run ingest:dokumente
 - Scans/Fotos werden per OCR lesbar gemacht (für die Suche)
 - **Pläne und Fotos schaut sich Claude zusätzlich im Original an** — frag z. B.
   „schau dir meinen Dachplan an und sag mir, wie viele Module da eingezeichnet sind"
-- Nichts davon wird committet oder verlässt deinen Rechner
+- Originale, Extrakte und Index werden nicht committet. Auszüge oder Bilder,
+  die Claude Code auf deinen Auftrag liest, werden jedoch an deinen
+  konfigurierten Modellanbieter übertragen und Teil der Claude-Sitzung.
 
 ## 3. Loslegen
 
@@ -75,8 +77,9 @@ claude
 ```
 
 Die MCP-Server (Gesetzes-Wissen, Rechner, Förderung, Live-Daten, deine
-Dokumente) verbinden sich automatisch über `.mcp.json`. Dann einfach in
-normalem Deutsch:
+Dokumente) werden über `.mcp.json` erkannt. Beim ersten Start das Projekt
+vertrauen und die fünf Projekt-MCPs einmalig über `/mcp` freigeben. Danach
+einfach in normalem Deutsch:
 
 | Du willst… | Sag z. B. |
 |---|---|
@@ -126,11 +129,13 @@ netztransparenz.de) für automatischen Marktwert-Abgleich.
 
 **Wo liegen meine Daten?**
 `dokumente/` (deine Dateien), `dokumente/.extrakte/` (Text-Extrakte) und
-`knowledge/` (Gesetze, Indizes) liegen lokal und sind gitignored. Die optionale
-KI-Vorbefüllung in der Web-App zeigt vorab exakt die ausgewählten Auszüge und
-den Freitext; erst nach ausdrücklicher Einwilligung werden diese Inhalte zur
-Feldextraktion an die Anthropic API übertragen. Die übrigen Rechner benötigen
-diese Übertragung nicht.
+`knowledge/` (Gesetze, Indizes) liegen lokal und sind gitignored. Das ist von
+der Modellverarbeitung zu unterscheiden: Inhalte, die Claude Code per MCP oder
+Read/Vision liest, gelangen in den Modellkontext und damit zum konfigurierten
+Anbieter. Die optionale KI-Vorbefüllung in der Web-App zeigt vorab exakt die
+ausgewählten Auszüge und den Freitext; erst nach ausdrücklicher Einwilligung
+werden diese Inhalte zur Feldextraktion an die Anthropic API übertragen. Die
+deterministischen Rechner selbst benötigen keine Dokumentübertragung.
 
 **Ein Scan wird nicht gelesen?**
 `brew install poppler`, dann `bun run ingest:dokumente` erneut. Oder die Seite

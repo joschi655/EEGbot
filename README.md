@@ -40,7 +40,7 @@ ist; agentisch nur, wo Auslegung oder Nutzerführung gebraucht wird:**
 ```bash
 git clone https://github.com/joschi655/EEGbot && cd EEGbot
 bun run setup             # installiert, validiert, baut Normgraph + Suchindex (~2–5 Min)
-claude                    # Claude Code im Repo starten — MCPs & Hooks laden automatisch
+claude                    # Projekt vertrauen und die 5 MCPs beim ersten Start einmalig freigeben
 ```
 
 Dann einfach fragen: *„Ich habe ein Balkonkraftwerk gekauft, was muss ich tun?"* —
@@ -90,12 +90,13 @@ bun run ingest:dokumente
 
 PDF-Text wird extrahiert, Scans und Fotos werden per OCR (tesseract.js, deutsch)
 durchsuchbar, **Pläne und Fotos liest Claude zusätzlich im Original** (Vision).
-Die lokale Ingestion und Suche ziehen Daten (IBN-Datum, Leistung,
-Netzbetreiber …) aus deinen Unterlagen, statt dich abzufragen. Originaldateien,
-Extrakte und Indizes bleiben gitignored und werden nicht committet. Nur wenn du
-in der Web-App ausdrücklich die optionale KI-Vorbefüllung startest, werden die
-zuvor vollständig angezeigten Dokumentauszüge und dein Freitext nach deiner
-Einwilligung an die Anthropic API übertragen.
+Ingestion, Originaldateien, Extrakte und Indizes liegen lokal und bleiben
+gitignored. Sobald Claude Code einen Treffer, Volltext oder ein Bild liest,
+wird der ausgewählte Inhalt jedoch Teil des Modellkontexts und an deinen
+konfigurierten Modellanbieter übertragen. Deshalb sucht EEGbot zuerst in
+kleinen Ausschnitten und liest Volltexte nur bei Bedarf. Die Web-App verwendet
+einen getrennten Consent-Flow: Vorschau der vollständigen Übertragung, Empfänger
+und Zweck, danach ausdrückliche Einwilligung für die Anthropic API.
 
 Optionale Wissensquellen (je ein Befehl, lokal gebaut): Clearingstelle-FAQ +
 Voten (`ingest:clearingstelle`), BGH-Rechtsprechung (`ingest:rechtsprechung`),
@@ -107,9 +108,8 @@ BNetzA-Gebotstermine (`ingest:ausschreibungen`), Marktwerte (`ingest:markt`).
 Claude Code (Runtime)
  ├─ Skills      Intake → Workflow-Runner (interpretiert data/workflows/*.yaml)
  │              + Compliance, Dokumente, Recherche, Update
- ├─ Agenten     7 Spezialisten (Intake, Eligibility, Navigator, DocPrep,
- │              Guardrail, Eskalation, Research)
- ├─ Hooks       RDG-Ampel (UserPromptSubmit) · Freshness (SessionStart)
+ ├─ Agenten     7 Spezialisten; erben die Tools/MCPs der Hauptsession
+ ├─ Hooks       RDG-Prompt-Ampel + Output-Stop-Prüfung · Freshness
  └─ MCP-Server  eeg-wissen     Normgraph, §100-Resolver, Norm-/Clearingstelle-/
                                Rechtsprechungs-Suche
                 eeg-rechner    §52, Vergütung, §24, Fristen, Schwellen, Solarspitzen, Ü20
@@ -175,6 +175,8 @@ und nicht eingecheckt.
 - Catala-Kompilierung in CI (Spezifikation → ausführbare Verifikation)
 - Neuro-symbolische Rückverifikation von LLM-Subsumtionen
 - NeuRIS-API-Anbindung, sobald produktionsreif (ELI-kompatible IDs sind vorbereitet)
+- **Claude-Code-Plugin** als späterer Distributionskanal; v0.x bleibt bewusst ein
+  eigenständiges Projekt-Repository mit lokaler Wissensbasis und Dokumentordner
 - **B2B-Ausbau** (gehostet, Agent-SDK): Kanzlei-Dashboards, Portfolio-§52-Batch für
   Stadtwerke, Kundenanlage-Migrations-Assessments — auf denselben `data/`-Schemas
 

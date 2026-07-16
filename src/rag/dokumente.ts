@@ -1,7 +1,8 @@
 /**
  * Suche über die NUTZER-Dokumente (dokumente/ → Extrakte → BM25-Index).
- * Gegenstück zu suche.ts (Normen) — eigener Index, eigene Quelle:
- * private Unterlagen bleiben strikt lokal.
+ * Gegenstück zu suche.ts (Normen) — eigener lokaler Index, eigene Quelle.
+ * Zurückgegebene Chunks können vom MCP-Client an dessen Modellanbieter
+ * übertragen werden; lokal ist die Speicherung/Suche, nicht die Inferenz.
  */
 import MiniSearch from "minisearch";
 import { join } from "node:path";

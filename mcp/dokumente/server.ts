@@ -1,7 +1,8 @@
 #!/usr/bin/env bun
 /**
  * MCP-Server `eeg-dokumente` — Suche und Zugriff auf die EIGENEN Unterlagen
- * des Nutzers (dokumente/). Alles lokal; nichts verlässt den Rechner.
+ * des Nutzers (dokumente/). Ablage und Suche sind lokal; an den MCP-Client
+ * zurückgegebene Treffer/Volltexte werden Teil seines Modellkontexts.
  *
  * Pläne/Fotos: `bilder_liste` liefert die Original-Pfade — die liest Claude
  * direkt mit dem Read-Tool (Vision). OCR-Extrakte dienen nur der Suche.

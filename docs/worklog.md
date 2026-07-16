@@ -1,5 +1,30 @@
 # Worklog
 
+## 2026-07-16 — Claude-Code-Agenten, Output-Guardrail und Datenschutz
+
+**Anlass:** Audit des tatsächlichen Claude-Code-Toolflusses und Entscheidung,
+EEGbot vorerst als eigenständiges Projekt-Repository statt als Plugin zu
+betreiben.
+
+- **Agentenrechte:** Explizite `tools`-Allowlisten aus allen sieben
+  Subagenten entfernt. Damit erben sie die Built-ins und alle in der
+  Hauptsession freigegebenen MCP-Tools; Navigator, Eligibility und
+  Document-Prep können ihre im Prompt verlangten deterministischen Tools nun
+  tatsächlich aufrufen.
+- **Guardrail:** Der UserPromptSubmit-Hook speichert den deterministischen
+  Ampelbefund ohne Originalprompt im System-Temp-Verzeichnis. Ein neuer
+  Stop-Hook validiert die fertige Antwort und blockiert den Turn bis zur
+  sicheren Neufassung. ROT verlangt Ablehnung/Eskalation, GELB zusätzlich
+  Unsicherheit, Quelle und RDG-Disclaimer.
+- **Datenschutz:** Dokumentation und Agentenanweisungen unterscheiden jetzt
+  lokale Ablage/Indexierung von Modellverarbeitung. Von Claude Code gelesene
+  Auszüge oder Bilder gelangen zum konfigurierten Modellanbieter; Suche vor
+  Volltext und transparenter Dokumentenauftrag minimieren den Datenfluss.
+- **Distribution:** Projekt-Repository bleibt v0.x-Primärmodell. Ein
+  Claude-Code-Plugin ist als spätere Roadmap-Option dokumentiert.
+- **Verifikation:** Guardrail-Unit- und Hook-Integrationstests, TypeScript-
+  Typecheck sowie vollständige Test-/Daten-/Eval-Suite.
+
 ## 2026-07-15-e — Solarspitzen-Check (§§ 9, 51, 51a EEG)
 
 **Anlass:** Direkte Erweiterung des privaten Anlagen-Lebenszyklus um die

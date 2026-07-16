@@ -36,8 +36,13 @@ description: Arbeit mit den eigenen Dokumenten des Nutzers (dokumente/) — Such
 
 ## Datenschutz
 
-Alles in `dokumente/` ist privat und gitignored. Inhalte daraus nie in
-committete Dateien, Issues oder externe Dienste kopieren.
+Originale, Extrakte und Index in `dokumente/` sind privat und gitignored. Ein
+MCP-Treffer oder per Read/Vision geöffnetes Original wird aber Teil des
+Claude-Code-Modellkontexts und damit an den konfigurierten Modellanbieter
+übertragen. Bei einem ausdrücklichen Dokumentenauftrag kurz darauf hinweisen;
+sonst vor dem ersten inhaltlichen Zugriff bestätigen lassen. Suche vor
+Volltext, nur erforderliche Ausschnitte lesen. Inhalte nie in committete
+Dateien, Issues oder weitere externe Dienste kopieren.
 
 ## Förderfälle: Unterlagen → Fahrplan (Auto-Intake)
 

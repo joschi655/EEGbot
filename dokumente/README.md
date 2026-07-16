@@ -1,8 +1,11 @@
 # dokumente/ — Deine Unterlagen
 
 **Leg hier alles ab, was zu deinem Fall gehört.** Unterordner sind erlaubt.
-Nichts aus diesem Ordner wird jemals committet oder hochgeladen — alles bleibt
-auf deinem Rechner (siehe `.gitignore`).
+Originale, Extrakte und Suchindex werden nicht committet und bleiben auf deinem
+Rechner (siehe `.gitignore`). Wenn Claude Code Treffer, Volltexte oder Bilder
+liest, werden die ausgewählten Inhalte allerdings Teil der Modellsitzung und an
+den konfigurierten Modellanbieter übertragen. Gib deshalb nur Unterlagen frei,
+die für die konkrete Frage erforderlich sind.
 
 ## Was reinlegen?
 

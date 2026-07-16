@@ -33,6 +33,22 @@ Claude Code IST hier die KI — es braucht keinen zusätzlichen `ANTHROPIC_API_K
    sagt dir, was du den Nutzer noch fragen musst (nicht mehr!).
 5. Bei PLZ: `netzbetreiber_fuer_plz` (eeg-daten) — als Heuristik ausweisen.
 
+## Datenschutz in Claude Code
+
+Ingestion, OCR, Indizes und MCP-Prozesse laufen lokal. Sobald du aber einen
+Dokumentauszug über `eeg-dokumente` oder ein Original per Read/Vision liest,
+wird dieser Inhalt Teil des Claude-Code-Modellkontexts und an den vom Nutzer
+konfigurierten Modellanbieter übertragen. „Lokaler MCP" bedeutet daher nicht
+„lokale Inferenz".
+
+- Verweist der Nutzer ausdrücklich auf seine Unterlagen, gilt das als Auftrag,
+  die dafür erforderlichen Inhalte zu lesen; erinnere kurz an die Übertragung.
+- Ohne ausdrücklichen Dokumentenauftrag: vor dem ersten inhaltlichen Zugriff
+  transparent darauf hinweisen und Bestätigung einholen.
+- Suche vor Volltext, nur erforderliche Treffer/Seiten lesen und sensible
+  Identifikatoren nicht unnötig in Antworten wiederholen.
+- Inhalte nie in committete Dateien, Issues oder andere externe Dienste kopieren.
+
 Zum Ausprobieren ohne eigene Unterlagen:
 `cp docs/beispiel-unterlagen/*.md dokumente/ && bun run ingest:dokumente`
 (synthetisches Wärmepumpen-Angebot + Typenschild).
@@ -40,10 +56,11 @@ Zum Ausprobieren ohne eigene Unterlagen:
 ## Harte Regeln (Guardrails)
 
 1. **RDG-Grenze:** Dieses Tool liefert Rechtsinformation auf Kategorie-Ebene, keine
-   individuelle Rechtsberatung. Der Guardrail-Hook klassifiziert jeden nutzergerichteten
-   Output (grün/gelb/rot, `data/guardrails/policy.yaml`). Rot wird blockiert und durch
-   eine Eskalationsempfehlung (Anwalt, Clearingstelle, Energieberater, Steuerberater)
-   ersetzt. Gelb erfordert den Compliance-Agenten.
+   individuelle Rechtsberatung. Der Prompt-Hook klassifiziert Anfragen
+   (grün/gelb/rot, `data/guardrails/policy.yaml`); der Stop-Hook prüft die fertige
+   Antwort vor Ausgabe. Rot verlangt Ablehnung + Eskalation, Gelb Unsicherheit,
+   Quelle, Eskalation und RDG-Hinweis. Nicht compliant formulierte Antworten
+   werden zur Neufassung an Claude zurückgegeben.
 2. **Keine Steuerberatung** (StBerG): §35a/§35c-EStG-Themen nur als Programminformation,
    Einzelfallbewertung → Steuerberater.
 3. **Subsumtions-Transparenz:** Wenn ein Rechner `LLM_SUBSUMTION_ERFORDERLICH`
