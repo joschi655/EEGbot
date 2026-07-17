@@ -6,7 +6,7 @@ Stand: 03.07.2026 · Von: Johannes · Für: Legal Loves Tech Hackathon 2026
 
 ## 1 · Das Projekt in zwei Seiten
 
-**Was wir bauen:** Ein KI-Assistent für deutsches Energierecht (Arbeitstitel
+**Was wir bauen:** Ein (KI-)Assistent für deutsches Energierecht (Arbeitstitel
 **fink**), der Laien durch die realen Prozesse führt — Balkonkraftwerk anmelden,
 PV aufs Dach, **Wärmepumpe fördern lassen**, Sanktionsrisiken prüfen, alte
 Anlagen weiterbetreiben. Der entscheidende Unterschied zu „ChatGPT über
@@ -57,11 +57,8 @@ Kundenanlage-Stories) — genau so weitermachen.
 
 ## 3 · Dein Research-Brief (die Themen)
 
-*(Identisch mit `docs/research-brief-sophia.md` im Repo — dort immer aktuell.
-Kein Zeitdruck und keine feste Reihenfolge: nimm dir vor, was dich interessiert
-oder wo du am schnellsten drankommst.)*
-
 ### 3.1 iSFP & Förderpraxis aus erster Hand (dein Vater)
+
 Interview-Leitfaden: Wie läuft ein iSFP real ab (Schritte, Dauer, Kosten,
 benötigte Zahlen/Unterlagen — wer macht die Heizlastberechnung womit)? Woran
 scheitern Anträge in der Praxis (Reihenfolge-Fehler, falsche Stelle BAFA/KfW,
@@ -70,11 +67,13 @@ zwingend den zertifizierten Energieeffizienz-Experten? Regionale Eigenheiten?
 Bonus: 30 Minuten unser Tool zerreißen lassen.
 
 ### 3.2 Rechtsgrundlagen-Dossier Wärmepumpe/BEG
+
 BEG-EM-Richtlinie (Boni, 70-%-Deckel, Höchstkosten, iSFP-Bonus-Mechanik),
 § 35c EStG-Abgrenzung (Doppelförderungsverbot), GEG § 71. Je Aussage Quelle +
 Fundstelle.
 
 ### 3.3 Regionale Förderprogramme
+
 Je 1–2 belegte Programme aus BW, Bayern/München, NRW + Kommune, Berlin,
 Hamburg: Satz, Voraussetzungen, **Kumulierbarkeit mit BEG**, Antragsweg,
 Budget-Status, exakter Geltungsbereich und (falls vorhanden) Gesamtquoten-/
@@ -82,10 +81,12 @@ Betrags-Deckel. (Unser Stand Q2/2026: landesweit fast nur noch Berlin SolarPLUS;
 MV/Sachsen Balkonkraftwerk; Hamburg IFB Wärme — bitte verifizieren + Kommunen.)
 
 ### 3.4 Benchmark
+
 Die 4 Fragen in Abschnitt 6 fachlich reviewen; 10 neue Wärmepumpen-/BEG-Fragen
 mit belegten Goldantworten im selben Format.
 
 ### 3.5 Zwei Zahlen-Verifikationen
+
 (a) Anzulegende Werte ab 01.02.2026 (BNetzA, § 48 EEG): ≤10 kWp Teileinspeisung
 7,78 ct? 10–40 kWp 6,73 oder 6,74? Volleinspeisung 12,34 oder 12,35 ct?
 (b) Jahresmarktwert Solar 2023/2024 (netztransparenz.de) und: gilt für die
@@ -93,8 +94,9 @@ mit belegten Goldantworten im selben Format.
 oder der ÜNB-Wert 0,715 ct/kWh — und wofür genau?
 
 ### 3.6 Kommentar-Fundstellen sammeln (Beck-Online & Co.)
+
 Wenn du Zugang zu Beck-Online, juris o. Ä. hast: sammle **so viele
-einschlägige Kommentarstellen wie möglich**, die für unsere Themen relevant
+einschlägige Kommentare wie möglich**, die für unsere Themen relevant
 sein könnten — lieber zu viele als zu wenige, wir priorisieren zusammen.
 Interessant: EEG §§ 24, 52, 100, 48; EnWG (Kundenanlage, § 42b, Mieterstrom);
 RDG § 2 („Smartlaw"-Linie); BEG / § 35c EStG. Je Fundstelle: Werk (z. B. BeckOK
@@ -102,6 +104,7 @@ EEG, Säcker) → Bearbeiter → § / Rn. → Kernaussage (1–2 Sätze) → Abr
 Aufsätze/Urteilsanmerkungen (RdE, EnWZ, NVwZ, NJW) ebenfalls willkommen.
 
 ### 3.7 Laufend
+
 Tool als „Kundin" testen und alles notieren, was juristisch schief oder
 unverständlich ist; Klick-Dummy-Stories aktualisieren (offene Marker wie
 „BGBl.-Veröffentlichung verifizieren" in der Kundenanlage-Story) + eine vierte,
@@ -171,45 +174,30 @@ werden.
 **b17:** Zwei WEA, 614 m Abstand, verschiedene Flurstücke, gemeinsames
 Umspannwerk und ein Netzverknüpfungspunkt. Liegt „unmittelbare räumliche Nähe"
 i. S. d. § 24 EEG vor?
-*Goldantwort:* Nach BGH XIII ZR 12/19 i. d. R. ja — funktionale Betrachtung
+_Goldantwort:_ Nach BGH XIII ZR 12/19 i. d. R. ja — funktionale Betrachtung
 (zusammenhängendes Areal, gemeinsame technische Infrastruktur), Entfernung
 allein schließt Nähe nicht aus; Indizienkatalog der Empfehlung 2008/49
 verworfen; als einzelfallabhängige Würdigung kennzeichnen.
 
 **b18:** Eigentümer einer 2015er-Anlage in Eigenversorgung: „Ich bekomme keine
 Förderung — kann mir § 52 egal sein?"
-*Goldantwort:* Nein — § 52 EEG 2023 gilt über § 100 Abs. 9 für alle Anlagen
+_Goldantwort:_ Nein — § 52 EEG 2023 gilt über § 100 Abs. 9 für alle Anlagen
 unabhängig von Förderung/IBN/Einspeisung (Clearingstelle FAQ 236); 10 €/kW/Monat
 an den Netzbetreiber, Heilung → 2 €; Verjährung mit Ablauf des zweiten
 Kalenderjahres.
 
 **b19:** WEG will Gemeinschafts-PV: Unterschied Mieterstrom (§ 21 EEG/§ 42a
 EnWG) vs. Gemeinschaftliche Gebäudeversorgung (§ 42b EnWG)?
-*Goldantwort:* Mieterstrom = Lieferverhältnis mit Vollversorgungspflicht +
+_Goldantwort:_ Mieterstrom = Lieferverhältnis mit Vollversorgungspflicht +
 Mieterstromzuschlag; GGV (Solarpaket I) = Verteilmodell ohne Lieferantenstellung,
 Überschuss über den normalen Liefervertrag, Viertelstundenmessung nötig, nur
 Gebäude-PV, WEG-Vereinbarung erforderlich.
 
 **b20:** „Mein Netzbetreiber fordert rückwirkend 8.000 € Strafzahlung — zahle
 ich einfach nicht, oder?"
-*Goldantwort:* Keine Strategie-Empfehlung (RDG!). Zulässig: 2-Jahres-Verjährung
+_Goldantwort:_ Keine Strategie-Empfehlung (RDG!). Zulässig: 2-Jahres-Verjährung
 und Heilungswirkung erklären, drei Wege nennen (Clearingstelle-Verfahren,
 Fachanwalt, BNetzA), Eskalations-Paket anbieten.
 
-*Prüffragen an dich: Stimmen Antworten + Kriterien? Fehlt neuere Rechtsprechung?
-Sind die Formulierungen RDG-sauber?*
-
-## 7 · Wie du Ergebnisse zurückgibst
-
-**Ab sofort:** formlos — Doc, PDF oder Mail an Johannes. Pro Fundstelle:
-**Aussage · Quelle (Titel/URL) · Fundstelle (§, Rn., Seite) · Abrufdatum.**
-
-**Später (optional, 15-Minuten-Einführung):** direkt auf GitHub — im
-Browser, ohne Installation: Repo öffnen (github.com/joschi655/EEGbot, du
-bekommst eine Einladung per Mail) → Datei in `docs/` oder `data/` anklicken →
-Stift-Symbol („Edit in place") → ändern → „Propose changes". Das erzeugt einen
-Pull Request; unsere Automatik prüft Format/Quellen, Johannes merged. Du kannst
-nichts kaputtmachen — jede Änderung ist rückgängig machbar.
-
-**Fragen jederzeit** per WhatsApp. Wenn du das Tool selbst ausprobieren willst,
-setzen wir dir in 30 Minuten alles auf (braucht nur einen Laptop).
+_Prüffragen an dich: Stimmen Antworten + Kriterien? Fehlt neuere Rechtsprechung?
+Sind die Formulierungen RDG-sauber?_
