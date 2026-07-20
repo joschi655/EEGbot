@@ -85,6 +85,11 @@ MV/Sachsen Balkonkraftwerk; Hamburg IFB Wärme — bitte verifizieren + Kommunen
 Die 4 Fragen in Abschnitt 6 fachlich reviewen; 10 neue Wärmepumpen-/BEG-Fragen
 mit belegten Goldantworten im selben Format.
 
+> **Update 19.07.:** Die 12 Praxisfälle deines Vaters (PDF 17.07.) sind als
+> b25–b36 in `evals/benchmark/fragen.yaml` integriert — damit ist dieser Punkt
+> geliefert. Review der Goldantworten/Bewertungskriterien weiterhin willkommen;
+> Fokus jetzt auf §3.5/§3.6.
+
 ### 3.5 Zwei Zahlen-Verifikationen
 
 (a) Anzulegende Werte ab 01.02.2026 (BNetzA, § 48 EEG): ≤10 kWp Teileinspeisung

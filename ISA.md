@@ -184,6 +184,17 @@ Pitch-Konzept als KB-Dokument.
 - [x] ISC-85: Responsiver B2C-Screen zeigt exakte 5,88-kW-Grenze für 9,8 kWp, Negativpreisstatus, Rechenweg und Quellen
 - [x] ISC-86: Abnahme grün — 150/150 Unit/Integration, 20/20 Evals, 8/8 Desktop/Mobile-Browserpfade, typecheck, validate:data, EEG-2027 4/4
 
+### D16 — Praxisfälle Förderrecht M. Schäfer + Ampel-Autotest (Run 2026-07-19)
+- [x] ISC-87: 12 Praxisfälle (Schäfer-PDF b21–b32) als b25–b36 in fragen.yaml; ALLE 36 Fragen tragen pruefung (schema|auslegung|rdg_grenze) + ampel_erwartung; validate:data prüft Benchmark-Konsistenz (Bash)
+- [x] ISC-88: RDG-Ampel-Autotest in evals/run.ts — klassifiziere(frage) vs. ampel_erwartung, 36/36, Mismatch failt CI (Bash)
+- [x] ISC-89: programmauskunft-Engine (Durchführer-Fakten KfW vs. BAFA: Vollmacht, Nießbraucher, Fachplanung, Bearbeitungszeit) + MCP-Tool; SCHEMA-Fälle b33–b36 deterministisch grün, 24/24 gesamt (Bash)
+- [x] ISC-90: ROT-Kategorie anleitung_behoerdenangaben (Behörden-Angaben bei unbelegter Tatsache, § 264 StGB; gilt auch MaStR) mit Nachweiswege-Ersatztext; hatEskalationsziel akzeptiert Energieeffizienz-Experte/BAFA/KfW; Negativ-Tests gegen Formularhilfe-FPs (bun test)
+- [x] ISC-91: GELB-Kategorien subsumtion_foerderbegriffe (eskalation energieberater) + zahlungsverweigerung_strategie (b20-Lücke, eskalation clearingstelle); Compliance-Skill/Agent mit Förder-Eskalationsordnung (BAFA/KfW-FAQ → EEE → Träger; Clearingstelle für Fördersachen unzuständig) (Read/bun test)
+- [x] ISC-92: Session-Judge ohne API-Key — Skill Benchmark, JudgeErgebnisse-Schema, run.ts-Ingestion mit sha256-Stale-Guard und EEGBOT_JUDGE_STRICT=1-Gate (Read/Bash)
+- [x] ISC-93: auslegungshinweise als strukturierte known unknowns in kfw-458/bafa-beg-em (8 offene Praxisfragen mit grundregel/offene_frage/verweis_an); richtlinie-Feld mit naechste_fassung_gueltig_ab 2026-07-21; validate:data warnt ab Inkrafttreten bei offenem Marker (Bash)
+- [ ] ISC-94: BEG-EM-Novelle 21.07.2026 Wortlaut verifiziert (Hybrid-Ausschluss b31, WPB b32, Durchführer-Fakten b33–b35, BAFA-Bearbeitungszeit b36) und Verifikations-Marker aufgelöst (Recherche + Read)
+- [ ] ISC-95: Judge-Probelauf in frischer EEGbot-Session (Skill Benchmark, 12 interpretative Fragen), judge-ergebnisse.json committed, EEGBOT_JUDGE_STRICT=1 grün (Bash)
+
 ## Test Strategy
 
 | isc | type | check | threshold | tool |
@@ -202,6 +213,7 @@ Pitch-Konzept als KB-Dokument.
 | 57–62 | deploy | Agent-Report + Live-Proben | Access vor Key | curl/ssh |
 | 63–67 | doc | Read/Grep der Artefakte | vollständig | Read/Grep |
 | 81–86 | solarspitzen | Engine/Contract/Profil/UI + Browserpfad | 100 % grün | bun/Playwright/Read |
+| 87–95 | benchmark/guardrail | Ampel-Autotest, programmauskunft, Policy-Tests, Judge-Ingestion | 36/36 Ampel, 24/24 det., Tests grün | bun/Bash/Read |
 
 ## Features
 

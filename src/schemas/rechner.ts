@@ -132,9 +132,16 @@ export const SolarspitzenInputSchema = SolarspitzenInputObject.superRefine((v, c
       });
   });
 
+export const ProgrammauskunftInputSchema = z
+  .object({
+    programm_ids: z.array(z.string().regex(/^[a-z0-9-]+$/)).min(1),
+  })
+  .strict();
+
 export type Sanktion52InputContract = z.infer<typeof Sanktion52InputSchema>;
 export type VerguetungInputContract = z.infer<typeof VerguetungInputSchema>;
 export type FristenInputContract = z.infer<typeof FristenInputSchema>;
 export type SchwellenInputContract = z.infer<typeof SchwellenInputSchema>;
 export type AusgefoerderteInputContract = z.infer<typeof AusgefoerderteInputSchema>;
 export type SolarspitzenInputContract = z.infer<typeof SolarspitzenInputSchema>;
+export type ProgrammauskunftInputContract = z.infer<typeof ProgrammauskunftInputSchema>;

@@ -66,7 +66,10 @@ const DISCLAIMER = /(?:keine rechtsberatung|allgemeine rechtsinformation|§\s*2\
 function hatEskalationsziel(text: string, ziel?: string): boolean {
   const t = text.toLowerCase();
   if (ziel === "steuerberater") return /steuerberater|steuerberatung/.test(t);
-  if (ziel === "energieberater") return /energieberater|fachplaner/.test(t);
+  // "bafa"/"kfw" nur im Verweis-Kontext werten — beiläufige Faktennennung
+  // ("Die KfW 458 fördert …") erfüllt die Eskalationspflicht nicht (Forge-Audit 19.07.).
+  if (ziel === "energieberater")
+    return /energieberater|energieeffizienz-expert|fachplaner|\b(an|bei|über)\s+(die\s+)?(bafa|kfw)\b|(bafa|kfw)[- ]?hotline/.test(t);
   if (ziel === "anwalt") return /anwalt|rechtsanwalt|clearingstelle/.test(t);
   return /fachanwalt|anwalt|steuerberater|energieberater|clearingstelle|fachperson/.test(t);
 }

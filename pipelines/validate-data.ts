@@ -8,7 +8,8 @@
  */
 import { readdirSync } from "node:fs";
 import { parse } from "yaml";
-import { Foerderprogramm, Formular, GuardrailPolicy, ParameterDatei, Workflow } from "../src/schemas/index.ts";
+import { z } from "zod";
+import { Foerderprogramm, Formular, GuardrailPolicy, JudgeErgebnisse, ParameterDatei, Workflow } from "../src/schemas/index.ts";
 
 const ROOT = new URL("../data/", import.meta.url).pathname;
 let fehler = 0;
@@ -17,6 +18,8 @@ const fail = (msg: string) => {
   fehler++;
 };
 const ok = (msg: string) => console.log(`✓ ${msg}`);
+/** Mahnung ohne CI-Bruch — für Research-TODOs, die ab einem Stichtag sichtbar werden sollen. */
+const warn = (msg: string) => console.warn(`⚠ ${msg}`);
 
 function dateien(dir: string): string[] {
   try {
@@ -80,6 +83,20 @@ for (const pfad of dateien("programs")) {
     programme.push(p);
     for (const formId of p.antragsweg.benoetigte_formulare)
       if (!formularIds.has(formId)) fail(`programs/${name}: Formular '${formId}' existiert nicht in data/forms/`);
+    const hinweisIds = new Set<string>();
+    for (const h of p.auslegungshinweise) {
+      if (hinweisIds.has(h.id)) fail(`programs/${name}: auslegungshinweis-id '${h.id}' doppelt`);
+      hinweisIds.add(h.id);
+    }
+    const heute = new Date().toISOString().slice(0, 10);
+    if (
+      p.richtlinie?.naechste_fassung_gueltig_ab &&
+      p.richtlinie.naechste_fassung_gueltig_ab <= heute &&
+      /verifizieren/i.test(p.richtlinie.hinweis ?? "")
+    )
+      warn(
+        `programs/${name}: Richtlinien-Novelle seit ${p.richtlinie.naechste_fassung_gueltig_ab} in Kraft, Verifikations-Marker noch offen — Wortlaut prüfen und Daten nachziehen.`,
+      );
     ok(`programs/${name}`);
   } catch (e) {
     fail(`programs/${name}: ${e instanceof Error ? e.message : e}`);
@@ -137,6 +154,59 @@ for (const pfad of dateien("guardrails")) {
     ok(`guardrails/${name}`);
   } catch (e) {
     fail(`guardrails/${name}: ${e instanceof Error ? e.message : e}`);
+  }
+}
+
+// --- Benchmark (evals/benchmark/fragen.yaml) ----------------------------------
+// Kein data/-Artefakt, aber dieselbe Konsistenzpflicht: jede Frage trägt die
+// Klassifikation (pruefung) und die Ampel-Erwartung für den Autotest in evals/run.ts.
+const BenchmarkFrage = z
+  .object({
+    id: z.string().regex(/^b\d{2}$/),
+    typ: z.enum(["deterministisch", "interpretativ"]),
+    pruefung: z.enum(["schema", "auslegung", "rdg_grenze"]),
+    ampel_erwartung: z.enum(["gruen", "gelb", "rot"]),
+    frage: z.string().min(10),
+    engine: z.string().optional(),
+    input: z.record(z.unknown()).optional(),
+    erwartet: z.union([z.object({ pfad: z.string(), wert: z.unknown() }), z.array(z.object({ pfad: z.string(), wert: z.unknown() })).min(1)]).optional(),
+    erwartet_fehler: z.string().optional(),
+    fehlermodell: z.string().optional(),
+    gold_antwort: z.string().optional(),
+    bewertungskriterien: z.array(z.string()).optional(),
+    quelle: z.string().optional(),
+  })
+  .strict();
+
+const benchmarkPfad = new URL("../evals/benchmark/fragen.yaml", import.meta.url).pathname;
+try {
+  const fragen = z.array(BenchmarkFrage).parse(parse(await Bun.file(benchmarkPfad).text()));
+  const ids = new Set<string>();
+  for (const f of fragen) {
+    if (ids.has(f.id)) fail(`benchmark: id '${f.id}' doppelt`);
+    ids.add(f.id);
+    if (f.typ === "deterministisch" && (!f.engine || (!f.erwartet && !f.erwartet_fehler)))
+      fail(`benchmark ${f.id}: deterministisch ohne engine oder Goldwert/Goldfehler`);
+    if (f.typ === "interpretativ" && (!f.gold_antwort || !f.bewertungskriterien?.length))
+      fail(`benchmark ${f.id}: interpretativ ohne gold_antwort/bewertungskriterien`);
+    if (f.pruefung === "schema" && f.ampel_erwartung !== "gruen")
+      fail(`benchmark ${f.id}: pruefung=schema verlangt ampel_erwartung=gruen`);
+    if (f.pruefung !== "schema" && f.ampel_erwartung === "gruen")
+      fail(`benchmark ${f.id}: pruefung=${f.pruefung} verlangt ampel_erwartung gelb|rot`);
+  }
+  ok(`benchmark/fragen.yaml (${fragen.length} Fragen)`);
+} catch (e) {
+  fail(`benchmark/fragen.yaml: ${e instanceof Error ? e.message : e}`);
+}
+
+// --- Judge-Ergebnisse (optional) ----------------------------------------------
+const judgePfad = new URL("../evals/benchmark/judge-ergebnisse.json", import.meta.url).pathname;
+if (await Bun.file(judgePfad).exists()) {
+  try {
+    JudgeErgebnisse.parse(JSON.parse(await Bun.file(judgePfad).text()));
+    ok("benchmark/judge-ergebnisse.json");
+  } catch (e) {
+    fail(`benchmark/judge-ergebnisse.json: ${e instanceof Error ? e.message : e}`);
   }
 }
 

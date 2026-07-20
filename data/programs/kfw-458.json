@@ -68,12 +68,104 @@
     { "bezeichnung": "Bestätigung zum Antrag (BzA)", "beschreibung": "Vor Antragstellung durch Energieeffizienz-Experten oder Fachunternehmer erstellen lassen." },
     { "bezeichnung": "Verwendungsnachweis (BnD)", "beschreibung": "Nach Umsetzung: Bestätigung nach Durchführung einreichen, dann Auszahlung." }
   ],
+  "antragstellung": {
+    "antragsteller_persoenlich_erforderlich": true,
+    "vollmacht_durch_eee_moeglich": false,
+    "hinweis": "Antrag nur durch die antragstellende Person selbst über das Portal 'Meine KfW' — keine Antragstellung durch Dritte/Energieeffizienz-Experten per Vollmacht (anders BAFA BEG EM).",
+    "quelle": { "bezeichnung": "Praxis EEE M. Schäfer (PDF 17.07.2026) — KfW-458-Merkblatt-Wortlaut verifizieren", "abgerufen_am": "2026-07-17" }
+  },
+  "antragsberechtigte": {
+    "eigentuemer": true,
+    "niessbrauchsberechtigter": false,
+    "hinweis": "KfW 458 nur für (Mit-)Eigentümer; Nießbrauchsberechtigte sind nicht antragsberechtigt (anders BAFA BEG EM).",
+    "quelle": { "bezeichnung": "Praxis EEE M. Schäfer (PDF 17.07.2026) — KfW-458-Merkblatt-Wortlaut verifizieren", "abgerufen_am": "2026-07-17" }
+  },
+  "foerderfaehige_nebenkosten": [
+    {
+      "posten": "fachplanung_baubegleitung",
+      "foerderfaehig": false,
+      "hinweis": "Energetische Fachplanung und Baubegleitung ist in KfW 458 KEIN eigener Förderposten (anders BAFA BEG EM).",
+      "quelle": { "bezeichnung": "Praxis EEE M. Schäfer (PDF 17.07.2026) — KfW-458-Merkblatt-Wortlaut verifizieren", "abgerufen_am": "2026-07-17" }
+    }
+  ],
+  "auslegungshinweise": [
+    {
+      "id": "etagen_zentral_klimabonus",
+      "thema": "Etagen- vs. Zentralheizung beim Klimageschwindigkeits-Bonus",
+      "frage": "Zwei getrennte Gasheizungen im Keller, eine bereitet das Warmwasser für beide Wohnungen — gilt die 20-Jahre-Altersgrenze?",
+      "grundregel": "Der Klimageschwindigkeits-Bonus setzt am Ersatz einer funktionsfähigen fossilen Heizung an; für Etagenheizungen entfällt die 20-Jahre-Altersgrenze, für Zentralheizungen gilt sie.",
+      "offene_frage": "Zwei getrennte Heizungen sprechen für Etagenheizung, zentrale Warmwasserbereitung für beide Wohnungen ist ein zentralheizungstypisches Merkmal — die Abgrenzung ist nicht eindeutig geregelt.",
+      "verweis_an": ["kfw", "bafa", "energieeffizienz_experte"],
+      "quelle": { "bezeichnung": "Praxis EEE M. Schäfer (PDF 17.07.2026, Fall b21)", "abgerufen_am": "2026-07-17" },
+      "stand": "2026-07-17"
+    },
+    {
+      "id": "klimabonus_ehepartner_getrennt",
+      "thema": "Klimageschwindigkeits-Bonus bei getrennt wohnenden Ehepartnern",
+      "frage": "Ehepartner mit zwei getrennten selbstgenutzten Wohnungen im selben Haus — Bonus einmal oder zweimal?",
+      "grundregel": "Der Bonus ist nur für EINE selbstgenutzte Wohneinheit möglich; Ehepartner erhalten ihn zusammen ebenfalls nur einmal.",
+      "offene_frage": "Zwei getrennte selbstgenutzte Wohnsitze zweier Ehepartner sind ein nicht klar geregelter Sonderfall.",
+      "verweis_an": ["kfw", "bafa", "energieeffizienz_experte"],
+      "quelle": { "bezeichnung": "Praxis EEE M. Schäfer (PDF 17.07.2026, Fall b22)", "abgerufen_am": "2026-07-17" },
+      "stand": "2026-07-17"
+    },
+    {
+      "id": "funktionsfaehig_teildefekt",
+      "thema": "'funktionsfähig' bei defektem Warmwasserspeicher",
+      "frage": "Warmwasserspeicher defekt, Heizung läuft — zählt die Altanlage noch als funktionsfähig?",
+      "grundregel": "KfW 458 bzw. der Klimageschwindigkeits-Bonus setzen eine funktionsfähige fossile Heizungsanlage voraus.",
+      "offene_frage": "Ob ein defekter Trinkwarmwasserspeicher die Funktionsfähigkeit der Heizung berührt, ist nicht trennscharf definiert.",
+      "verweis_an": ["kfw", "energieeffizienz_experte"],
+      "quelle": { "bezeichnung": "Praxis EEE M. Schäfer (PDF 17.07.2026, Fall b24)", "abgerufen_am": "2026-07-17" },
+      "stand": "2026-07-17"
+    },
+    {
+      "id": "ueberwiegend_heizen_nachweis",
+      "thema": "'überwiegend Heizen' bei kühlfähiger Multi-Split-Wärmepumpe",
+      "frage": "Wie wird 'überwiegend zum Heizen genutzt' nachgewiesen — Totalsumme der Betriebsstunden oder Jahresdurchschnitt?",
+      "grundregel": "Kühlfähige Luft-Luft-Wärmepumpen werden nur gefördert, wenn sie überwiegend zum Heizen genutzt werden.",
+      "offene_frage": "Der Nachweisweg ist ungeklärt: selbst mit geräteinternem Stundenzähler ist offen, ob Totalsumme oder Jahresbetrachtung maßgeblich ist.",
+      "verweis_an": ["bafa", "kfw", "energieeffizienz_experte"],
+      "quelle": { "bezeichnung": "Praxis EEE M. Schäfer (PDF 17.07.2026, Fall b25)", "abgerufen_am": "2026-07-17" },
+      "stand": "2026-07-17"
+    },
+    {
+      "id": "hybrid_ee_ausschluss_ab_2026_07_21",
+      "thema": "Hybridsystem (fossil + EE) unter der BEG-EM-Novelle ab 21.07.2026",
+      "frage": "Neue Ausschlussregel: keine WP-Förderung bei vorhandenem EE-Erzeuger — was gilt für ein bestehendes Hybridsystem aus Gaskessel und EE-Erzeuger?",
+      "grundregel": "Die BEG-EM-Novelle (gültig ab 21.07.2026) schließt die WP-Förderung aus, wenn bereits ein erneuerbarer Wärmeerzeuger vorhanden ist (z. B. Fernwärme).",
+      "offene_frage": "Ob ein bestehendes Hybridsystem (fossil + EE) den Ausschluss auslöst, ist nicht eindeutig geregelt. Richtlinien-Wortlaut ab 21.07.2026 VOR finaler Nutzung verifizieren.",
+      "verweis_an": ["bafa", "kfw", "energieeffizienz_experte"],
+      "quelle": { "bezeichnung": "Praxis EEE M. Schäfer (PDF 17.07.2026, Fall b27) — Novellen-Wortlaut verifizieren", "abgerufen_am": "2026-07-17" },
+      "stand": "2026-07-17"
+    },
+    {
+      "id": "wpb_bonus_mechanik",
+      "thema": "Worst-Performing-Building-Bonus (WPB) — Anwendungsmechanik",
+      "frage": "Gibt es einen Bonus für besonders schlechte Gebäude, und wie wird er angewendet?",
+      "grundregel": "Ein WPB-Bonus existiert in der BEG-Systematik für energetisch besonders schlechte Gebäude; er ist NICHT Teil der hier erfassten Einzelmaßnahmen-Konditionen — Konditionen dürfen nicht erfunden werden.",
+      "offene_frage": "Voraussetzungen und Zusammenspiel mit anderen Boni sind in der neuen BEG-EM-Richtlinie nach Praxiseinschätzung nicht trennscharf; Wortlaut verifizieren.",
+      "verweis_an": ["bafa", "kfw", "energieeffizienz_experte"],
+      "quelle": { "bezeichnung": "Praxis EEE M. Schäfer (PDF 17.07.2026, Fall b28) — Novellen-Wortlaut verifizieren", "abgerufen_am": "2026-07-17" },
+      "stand": "2026-07-17"
+    }
+  ],
+  "richtlinie": {
+    "fassung": "BEG EM (Heizungsförderung), Stand 2024",
+    "gueltig_ab": "2024-01-01",
+    "naechste_fassung_gueltig_ab": "2026-07-21",
+    "hinweis": "BEG-EM-Novelle zum 21.07.2026 angekündigt (u. a. EE-Erzeuger-Ausschluss für WP-Förderung, WPB-Bonus-Mechanik) — Wortlaut VOR finaler Nutzung verifizieren (analog BGBl.-Marker)."
+  },
   "quellen": [
     {
       "bezeichnung": "KfW 458 Programmseite / Merkblatt",
       "url": "https://www.kfw.de/inlandsfoerderung/Privatpersonen/Bestandsimmobilie/F%C3%B6rderprodukte/Heizungsf%C3%B6rderung-f%C3%BCr-Privatpersonen-Wohngeb%C3%A4ude-(458)/",
       "abgerufen_am": "2026-06-12"
+    },
+    {
+      "bezeichnung": "Praxis-Challenges Förderrecht Wärmepumpe & BEG — Martin Schäfer, Energieeffizienz-Experte (PDF)",
+      "abgerufen_am": "2026-07-17"
     }
   ],
-  "zuletzt_geprueft": "2026-06-12"
+  "zuletzt_geprueft": "2026-07-17"
 }

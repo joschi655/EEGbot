@@ -1,5 +1,70 @@
 # Worklog
 
+## 2026-07-19 — Praxisfälle M. Schäfer: Benchmark b25–b36, Ampel-Autotest, Förder-Guardrails, Programmauskunft, Session-Judge
+
+**Anlass:** Martin Schäfer (Energieeffizienz-Experte, Sophias Vater) lieferte
+12 Praxis-Testfälle Förderrecht Wärmepumpe/BEG (PDF 17.07.2026, dort b21–b32) —
+die bestellte Lieferung aus Onboarding-Brief §3.1/§3.4. Kernidee übernommen und
+verallgemeinert: „Die Klassifikation ist der eigentliche Test."
+
+- **Benchmark v0.4 (36 Fragen):** Die 12 Fälle als b25–b36 integriert (Repo-b21–b24
+  waren schon durch adversariale Fehlermodelle belegt; Mapping im Dateikopf).
+  ALLE Fragen tragen jetzt `pruefung: schema|auslegung|rdg_grenze` und
+  `ampel_erwartung`; `validate:data` prüft die Benchmark-Konsistenz mit.
+- **Ampel-Autotest:** `evals/run.ts` klassifiziert jeden Fragetext deterministisch
+  gegen die RDG-Ampel und vergleicht mit `ampel_erwartung` — 36/36, Mismatch failt
+  CI. Sichert die Kopplung Policy ↔ Fragetexte ↔ Erwartung (nicht die Welt-
+  Abdeckung durch Paraphrasen — bekannte lexikalische Grenze).
+- **Guardrail-Policy v0.2.0:** Neue ROT-Kategorie `anleitung_behoerdenangaben`
+  („was soll ich angeben?" bei unbelegter Tatsache, § 264 StGB — gilt für
+  Förderanträge UND MaStR), Ersatztext = 4 belegbare Nachweiswege. Neue GELB-
+  Kategorien `subsumtion_foerderbegriffe` (funktionsfähig, überwiegend Heizen,
+  Etagenheizung, WPB … → Energieberater) und `zahlungsverweigerung_strategie`
+  (schließt die b20-Lücke: „zahle ich einfach nicht" war bisher GRÜN → jetzt GELB;
+  Verhaltensänderung im Live-Hook, gewollt). Fix `hatEskalationsziel`: akzeptiert
+  jetzt auch „Energieeffizienz-Experte"/BAFA/KfW als Eskalationsziel energieberater
+  — vorher scheiterten korrekte Förder-Antworten am Stop-Hook.
+- **Datenmodell:** `data/programs/` um Durchführer-Fakten erweitert (antragstellung/
+  Vollmacht, antragsberechtigte/Nießbraucher, foerderfaehige_nebenkosten/
+  Fachplanung, bearbeitungszeiten mit `kein_rechtsanspruch: true`) plus
+  `auslegungshinweise` = strukturierte known unknowns (8 offene Praxisfragen mit
+  Grundregel/offener Frage/Verweis) und `richtlinie`-Feld mit
+  `naechste_fassung_gueltig_ab: 2026-07-21` (BEG-EM-Novelle; validate:data warnt ab
+  Inkrafttreten bei offenem Verifikations-Marker). Alle Schäfer-Fakten tragen
+  Quelle + „Merkblatt-Wortlaut verifizieren"-Marker. Bewusst NICHT modelliert:
+  20-Jahre-Grenze/Hybrid-Ausschluss als harte Bedingungen (Auslegung ungeklärt,
+  Novelle unverifiziert), WPB-Bonus, Gebäudenetz-Programm, GEG (Scope-Leitplanke
+  Vision.md: kein GEG-Einstieg, keine neuen Rechtsbereiche).
+- **Neue Engine `programmauskunft`:** deterministisches Lookup der Durchführer-
+  Fakten (Arrays→Maps für stabile Goldpfade), MCP-Tool im eeg-foerder-Server;
+  macht die SCHEMA-Fälle b33–b36 automatisch prüfbar. `erwartet` in fragen.yaml
+  kann jetzt ein Array sein (alle Goldwerte müssen passen).
+- **Session-Judge ohne API-Key:** Skill `Benchmark` — je interpretativer Frage ein
+  frischer Subagent (bekommt nur den Fragetext, Gold/Kriterien nie), Judge bewertet
+  binär je Kriterium, Ergebnis nach Schema `JudgeErgebnisse` in
+  `evals/benchmark/judge-ergebnisse.json`; run.ts liest sie mit sha256-Stale-Guard.
+  CI failt nur mit `EEGBOT_JUDGE_STRICT=1` (Pre-Pitch-Gate). Isolation ist
+  prompt-basiert (ehrlich dokumentiert). Probelauf in frischer EEGbot-Session offen
+  (ISC-95).
+- **Compliance-Skill/Agent:** Förder-Eskalationsordnung ergänzt (BAFA/KfW-FAQ →
+  gelisteter EEE → Träger-Anfrage; Clearingstelle für Fördersachen unzuständig)
+  + Behörden-Angaben-Regel + auslegungshinweise als Formulierungsgrundlage.
+- **Forge-Audit (GPT-5.4):** kein CRITICAL; 2 MAJOR gefunden und behoben:
+  (1) trennbare Verben/Synonyme umgingen die ROT-Regex („Was trage ich … ein?",
+  „Welches Jahr nenne ich?" blieben grün) → zusätzliches Muster
+  Unkenntnis-Marker + Erst-Person-Verbstamm, Marker „weiß … nicht" jetzt
+  satzintern distanztolerant; (2) `hatEskalationsziel` wertete beiläufige
+  KfW-/BAFA-Nennung („Die KfW 458 fördert …") als erfüllte Eskalationspflicht →
+  nur noch Verweis-Kontext („an/bei die BAFA", „KfW-Hotline") zählt. Plus MINOR:
+  leeres `erwartet: []` kann nicht mehr vakuum-bestehen (run.ts-Guard +
+  `.min(1)` in validate-data). Alle Befunde mit Regressionstests abgedeckt.
+- **Verifikation:** typecheck grün; bun test 167/167 (+17); validate:data grün
+  inkl. Benchmark-Check (36 Fragen); `bun run evals` deterministisch 24/24,
+  Ampel-Autotest 36/36, 12 interpretativ gelistet; e2e 8/8; Hook-Smoke: ROT-Fall
+  b27 wird live im UserPromptSubmit-Hook mit Nachweiswege-Ersatztext geblockt.
+- **Offen:** ISC-94 (BEG-EM-Novelle 21.07. + Merkblatt-Fakten verifizieren,
+  Marker auflösen), ISC-95 (Judge-Probelauf + judge-ergebnisse.json committen).
+
 ## 2026-07-16 — Claude-Code-Agenten, Output-Guardrail und Datenschutz
 
 **Anlass:** Audit des tatsächlichen Claude-Code-Toolflusses und Entscheidung,

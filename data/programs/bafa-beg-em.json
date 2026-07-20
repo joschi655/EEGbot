@@ -41,12 +41,64 @@
   "fristen": [
     { "bezeichnung": "Bewilligungszeitraum", "beschreibung": "Umsetzung innerhalb des Bewilligungszeitraums (i. d. R. 36 Monate), Verwendungsnachweis danach." }
   ],
+  "antragstellung": {
+    "antragsteller_persoenlich_erforderlich": false,
+    "vollmacht_durch_eee_moeglich": true,
+    "hinweis": "Antragstellung durch den bevollmächtigten Energieeffizienz-Experten ist beim BAFA möglich (anders KfW 458: dort nur persönlich über 'Meine KfW').",
+    "quelle": { "bezeichnung": "Praxis EEE M. Schäfer (PDF 17.07.2026) — BAFA-Merkblatt-Wortlaut verifizieren", "abgerufen_am": "2026-07-17" }
+  },
+  "antragsberechtigte": {
+    "eigentuemer": true,
+    "niessbrauchsberechtigter": true,
+    "hinweis": "Beim BAFA kann auch ein Nießbrauchsberechtigter den Antrag stellen (anders KfW 458: nur Eigentümer).",
+    "quelle": { "bezeichnung": "Praxis EEE M. Schäfer (PDF 17.07.2026) — BAFA-Merkblatt-Wortlaut verifizieren", "abgerufen_am": "2026-07-17" }
+  },
+  "foerderfaehige_nebenkosten": [
+    {
+      "posten": "fachplanung_baubegleitung",
+      "foerderfaehig": true,
+      "hinweis": "Energetische Fachplanung und Baubegleitung ist beim BAFA (BEG EM) ein eigener förderfähiger Posten (Fördersatz/Höchstbetrag im Merkblatt verifizieren); bei KfW 458 nicht.",
+      "quelle": { "bezeichnung": "Praxis EEE M. Schäfer (PDF 17.07.2026) — BAFA-Merkblatt-Wortlaut verifizieren", "abgerufen_am": "2026-07-17" }
+    }
+  ],
+  "bearbeitungszeiten": [
+    {
+      "bereich": "gebaeudenetze",
+      "praxis_monate_min": 6,
+      "kein_rechtsanspruch": true,
+      "hinweis": "Förderanträge zu Gebäudenetzen haben beim BAFA nach Praxiserfahrung eine Bearbeitungszeit von über sechs Monaten — Planungsgröße, kein Rechtsanspruch auf eine bestimmte Dauer; aktuellen Stand beim BAFA prüfen.",
+      "quelle": { "bezeichnung": "Praxis EEE M. Schäfer, Stand 17.07.2026 — aktuellen Stand verifizieren", "abgerufen_am": "2026-07-17" },
+      "stand": "2026-07-17"
+    }
+  ],
+  "auslegungshinweise": [
+    {
+      "id": "isfp_wirtschaftliche_unabhaengigkeit",
+      "thema": "'Wirtschaftliche Unabhängigkeit' der geförderten iSFP-Beratung (BAFA EBW)",
+      "frage": "Was heißt 'wirtschaftlich unabhängig' beim geförderten Energieberater genau?",
+      "grundregel": "Die Beratungsförderung verlangt Neutralität/Unabhängigkeit des Energieberaters — keine wirtschaftlichen Eigeninteressen am empfohlenen Ergebnis (keine Kopplung an Produktverkauf/Provision).",
+      "offene_frage": "Die exakte Reichweite im Einzelfall (z. B. Kooperationen des Beraters) ist auslegungsbedürftig.",
+      "verweis_an": ["bafa", "energieeffizienz_experte"],
+      "quelle": { "bezeichnung": "Praxis EEE M. Schäfer (PDF 17.07.2026, Fall b26)", "abgerufen_am": "2026-07-17" },
+      "stand": "2026-07-17"
+    }
+  ],
+  "richtlinie": {
+    "fassung": "BEG EM (Einzelmaßnahmen), Stand 2024",
+    "gueltig_ab": "2024-01-01",
+    "naechste_fassung_gueltig_ab": "2026-07-21",
+    "hinweis": "BEG-EM-Novelle zum 21.07.2026 angekündigt — Wortlaut VOR finaler Nutzung verifizieren (analog BGBl.-Marker)."
+  },
   "quellen": [
     {
       "bezeichnung": "BAFA BEG EM Förderübersicht",
       "url": "https://www.bafa.de/DE/Energie/Effiziente_Gebaeude/Foerderprogramm_im_Ueberblick/foerderprogramm_im_ueberblick_node.html",
       "abgerufen_am": "2026-06-12"
+    },
+    {
+      "bezeichnung": "Praxis-Challenges Förderrecht Wärmepumpe & BEG — Martin Schäfer, Energieeffizienz-Experte (PDF)",
+      "abgerufen_am": "2026-07-17"
     }
   ],
-  "zuletzt_geprueft": "2026-06-12"
+  "zuletzt_geprueft": "2026-07-17"
 }

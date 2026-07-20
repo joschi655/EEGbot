@@ -10,6 +10,28 @@ import { Bedingung, IsoDate, Quelle } from "./common.ts";
 export const Bundesland = z.enum(["BW", "BY", "BE", "BB", "HB", "HH", "HE", "MV", "NI", "NW", "RP", "SL", "SN", "ST", "SH", "TH"]);
 export type Bundesland = z.infer<typeof Bundesland>;
 
+/**
+ * Bekannte offene Auslegungsfrage eines Programms — strukturierte "known unknowns".
+ * Das Tool benennt, was es NICHT weiß: Grundregel ist belegbar, die Reichweite im
+ * Einzelfall nicht. Antworten dazu müssen die Grenze kennzeichnen und verweisen
+ * (Compliance-Skill nutzt diese Einträge als Formulierungsgrundlage).
+ */
+export const Auslegungshinweis = z.object({
+  id: z.string().regex(/^[a-z0-9_]+$/),
+  thema: z.string(),
+  frage: z.string(), // die offene Praxisfrage in Laienformulierung
+  grundregel: z.string(), // was belegbar gilt
+  offene_frage: z.string(), // was ungeregelt/auslegungsbedürftig ist
+  verweis_an: z
+    .array(z.enum(["bafa", "kfw", "energieeffizienz_experte", "clearingstelle", "anwalt", "steuerberater"]))
+    .min(1),
+  /** Optionaler Fall-Trigger für künftiges Matcher-Surfacing — derzeit ungenutzt. */
+  bedingung: Bedingung.optional(),
+  quelle: Quelle.optional(),
+  stand: IsoDate,
+});
+export type Auslegungshinweis = z.infer<typeof Auslegungshinweis>;
+
 export const Foerderprogramm = z.object({
   id: z.string().regex(/^[a-z0-9-]+$/), // z. B. "kfw-458"
   name: z.string(),
@@ -73,6 +95,72 @@ export const Foerderprogramm = z.object({
   }),
 
   fristen: z.array(z.object({ bezeichnung: z.string(), beschreibung: z.string(), datum: IsoDate.optional() })).default([]),
+
+  /** Wer reicht den Antrag ein — Durchführer-Fakt (KfW 458: nur selbst via "Meine KfW"; BAFA: EEE per Vollmacht). */
+  antragstellung: z
+    .object({
+      antragsteller_persoenlich_erforderlich: z.boolean(),
+      vollmacht_durch_eee_moeglich: z.boolean(),
+      hinweis: z.string().optional(),
+      quelle: Quelle.optional(),
+    })
+    .optional(),
+
+  /** Antragsberechtigte Rollen — explizite Negative erwünscht (Nießbraucher: KfW nein, BAFA ja). */
+  antragsberechtigte: z
+    .object({
+      eigentuemer: z.boolean().optional(),
+      niessbrauchsberechtigter: z.boolean().optional(),
+      mieter: z.boolean().optional(),
+      weg: z.boolean().optional(),
+      hinweis: z.string().optional(),
+      quelle: Quelle.optional(),
+    })
+    .optional(),
+
+  /** Förderfähige Nebenkosten als eigene Posten (Fachplanung/Baubegleitung: BAFA ja, KfW 458 nein). */
+  foerderfaehige_nebenkosten: z
+    .array(
+      z.object({
+        posten: z.enum(["fachplanung_baubegleitung", "sonstiges"]),
+        foerderfaehig: z.boolean(),
+        hinweis: z.string().optional(),
+        quelle: Quelle.optional(),
+      }),
+    )
+    .default([]),
+
+  /** Praxis-Bearbeitungszeiten je Bereich — Planungsgröße, kein Rechtsanspruch. */
+  bearbeitungszeiten: z
+    .array(
+      z.object({
+        bereich: z.string(), // z. B. "gebaeudenetze"
+        praxis_monate_min: z.number().optional(),
+        kein_rechtsanspruch: z.literal(true), // erzwingt die ehrliche Kennzeichnung
+        hinweis: z.string(),
+        quelle: Quelle,
+        stand: IsoDate,
+      }),
+    )
+    .default([]),
+
+  /** Bekannte offene Auslegungsfragen des Programms. */
+  auslegungshinweise: z.array(Auslegungshinweis).default([]),
+
+  /**
+   * Minimale Richtlinien-Versionierung (kein Snapshot-System): welche Fassung die
+   * Daten abbilden und ab wann eine Novelle gilt. validate:data warnt, sobald
+   * naechste_fassung_gueltig_ab erreicht ist und der Verifikations-Marker noch offen ist.
+   */
+  richtlinie: z
+    .object({
+      fassung: z.string(), // z. B. "BEG EM (Heizungsförderung), Stand 2024"
+      gueltig_ab: IsoDate,
+      naechste_fassung_gueltig_ab: IsoDate.optional(),
+      hinweis: z.string().optional(), // "… VOR finaler Nutzung verifizieren" (analog BGBl.-Marker)
+    })
+    .optional(),
+
   quellen: z.array(Quelle).min(1),
   zuletzt_geprueft: IsoDate,
 });

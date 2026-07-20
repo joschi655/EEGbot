@@ -1,4 +1,4 @@
-version: "0.1.0"
+version: "0.2.0"
 default_ampel: gruen
 disclaimer: >
   EEG-Kompass liefert allgemeine Rechtsinformationen auf Kategorie-Ebene und
@@ -43,6 +43,27 @@ kategorien:
       Musterverträge der Verbände verweisen (BSW-Solar Musterstromliefervertrag,
       BDEW-Anwendungshilfen) und erklären, welche Punkte üblicherweise geregelt werden.
 
+  - id: anleitung_behoerdenangaben
+    ampel: rot
+    regex: true
+    beschreibung: "Empfehlung konkreter Angaben gegenüber Behörden/Förderstellen (BAFA, KfW, MaStR, Netzbetreiber), wenn die wahre Tatsache unbekannt ist oder geschätzt/erfunden werden soll"
+    muster:
+      - '(unbekannt|nicht bekannt|wei(ß|ss)[^.!?]{0,40}nicht|nicht mehr nachvollzieh|keine unterlagen|keine daten)[\s\S]{0,200}(angeben|eintragen|in den antrag|ins (formular|portal))'
+      - '(was|welches datum|welchen wert|welches jahr)[\s\S]{0,80}(angeben|eintragen)[\s\S]{0,120}(unbekannt|nicht bekannt|wei(ß|ss)[^.!?]{0,40}nicht)'
+      - '(irgendein\w*|gesch(ä|ae)tzt\w*)\s+(datum|wert|jahr|baujahr)[\s\S]{0,60}(angeben|eintragen)'
+      - 'kann ich[\s\S]{0,40}(sch(ä|ae)tzen|erfinden|ausdenken)[\s\S]{0,80}(antrag|formular|bafa|kfw|mastr)'
+      - '(unbekannt|nicht bekannt|wei(ß|ss)[^.!?]{0,40}nicht|keine unterlagen|keine daten|nicht mehr nachvollzieh)[\s\S]{0,200}\b(gebe|trage|schreibe|nenne|setze|sch(ä|ae)tze)\b'
+    begruendung: "Anleitung zu potenziell unrichtigen Angaben gegenüber Behörden/Förderstellen berührt § 264 StGB (Subventionsbetrug) und überschreitet die Grenze zulässiger Rechtsinformation (§ 2 RDG). Gilt für Förderanträge ebenso wie für MaStR-/Netzbetreiber-Meldungen."
+    eskalation_an: energieberater
+    ersatztext: >
+      Ich darf nicht empfehlen, welche Angabe Sie machen sollen, wenn die Tatsache
+      nicht belegt ist — unrichtige Angaben im Förderantrag können als Subventionsbetrug
+      (§ 264 StGB) gewertet werden. Die Tatsache lässt sich aber oft ermitteln,
+      z. B. bei einem Inbetriebnahmedatum: (1) Bauunterlagen/Rechnung der Installation,
+      (2) Feuerstättenbescheid bzw. Schornsteinfeger-Protokolle, (3) Typenschild
+      (Herstellungsjahr), (4) Herstellerdatenbank über die Seriennummer. Ein gelisteter
+      Energieeffizienz-Experte oder die BAFA-/KfW-Hotline hilft bei der Einordnung.
+
   # ── GELB: Compliance-Agent prüft Formulierung ───────────────────────
   - id: subsumtion_unbestimmter_begriffe
     ampel: gelb
@@ -56,6 +77,33 @@ kategorien:
     muster: ["kundenanlage", "migration", "repowering entscheidung", "investitionsentscheidung", "soll ich investieren"]
     begruendung: "Hohe wirtschaftliche Tragweite; Kategorien-Vergleich ok, Empfehlung nur mit Eskalationshinweis."
     eskalation_an: energieberater
+  - id: subsumtion_foerderbegriffe
+    ampel: gelb
+    beschreibung: "Auslegung unbestimmter Förder-Begriffe (BEG EM / KfW 458): Grundregel nennen, offene Frage kennzeichnen, an BAFA/KfW/Energieeffizienz-Experten verweisen"
+    muster:
+      - "etagenheizung"
+      - "noch funktionsfähig"
+      - "als funktionsfähig"
+      - "trotzdem funktionsfähig"
+      - "überwiegend heizen"
+      - "überwiegend zum heizen"
+      - "wirtschaftlich unabhängig"
+      - "wirtschaftliche unabhängigkeit"
+      - "worst performing building"
+      - "wpb-bonus"
+      - "hybridsystem"
+      - "hybridheizung"
+      - "getrennt wohnend"
+      - "getrennte wohnsitze"
+      - "jeder in einer eigenen wohnung"
+    begruendung: "Kategorie-Info erlaubt; die Reichweite dieser Richtlinienbegriffe ist ungeregelt (siehe auslegungshinweise in data/programs) — Grundregel + Kennzeichnung der offenen Frage + Verweis an Förderstelle/EEE Pflicht."
+    eskalation_an: energieberater
+  - id: zahlungsverweigerung_strategie
+    ampel: gelb
+    beschreibung: "Zahlungsverweigerungs-Strategie im streitigen Fall (z. B. §52-Forderung des Netzbetreibers)"
+    muster: ["zahle ich einfach nicht", "einfach nicht zahlen", "einfach nicht bezahlen", "muss ich das überhaupt zahlen"]
+    begruendung: "Strategie-Empfehlung im streitigen Zahlungsfall = RDG-Grenze; Information über Verjährung/Heilung + Verfahrenswege zulässig."
+    eskalation_an: clearingstelle
 
   # ── GRÜN: explizit erlaubt (dokumentiert das erlaubte Spektrum) ──────
   - id: rechtsinformation

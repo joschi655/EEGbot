@@ -5,6 +5,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 import { formulareFuerFall, ladeFormulare, matcheProgramme, pruefeKumulierung } from "../../src/rules/foerderMatcher.ts";
 import { erstelleFahrplan, renderFahrplanMarkdown } from "../../src/rules/fahrplan.ts";
+import { programmauskunft } from "../../src/rules/programmauskunft.ts";
 
 const server = new McpServer({ name: "eeg-foerder", version: "0.1.0" });
 const json = (x: unknown) => ({ content: [{ type: "text" as const, text: JSON.stringify(x, null, 1) }] });
@@ -32,6 +33,16 @@ server.registerTool(
     const fahrplan = await erstelleFahrplan(fall);
     return json({ fahrplan, markdown: renderFahrplanMarkdown(fahrplan) });
   },
+);
+
+server.registerTool(
+  "programmauskunft",
+  {
+    description:
+      "Deterministische Programm-Fakten je Durchführer (KfW vs. BAFA): Antragstellung/Vollmacht, Antragsberechtigte (z. B. Nießbraucher), förderfähige Nebenkosten (Fachplanung/Baubegleitung), Praxis-Bearbeitungszeiten und BEKANNTE OFFENE AUSLEGUNGSFRAGEN — jeweils mit Quelle + Stand. Bei Auslegungsfragen: Grundregel nennen, Grenze offenlegen, an verweis_an eskalieren; niemals Konditionen erfinden.",
+    inputSchema: { programm_ids: z.array(z.string()).min(1).describe("Programm-IDs, z. B. ['kfw-458', 'bafa-beg-em']") },
+  },
+  async ({ programm_ids }) => json(await programmauskunft({ programm_ids })),
 );
 
 server.registerTool(

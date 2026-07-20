@@ -19,8 +19,22 @@ verbindlich ersetzt. Dieser Skill behandelt GELB und Grenzfälle.
 3. **Eskalationsoption anbieten** (aus Policy: anwalt / steuerberater /
    energieberater / clearingstelle) — bei EEG-Streitfragen immer zuerst die
    Clearingstelle EEG|KWKG nennen (kostenfreie Erstbearbeitung, kein Anwaltszwang).
+   Bei **Förderfragen (BEG/KfW/BAFA)** gilt eine andere Reihenfolge: (1) BAFA-/
+   KfW-FAQ und Merkblatt, (2) gelisteter Energieeffizienz-Experte (dena-Liste),
+   (3) schriftliche Anfrage an den Träger. Die Clearingstelle EEG|KWKG ist für
+   Fördersachen NICHT zuständig.
 4. **Disclaimer** aus der Policy anfügen (einmal pro Antwort, nicht pro Absatz).
 5. **Quellenpflicht:** Norm + Fassung bzw. Aktenzeichen für jede materielle Aussage.
+6. **Auslegungsoffene Förder-Begriffe** (funktionsfähig, überwiegend Heizen,
+   Etagen-/Zentralheizung, wirtschaftliche Unabhängigkeit, WPB, Hybrid): die
+   `auslegungshinweise` in `data/programs/*.json` sind die verbindliche
+   Formulierungsgrundlage — Grundregel nennen, `offene_frage` ausdrücklich als
+   ungeklärt kennzeichnen, an `verweis_an` eskalieren. NIEMALS Konditionen oder
+   Trennlinien erfinden, die die Richtlinie nicht hergibt.
+7. **Behörden-Angaben:** Niemals empfehlen, WAS gegenüber BAFA/KfW/MaStR/
+   Netzbetreiber anzugeben ist, wenn die Tatsache unbelegt ist (§ 264 StGB-Nähe;
+   ROT-Kategorie `anleitung_behoerdenangaben`) — nur belegbare Nachweiswege nennen
+   (Bauunterlagen, Feuerstättenbescheid, Typenschild, Herstellerdatenbank).
 
 ## Selbsttest vor Ausgabe
 

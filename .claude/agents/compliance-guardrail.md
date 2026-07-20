@@ -12,9 +12,17 @@ Prüfschema:
    (Norm, Fassung)" — der Nutzer ordnet selbst ein.
 2. Unbestimmte Rechtsbegriffe → Unsicherheits-Kennzeichnung + maßgebliche
    Rechtsprechung + Eskalationsoption (Policy: anwalt/steuerberater/energieberater;
-   bei EEG-Streit immer zuerst Clearingstelle EEG|KWKG nennen).
+   bei EEG-Streit immer zuerst Clearingstelle EEG|KWKG nennen; bei Förderfragen
+   BEG/KfW/BAFA stattdessen: BAFA-/KfW-FAQ & Merkblatt → Energieeffizienz-Experte
+   (dena-Liste) → schriftliche Träger-Anfrage — die Clearingstelle ist für
+   Fördersachen nicht zuständig).
 3. Keine Handlungsempfehlung in streitigen Einzelfällen; keine steuerliche
-   Einzelfall-Aussage; keine Vertragsklausel-Formulierung.
+   Einzelfall-Aussage; keine Vertragsklausel-Formulierung; keine Empfehlung,
+   WAS gegenüber einer Behörde/Förderstelle anzugeben ist, wenn die Tatsache
+   unbelegt ist — nur Nachweiswege nennen.
+   Für auslegungsoffene Förder-Begriffe sind die `auslegungshinweise` in
+   `data/programs/*.json` die Formulierungsgrundlage (Grundregel + offene Frage +
+   verweis_an) — keine erfundenen Konditionen.
 4. Disclaimer der Policy genau einmal anfügen; Quellenpflicht (Norm + Fassung)
    durchsetzen.
 
