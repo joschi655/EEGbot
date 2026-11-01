@@ -87,9 +87,10 @@
     "fassung": "BEG EM (Einzelmaßnahmen), Stand 2024",
     "gueltig_ab": "2024-01-01",
     "naechste_fassung_gueltig_ab": "2026-07-21",
-    "hinweis": "BEG-EM-Novelle zum 21.07.2026 angekündigt — Wortlaut VOR finaler Nutzung verifizieren (analog BGBl.-Marker)."
+    "hinweis": "Amtliche BAFA-Übersicht und BEG EM vom 17.08.2026 (BAnz AT 27.08.2026 B1) abgerufen am 01.11.2026 bestätigen geänderte Bedingungen seit 21.07.2026. iSFP-Mindestinvestition, Höchstkosten und weitere Voraussetzungen noch nicht vollständig in diese Engine migriert. Gespeicherte Berechnungswerte bilden den alten Stand ab; aktuelle Berechnung gesperrt, vor Nutzung verifizieren."
   },
   "quellen": [
+    { "bezeichnung": "Teilabgleich BEG EM 17.08.2026 — keine Gesamtverifikation der Engine", "url": "https://www.bundesanzeiger.de/pub/publication/jLXvW09kHTQoDINAdoC/content/jLXvW09kHTQoDINAdoC/BAnz%20AT%2027.08.2026%20B1.pdf?inline", "abgerufen_am": "2026-11-01" },
     {
       "bezeichnung": "BAFA BEG EM Förderübersicht",
       "url": "https://www.bafa.de/DE/Energie/Effiziente_Gebaeude/Foerderprogramm_im_Ueberblick/foerderprogramm_im_ueberblick_node.html",

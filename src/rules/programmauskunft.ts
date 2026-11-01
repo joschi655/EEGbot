@@ -8,6 +8,7 @@
  */
 import type { Auslegungshinweis, Foerderprogramm } from "../schemas/program.ts";
 import type { ProgrammauskunftInputContract } from "../schemas/rechner.ts";
+import { programmWarnungen } from "./freshness.ts";
 import { ladeProgramme } from "./foerderMatcher.ts";
 
 export interface ProgrammFakten {
@@ -24,6 +25,7 @@ export interface ProgrammFakten {
   auslegungshinweise: Auslegungshinweis[];
   richtlinie?: Foerderprogramm["richtlinie"];
   quellen: Foerderprogramm["quellen"];
+  warnungen: string[];
   stand: string; // zuletzt_geprueft
 }
 
@@ -62,6 +64,7 @@ export async function programmauskunft(
       richtlinie: p.richtlinie,
       quellen: p.quellen,
       stand: p.zuletzt_geprueft,
+      warnungen: programmWarnungen(p),
     };
   }
   return ergebnis;

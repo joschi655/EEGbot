@@ -11,6 +11,48 @@ RDG-Guardrails.
 
 **[Vision: EEGbot macht Energierecht ausführbar.](Vision.md)**
 
+## Du möchtest erst einmal Orientierung — ohne Installation?
+
+Die neue **[statische Einstiegsseite](site/index.html)** ist vorbereitet: kostenloser
+Balkonsolar-Vorabcheck, Ratgeber und Checklisten für PV-Dach, Wärmepumpe und Wallbox.
+**Noch kein hiermit bestätigtes GitHub-Pages-Deployment.** Der Link oben zeigt im
+Repository den Quelltext, nicht eine bereits veröffentlichte Website.
+
+- Zuerst geeignete gesicherte Montagefläche prüfen. Nein/unklar bedeutet STOP;
+  eine Fenstertür allein reicht nicht. Ein separater synthetischer Demo-Modus erlaubt Lernen.
+- Der Browserrechner verwendet explizite Annahmen, keine Förder-/Vergütungssätze,
+  kein LLM, keine Uploads, keine Anmeldung. Ergebnis ist keine Kaufempfehlung.
+- Die Checklisten sind Orientierung, keine automatische Förderberatung oder Fachplanung.
+
+| Weg | Voraussetzung | Umfang und Grenze |
+|---|---|---|
+| Statische Browserseite | Nur Browser; nach Veröffentlichung direkt nutzbar | Szenario-Rechner, Ratgeber; kein Backend. Eingaben bleiben im Browser, Hosting sieht technische Zugriffsdaten. |
+| Lokale Web-App | Bun, Repository; für Wissensfunktionen `bun run setup` | `HOST=127.0.0.1 bun ui/server.ts` → `http://localhost:3475/app/`; bestehende Engines. Optionale KI-Vorbefüllung braucht API-Zugang, kann Kosten verursachen und verlangt Übertragungszustimmung. |
+| Claude-Code-Framework | Bun, Repository, eigener Claude-Code-/Modellzugang | Geführte Workflows und Dokumente. Code MIT; Modell-/Zugangskosten separat. Gelesene Auszüge/Bilder gelangen zum Anbieter. Kein hier angebotener installierbarer Plugin-Weg. |
+
+Für einen **synthetischen ersten Test** reicht die Demo auf der Browserseite.
+Technische lokale Vorschau: `bun install && bun run preview:site`, dann
+`http://127.0.0.1:4178/EEGbot/`. Keine KI-/API-Einrichtung nötig.
+Die vorhandenen Framework-Installationsschritte folgen unverändert unten.
+
+[Was kann ich testen?](docs/five-user-test.md) ·
+[Sicheres Pages-Deployment ausschließlich aus site/](docs/github-pages.md) ·
+[Mitmachen](CONTRIBUTING.md) ·
+[Anonymisiertes Feedback](https://github.com/joschi655/EEGbot/issues/new?template=erfahrungsbericht.yml)
+
+Bitte keine personenbezogenen Dokumente, Rechnungen oder Angebote in öffentliche Issues.
+Keine durch diesen Einstieg belegte Praxiserprobung oder Produktionsreife.
+
+## Installation mit einem Satz (Codex oder Claude Code)
+
+Kopiere diesen Auftrag in deinen Coding-Assistenten:
+
+> Installiere https://github.com/joschi655/EEGbot in einem neuen lokalen Ordner, prüfe die Voraussetzungen, führe das dokumentierte Setup und die Tests aus und starte anschließend die lokale Web-App; frage vor nötigen Systemänderungen nach und verwende zunächst nur die mitgelieferten Beispieldaten.
+
+Codex kann Setup und Web-App bedienen. Die projektspezifischen Claude-Code-Skills, MCP-Freigaben und Hooks werden dadurch nicht automatisch in Codex aktiviert. Modellzugangskosten können anfallen; keine API-Schlüssel in den Prompt schreiben. Bereits vorhandene Projektordner nicht überschreiben.
+
+Bereits ohne Installation erreichbar: **[öffentliche Rechner-Demo](https://eegbot.aiwerke.de/app/)**. Dort zunächst die Beispielanlage laden. KI-Vorbefüllung ist deaktiviert; Quellen-/Datenstand beachten, keine fachliche Freigabe durch diesen Link.
+
 ## Warum das kein „Chatbot über Gesetze" ist
 
 Sprachmodelle raten Vergütungssätze, verwechseln EEG-Fassungen und übersehen

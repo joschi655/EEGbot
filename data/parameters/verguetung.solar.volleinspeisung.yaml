@@ -59,3 +59,15 @@ zeitraeume:
       fundstelle: "Archivierte EEG-Vergütungssätze, Datei Februar 2026 bis Juli 2026"
       abgerufen_am: "2026-07-15"
     hinweis: "Amtliche BNetzA-Veröffentlichung verifiziert. Nächste Degressionsstufe zum 01.08.2026 ergänzen, sobald bekanntgemacht; bis dahin verhindert gueltig_bis eine stille Fortschreibung."
+  - gueltig_von: "2026-08-01"
+    gueltig_bis: "2026-12-31"
+    wert:
+      - { bis_kwp: 10, wert: 12.22 }
+      - { bis_kwp: 40, wert: 10.24 }
+      - { bis_kwp: 100, wert: 10.24 }
+    quelle:
+      bezeichnung: "Bundesnetzagentur: Fördersätze – Einspeisevergütung August bis Dezember 2026"
+      url: "https://www.bundesnetzagentur.de/DE/Fachthemen/ElektrizitaetundGas/ErneuerbareEnergien/EEG_Foerderung/start.html"
+      fundstelle: "Einspeisevergütung für Solaranlagen bis 100 kW; IBN 01.08.–31.12.2026"
+      abgerufen_am: "2026-11-01"
+    hinweis: "Amtliche Tabelle direkt übernommen, nicht aus alten gerundeten Sätzen extrapoliert. Keine Werte für IBN ab 2027 bestätigt."

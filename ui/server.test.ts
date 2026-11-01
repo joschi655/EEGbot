@@ -46,9 +46,9 @@ describe("REST-Fehlervertrag", () => {
     }
   });
 
-  test("Tarif nach 31.07.2026 liefert Datenlücke statt still veralteten Wert", async () => {
+  test("Tarif nach 31.12.2026 liefert Datenlücke statt still veralteten Wert", async () => {
     const res = await handleRequest(
-      post("/api/verguetung", JSON.stringify({ ibn_datum: "2026-08-01", leistung_kwp: 9.8, einspeiseart: "teileinspeisung" })),
+      post("/api/verguetung", JSON.stringify({ ibn_datum: "2027-01-01", leistung_kwp: 9.8, einspeiseart: "teileinspeisung" })),
     );
     expect(res.status).toBe(422);
     expect((await res.json()).fehler).toContain("noch nicht ab");

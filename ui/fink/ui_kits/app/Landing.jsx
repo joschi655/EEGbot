@@ -17,7 +17,7 @@ function Landing({ onStart }) {
   );
 
   return (
-    <div style={{ minHeight: '100vh', background: '#fff', display: 'flex', flexDirection: 'column' }}>
+    <div className="eeg-landing" style={{ minHeight: '100vh', background: '#fff', display: 'flex', flexDirection: 'column' }}>
       <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '26px 48px' }}>
         <span style={{ font: 'var(--weight-bold) 30px/1 var(--font-sans)', letterSpacing: '-0.03em', color: 'var(--klein-600)' }}>
           EEG<span style={{ fontWeight: 400 }}>bot</span>
@@ -42,7 +42,7 @@ function Landing({ onStart }) {
             deterministischen Rechen-Engines mit Quellenangabe — keine KI-Schätzungen bei Geldbeträgen.
           </p>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '22px 34px', margin: '44px 0 0' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '22px 34px', margin: '44px 0 0' }}>
             {feature('shield-alert', 'Rückforderungs-Check', 'Netzbetreiber fordert zurück? Exposure, Verjährung und Heilung nach § 52 EEG nachrechnen — im BGH-Beispielfall werden aus 45.540 € geforderten nur 6.417 € berechtigte Euro.')}
             {feature('calendar-clock', 'Fristen im Blick', 'MaStR-Registrierung, Veräußerungsform, Volleinspeisungs-Meldung: Deadlines und Verstoßfolgen für Ihre konkrete Anlage.')}
             {feature('calculator', 'Vergütung & Ü20', 'Einspeisevergütung nach § 48 EEG, Mischvergütung, Förderende — und die Optionen, wenn die 20 Jahre vorbei sind.')}
@@ -54,7 +54,7 @@ function Landing({ onStart }) {
               App starten — ohne Anmeldung
             </button>
             <span style={{ font: 'var(--font-caption)', color: 'var(--text-muted)', maxWidth: 420 }}>
-              Open Source zum Selbst-Hosten (<code>bun ui/server.ts</code>) — oder gehostet nutzen: null Setup, immer aktueller Rechtsstand.
+              Open Source zum Selbst-Hosten (<code>bun ui/server.ts</code>) — oder gehostet nutzen: null Setup. Quellen- und Prüfstand beachten; keine Garantie eines aktuellen Rechtsstands.
             </span>
           </div>
         </div>

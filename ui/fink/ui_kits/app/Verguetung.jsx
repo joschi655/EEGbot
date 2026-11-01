@@ -58,7 +58,7 @@ function VgErgebnis({ d, input }) {
 
       {stufen.length > 0 && (
         <Card title="Vergütungsstufen" subtitle={misch ? 'Mischvergütung — der Satz gilt anteilig je Leistungsband' : 'Einheitlicher Satz für die gesamte Leistung'} tight>
-          <div style={{ overflowX: 'auto' }}>
+          <div className="fk-table-scroll" role="region" aria-label="Vergütungsstufen, horizontal scrollbar" tabIndex={0} style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', font: 'var(--font-body)' }}>
               <thead>
                 <tr>

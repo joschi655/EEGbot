@@ -7,6 +7,9 @@
   "private": false,
   "scripts": {
     "test": "bun test",
+    "check:site": "bun scripts/check-site.ts",
+    "preview:site": "bun scripts/serve-site.ts",
+    "test:site:e2e": "playwright test --config playwright.site.config.ts",
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit",
     "validate:data": "bun run pipelines/validate-data.ts",

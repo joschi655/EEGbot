@@ -1,7 +1,10 @@
 import { describe, expect, test } from "bun:test";
-import { formulareFuerFall, matcheProgramme, pruefeKumulierung } from "./foerderMatcher.ts";
+import { formulareFuerFall, matcheProgramme as matcheProgrammeZumDatum, pruefeKumulierung } from "./foerderMatcher.ts";
 
-describe("Förder-Matcher", () => {
+// Altstand-Fixtures; aktuelle Sperre separat in freshness.test.ts.
+const matcheProgramme = (fall: Record<string, unknown>) => matcheProgrammeZumDatum(fall, "2026-07-17");
+
+describe("Förder-Matcher (gespeicherter Altstand 17.07.2026)", () => {
   const waermepumpenFall = {
     fall_typ: "waermepumpe",
     eigentumsform: "eigentum",

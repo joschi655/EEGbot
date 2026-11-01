@@ -1,0 +1,28 @@
+name: Erfahrungsbericht
+description: Wo hat EEGbot geholfen, wo blieb eine Frage offen?
+title: "[Erfahrung] "
+body:
+  - type: markdown
+    attributes:
+      value: "Dieses Issue ist öffentlich. Bitte keine persönlichen Unterlagen, Namen, Adressen, Schlüssel oder Vertragsnummern teilen."
+  - type: textarea
+    id: vorhaben
+    attributes:
+      label: Was wolltest du allgemein klären?
+      placeholder: Zum Beispiel Balkonsolar in einer Mietwohnung, noch vor dem Kauf.
+    validations:
+      required: true
+  - type: textarea
+    id: schritte
+    attributes:
+      label: Was hast du ausprobiert, und wo ging es nicht weiter?
+    validations:
+      required: true
+  - type: textarea
+    id: ergebnis
+    attributes:
+      label: War danach ein konkreter nächster Schritt klar?
+  - type: textarea
+    id: umgebung
+    attributes:
+      label: Browser, Gerät und betroffene Seite (optional)

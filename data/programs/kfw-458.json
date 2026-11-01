@@ -133,7 +133,7 @@
       "id": "hybrid_ee_ausschluss_ab_2026_07_21",
       "thema": "Hybridsystem (fossil + EE) unter der BEG-EM-Novelle ab 21.07.2026",
       "frage": "Neue Ausschlussregel: keine WP-Förderung bei vorhandenem EE-Erzeuger — was gilt für ein bestehendes Hybridsystem aus Gaskessel und EE-Erzeuger?",
-      "grundregel": "Die BEG-EM-Novelle (gültig ab 21.07.2026) schließt die WP-Förderung aus, wenn bereits ein erneuerbarer Wärmeerzeuger vorhanden ist (z. B. Fernwärme).",
+      "grundregel": "Nicht verifizierte Praxishypothese, keine bestätigte Ausschlussregel: Ein vorhandener EE-Erzeuger allein wird hier nicht als pauschaler Förderausschluss behandelt. KfW-Merkblatt 09/2026 nennt insbesondere kommunale Entscheidungen zum Wärmenetzanschluss; Einzelfall beim Träger prüfen.",
       "offene_frage": "Ob ein bestehendes Hybridsystem (fossil + EE) den Ausschluss auslöst, ist nicht eindeutig geregelt. Richtlinien-Wortlaut ab 21.07.2026 VOR finaler Nutzung verifizieren.",
       "verweis_an": ["bafa", "kfw", "energieeffizienz_experte"],
       "quelle": { "bezeichnung": "Praxis EEE M. Schäfer (PDF 17.07.2026, Fall b27) — Novellen-Wortlaut verifizieren", "abgerufen_am": "2026-07-17" },
@@ -154,12 +154,14 @@
     "fassung": "BEG EM (Heizungsförderung), Stand 2024",
     "gueltig_ab": "2024-01-01",
     "naechste_fassung_gueltig_ab": "2026-07-21",
-    "hinweis": "BEG-EM-Novelle zum 21.07.2026 angekündigt (u. a. EE-Erzeuger-Ausschluss für WP-Förderung, WPB-Bonus-Mechanik) — Wortlaut VOR finaler Nutzung verifizieren (analog BGBl.-Marker)."
+    "hinweis": "KfW-Merkblatt gültig ab 24.09.2026, Abruf 01.11.2026: Klimageschwindigkeitsbonus 16 %, erste Wohneinheit 28.000 Euro, Einkommensbonus 40/30/10 % mit Familienzuschlag und differenziertem 70/80-%-Deckel. Gespeicherte Berechnungswerte bilden den alten Stand ab. Neue Voraussetzungen und zeitliche Staffelung noch nicht vollständig migriert; aktuelle Berechnung gesperrt, vor Nutzung verifizieren."
   },
   "quellen": [
+    { "bezeichnung": "KfW 458 Merkblatt gültig ab 24.09.2026 — Teilabgleich", "url": "https://www.kfw.de/PDF/Download-Center/Förderprogramme-(Inlandsförderung)/PDF-Dokumente/6000005131_M_458.pdf", "abgerufen_am": "2026-11-01" },
+    { "bezeichnung": "Teilabgleich BEG EM 17.08.2026 — keine Gesamtverifikation der Engine", "url": "https://www.bundesanzeiger.de/pub/publication/jLXvW09kHTQoDINAdoC/content/jLXvW09kHTQoDINAdoC/BAnz%20AT%2027.08.2026%20B1.pdf?inline", "abgerufen_am": "2026-11-01" },
     {
       "bezeichnung": "KfW 458 Programmseite / Merkblatt",
-      "url": "https://www.kfw.de/inlandsfoerderung/Privatpersonen/Bestandsimmobilie/F%C3%B6rderprodukte/Heizungsf%C3%B6rderung-f%C3%BCr-Privatpersonen-Wohngeb%C3%A4ude-(458)/",
+      "url": "https://www.kfw.de/inlandsfoerderung/Privatpersonen/Bestehende-Immobilie/F%C3%B6rderprodukte/Heizungsf%C3%B6rderung-f%C3%BCr-Privatpersonen-Wohngeb%C3%A4ude-(458)/",
       "abgerufen_am": "2026-06-12"
     },
     {

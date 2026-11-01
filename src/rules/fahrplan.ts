@@ -123,10 +123,10 @@ const DENA_QUELLE: FahrplanQuelle = {
 };
 
 function zuEmpfehlung(m: ProgrammMatch, prog: Foerderprogramm | undefined, fall: Record<string, unknown>): FoerderEmpfehlung {
-  const hoechstkosten = prog?.foerderfaehige_hoechstkosten_eur;
+  const hoechstkosten = m.berechnung_verifikationsbedarf ? undefined : prog?.foerderfaehige_hoechstkosten_eur;
   const kosten = feldWert(fall, "massnahme.kosten_eur");
   const kostenZahl = typeof kosten === "number" && kosten > 0 ? kosten : undefined;
-  const angesetzt = kostenZahl !== undefined ? Math.min(kostenZahl, hoechstkosten ?? kostenZahl) : undefined;
+  const angesetzt = !m.berechnung_verifikationsbedarf && kostenZahl !== undefined ? Math.min(kostenZahl, hoechstkosten ?? kostenZahl) : undefined;
 
   let betrag: number | undefined;
   let hinweis: string | undefined;
@@ -150,7 +150,7 @@ function zuEmpfehlung(m: ProgrammMatch, prog: Foerderprogramm | undefined, fall:
     hoechstkosten_eur: hoechstkosten,
     kosten_angesetzt_eur: angesetzt,
     betrag_eur_geschaetzt: betrag,
-    hinweis,
+    hinweis: [hinweis, ...m.hinweise.filter(h => h.startsWith("Aktualität:"))].filter(Boolean).join(" ") || undefined,
   };
 }
 
@@ -310,6 +310,9 @@ function baueIsfpWeiche(
   programme: Foerderprogramm[],
   fall: Record<string, unknown>,
 ): Fahrplan["isfp_weiche"] {
+  if (matches.some(m => m.programm_id === "bafa-beg-em" && m.berechnung_verifikationsbedarf)) {
+    return { relevant: false, hinweis: "Aktualität: iSFP-Bedingungen seit 21.07.2026 geändert; Bonus und Mindestinvestition vor Antragstellung beim BAFA verifizieren. Keine bestätigte Bonusberechnung.", quellen: programme.find(p => p.id === "bafa-beg-em")?.quellen ?? [] };
+  }
   if (feldWert(fall, "antragsteller.isfp_vorhanden") === true) {
     return { relevant: false, hinweis: "iSFP liegt bereits vor — zutreffende iSFP-Boni sind in den Fördersätzen berücksichtigt.", quellen: [DENA_QUELLE] };
   }
@@ -339,8 +342,8 @@ function baueIsfpWeiche(
   return null;
 }
 
-export async function erstelleFahrplan(fall: Record<string, unknown>): Promise<Fahrplan> {
-  const [matches, programme, formulare] = await Promise.all([matcheProgramme(fall), ladeProgramme(), ladeFormulare()]);
+export async function erstelleFahrplan(fall: Record<string, unknown>, pruefdatum = new Date().toISOString().slice(0, 10)): Promise<Fahrplan> {
+  const [matches, programme, formulare] = await Promise.all([matcheProgramme(fall, pruefdatum), ladeProgramme(), ladeFormulare()]);
   const progVon = (id: string) => programme.find((p) => p.id === id);
 
   const passende = matches.filter((m) => m.passt);
@@ -416,7 +419,7 @@ export async function erstelleFahrplan(fall: Record<string, unknown>): Promise<F
     }
   }
 
-  const warnungen: string[] = [];
+  const warnungen = matches.flatMap(m => m.hinweise.filter(h => h.startsWith("Aktualität:")));
   if (feldWert(fall, "massnahme.begonnen") === true) {
     // Nur ein tatsächlich passendes steuerliches Programm als verbleibenden Weg
     // nennen — sonst (z. B. Doppelförderungsverbot) wäre der Hinweis irreführend.

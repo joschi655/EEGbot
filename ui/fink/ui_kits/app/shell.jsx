@@ -17,7 +17,7 @@ const STATUS_TONE = { compliant: 'compliant', pending: 'pending', overdue: 'over
 
 function NavItem({ label, count, active, onClick }) {
   return (
-    <button className={`fk-nav ${active ? 'fk-nav--active' : ''}`} onClick={onClick}>
+    <button className={`fk-nav ${active ? 'fk-nav--active' : ''}`} onClick={onClick} aria-current={active ? 'page' : undefined}>
       <span className="fk-nav__label">{label}</span>
       {count != null && <span className="fk-nav__count">{count}</span>}
     </button>
@@ -56,27 +56,31 @@ function Rechenweg({ inputs = {}, schritte = [], parameterstand, normen = [], qu
 function AppShell({ active, onNav, title, subtitle, actions, search = false, children }) {
   const { Avatar, IconButton } = window.FinkDesignSystem_4f2014;
   const profil = window.EEGBOT_PROFIL.lade();
+  const [menuOpen, setMenuOpen] = React.useState(false);
+  const menuButton = React.useRef(null);
+  const navigate = (screen) => { setMenuOpen(false); onNav(screen); };
   React.useEffect(() => { setTimeout(() => window.lucide && lucide.createIcons(), 10); });
 
   return (
     <div className="fk-app">
-      <aside className="fk-side">
+      <aside className={`fk-side ${menuOpen ? 'fk-side--open' : ''}`} onKeyDown={(event) => { if (event.key === 'Escape') { setMenuOpen(false); menuButton.current?.focus(); } }}>
         <div className="fk-side__brand">
           <EegbotMark size={30} />
+          <button ref={menuButton} className="fk-menu-toggle" aria-expanded={menuOpen} aria-controls="app-navigation" onClick={() => setMenuOpen(!menuOpen)}>Menü</button>
         </div>
-        <nav className="fk-side__nav">
-          <NavItem label="Übersicht" active={active === 'dashboard'} onClick={() => onNav('dashboard')} />
-          <NavItem label="Meine Anlage" active={active === 'anlage'} onClick={() => onNav('anlage')} />
-          <NavItem label="Fristen" active={active === 'deadlines'} onClick={() => onNav('deadlines')} />
+        <nav id="app-navigation" aria-label="App-Navigation" className="fk-side__nav">
+          <NavItem label="Übersicht" active={active === 'dashboard'} onClick={() => navigate('dashboard')} />
+          <NavItem label="Meine Anlage" active={active === 'anlage'} onClick={() => navigate('anlage')} />
+          <NavItem label="Fristen" active={active === 'deadlines'} onClick={() => navigate('deadlines')} />
           <div className="fk-side__section">Prüfen &amp; Rechnen</div>
-          <NavItem label="Rückforderungs-Check" active={active === 'sanktion52'} onClick={() => onNav('sanktion52')} />
-          <NavItem label="Vergütung" active={active === 'verguetung'} onClick={() => onNav('verguetung')} />
-          <NavItem label="Solarspitzen" active={active === 'solarspitzen'} onClick={() => onNav('solarspitzen')} />
-          <NavItem label="Nach der Förderung" active={active === 'ue20'} onClick={() => onNav('ue20')} />
+          <NavItem label="Rückforderungs-Check" active={active === 'sanktion52'} onClick={() => navigate('sanktion52')} />
+          <NavItem label="Vergütung" active={active === 'verguetung'} onClick={() => navigate('verguetung')} />
+          <NavItem label="Solarspitzen" active={active === 'solarspitzen'} onClick={() => navigate('solarspitzen')} />
+          <NavItem label="Nach der Förderung" active={active === 'ue20'} onClick={() => navigate('ue20')} />
           <div className="fk-side__section">Recht</div>
-          <NavItem label="Förder-Fahrplan" active={active === 'fahrplan'} onClick={() => onNav('fahrplan')} />
-          <NavItem label="Recherche" active={active === 'recherche'} onClick={() => onNav('recherche')} />
-          <NavItem label="Norm-Graph" active={active === 'normgraph'} onClick={() => onNav('normgraph')} />
+          <NavItem label="Förder-Fahrplan" active={active === 'fahrplan'} onClick={() => navigate('fahrplan')} />
+          <NavItem label="Recherche" active={active === 'recherche'} onClick={() => navigate('recherche')} />
+          <NavItem label="Norm-Graph" active={active === 'normgraph'} onClick={() => navigate('normgraph')} />
         </nav>
         <div className="fk-side__foot">
           <Avatar name={profil?.name || 'Keine Anlage'} size="sm" accent />
@@ -85,7 +89,7 @@ function AppShell({ active, onNav, title, subtitle, actions, search = false, chi
             <span className="fk-side__urole">{profil ? `${Number(profil.leistung_kwp).toLocaleString('de-DE')} kWp · IBN ${profil.ibn_datum}` : 'Unter „Meine Anlage" anlegen'}</span>
           </div>
           <div style={{ marginLeft: 'auto' }}>
-            <IconButton label="Meine Anlage" icon={<i data-lucide="settings"></i>} onClick={() => onNav('anlage')} />
+            <IconButton label="Meine Anlage" icon={<i data-lucide="settings"></i>} onClick={() => navigate('anlage')} />
           </div>
         </div>
       </aside>
@@ -98,7 +102,7 @@ function AppShell({ active, onNav, title, subtitle, actions, search = false, chi
           </div>
           <div className="fk-row" style={{ marginLeft: 'auto', gap: '20px' }}>
             {actions}
-            <button className="fk-top__logout" onClick={() => onNav('logout')}>Startseite</button>
+            <button className="fk-top__logout" onClick={() => navigate('logout')}>Startseite</button>
           </div>
         </header>
         {children}

@@ -218,7 +218,7 @@ function NormGraph({ onNav }) {
       subtitle="Das EEG als Netz: jede Kante ist ein echter Querverweis aus dem Gesetzestext - deterministisch aus dem Normgraphen"
       actions={<Button variant={fall ? 'primary' : 'secondary'} iconLeft={<i data-lucide="waypoints"></i>}
         onClick={() => setFall(!fall)}>{fall ? 'Fall ausblenden' : '45.540-EUR-Fall zeigen'}</Button>}>
-      <div style={{ display: 'flex', gap: 16, padding: '16px 24px 24px', height: 'calc(100% - 8px)', minHeight: 0 }}>
+      <div className="fk-graph-layout" style={{ display: 'flex', gap: 16, padding: '16px 24px 24px', height: 'calc(100% - 8px)', minHeight: 0 }}>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12, minWidth: 0 }}>
           {/* Zeitreise-Slider */}
           <div style={{ background: '#fff', border: '1px solid rgba(15,23,42,0.08)', borderRadius: 14, padding: '14px 18px' }}>
@@ -230,13 +230,13 @@ function NormGraph({ onNav }) {
                 Stichtag {datum} · {meta.nodes} Normen · {meta.edges} Querverweis-Kanten{meta.entwurf ? ` · ${meta.entwurf} ENTWURF` : ''}
               </span>
             </div>
-            <input type="range" min={0} max={NG_STICHTAGE.length - 1} step={1} value={idx}
+            <input aria-label="Stichtag der Gesetzesfassung" type="range" min={0} max={NG_STICHTAGE.length - 1} step={1} value={idx}
               onChange={(e) => setIdx(Number(e.target.value))}
               style={{ width: '100%', accentColor: istEntwurf ? NG_AMBER : NG_BLAU }} />
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10.5, color: 'rgba(15,23,42,0.5)', marginTop: 2 }}>
+            <div className="fk-graph-dates" style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10.5, color: 'rgba(15,23,42,0.5)', marginTop: 2 }}>
               {NG_STICHTAGE.map(([d, l], i) => (
-                <span key={d} style={{ fontWeight: i === idx ? 700 : 400, color: i === idx ? (d >= '2027-01-01' ? NG_AMBER : NG_BLAU) : undefined, cursor: 'pointer' }}
-                  onClick={() => setIdx(i)}>{l}</span>
+                <button type="button" key={d} aria-pressed={i === idx} style={{ fontWeight: i === idx ? 700 : 400, color: i === idx ? (d >= '2027-01-01' ? NG_AMBER : NG_BLAU) : undefined, cursor: 'pointer' }}
+                  onClick={() => setIdx(i)}>{l}</button>
               ))}
             </div>
             {delta && (
@@ -250,7 +250,7 @@ function NormGraph({ onNav }) {
           {/* Graph-Canvas */}
           <div ref={wrapRef} style={{ flex: 1, background: '#fff', border: '1px solid rgba(15,23,42,0.08)', borderRadius: 14, position: 'relative', minHeight: 420, overflow: 'hidden' }}>
             <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />
-            <div style={{ position: 'absolute', left: 14, bottom: 12, display: 'flex', gap: 14, fontSize: 11.5, color: 'rgba(15,23,42,0.6)', background: 'rgba(255,255,255,0.85)', padding: '4px 10px', borderRadius: 8 }}>
+            <div className="fk-graph-legend" style={{ position: 'absolute', left: 14, bottom: 12, display: 'flex', gap: 14, fontSize: 11.5, color: 'rgba(15,23,42,0.6)', background: 'rgba(255,255,255,0.85)', padding: '4px 10px', borderRadius: 8 }}>
               <span><span style={{ color: NG_BLAU }}>&#9679;</span> geltende Norm (Groesse = Vernetzungsgrad)</span>
               <span><span style={{ color: NG_AMBER }}>&#9679;</span> ENTWURF EEG 2027</span>
               {fall && <span>gedimmt = nicht Teil des Falls (Seeds: {NG_FALL_SEEDS.join(', ')}, Tiefe 1; {NG_FALL_MARKIERE.join(', ')} markiert)</span>}
@@ -258,7 +258,7 @@ function NormGraph({ onNav }) {
           </div>
         </div>
         {/* Norm-Panel */}
-        <div style={{ width: 330, flexShrink: 0, background: '#fff', border: '1px solid rgba(15,23,42,0.08)', borderRadius: 14, padding: 18, overflowY: 'auto' }}>
+        <div className="fk-graph-panel" style={{ width: 330, flexShrink: 0, background: '#fff', border: '1px solid rgba(15,23,42,0.08)', borderRadius: 14, padding: 18, overflowY: 'auto' }}>
           {!sel && (
             <div style={{ fontSize: 13, color: 'rgba(15,23,42,0.6)', lineHeight: 1.55 }}>
               <div style={{ fontWeight: 700, fontSize: 14, color: 'rgba(15,23,42,0.85)', marginBottom: 8 }}>So liest du den Graphen</div>

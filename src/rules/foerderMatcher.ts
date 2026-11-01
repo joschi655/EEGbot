@@ -3,6 +3,7 @@
  * benannten Gründen, berechneten Fördersätzen und Kumulierungs-Matrix.
  * Der Eligibility-Agent ERKLÄRT nur — gematcht wird hier.
  */
+import { programmWarnungen, programmBerechnungOffen } from "./freshness.ts";
 import { readdirSync } from "node:fs";
 import { parse } from "yaml";
 import { Foerderprogramm } from "../schemas/program.ts";
@@ -47,6 +48,7 @@ export interface ProgrammMatch {
   saetze: { bezeichnung: string; satz_prozent?: number; zutreffend: boolean | "unbekannt" }[];
   antragsweg: { kanal: string; antrag_vor_massnahmenbeginn: boolean; formulare: string[] };
   hinweise: string[];
+  berechnung_verifikationsbedarf?: boolean;
 }
 
 /** Felder, die eine Bedingung referenziert (rekursiv). */
@@ -100,7 +102,7 @@ export function regionPasst(p: Foerderprogramm, fall: Record<string, unknown>): 
   return { ergebnis: true, fehlende_felder: [], geltungsbereich };
 }
 
-export async function matcheProgramme(fall: Record<string, unknown>): Promise<ProgrammMatch[]> {
+export async function matcheProgramme(fall: Record<string, unknown>, pruefdatum = new Date().toISOString().slice(0, 10)): Promise<ProgrammMatch[]> {
   const programme = await ladeProgramme();
   const ergebnisse: ProgrammMatch[] = [];
 
@@ -126,7 +128,8 @@ export async function matcheProgramme(fall: Record<string, unknown>): Promise<Pr
     const summe = saetze.filter((s) => s.zutreffend === true).reduce((acc, s) => acc + (s.satz_prozent ?? 0), 0);
     const gekappt = p.max_foerdersatz_prozent ? Math.min(summe, p.max_foerdersatz_prozent) : summe;
 
-    const hinweise: string[] = [];
+    const offen = programmBerechnungOffen(p, pruefdatum);
+    const hinweise = programmWarnungen(p, pruefdatum);
     if (fehlend.length) hinweise.push(`Eligibility nicht abschließend prüfbar — fehlende Angaben: ${fehlend.join(", ")}`);
     if (p.antragsweg.antrag_vor_massnahmenbeginn) hinweise.push("Antrag zwingend VOR Maßnahmenbeginn.");
     if (p.antragsweg.fachunternehmer_pflicht) hinweise.push("Umsetzung durch Fachunternehmen erforderlich.");
@@ -138,8 +141,9 @@ export async function matcheProgramme(fall: Record<string, unknown>): Promise<Pr
       passt: eligible && ausschluesse.length === 0,
       ausschluss_gruende: ausschluesse,
       fehlende_felder: fehlend,
-      foerdersatz_prozent: p.foerderart === "zuschuss" || p.foerderart === "steuerlich" ? gekappt : undefined,
-      saetze,
+      foerdersatz_prozent: !offen && (p.foerderart === "zuschuss" || p.foerderart === "steuerlich") ? gekappt : undefined,
+      saetze: offen ? [] : saetze,
+      berechnung_verifikationsbedarf: offen,
       antragsweg: { kanal: p.antragsweg.kanal, antrag_vor_massnahmenbeginn: p.antragsweg.antrag_vor_massnahmenbeginn, formulare: p.antragsweg.benoetigte_formulare },
       hinweise,
     });

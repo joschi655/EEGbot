@@ -129,6 +129,10 @@ async function sucheZusatz(indexName: string, query: string, limit = 5): Promise
 export async function handleRequest(req: Request): Promise<Response> {
     const url = new URL(req.url);
     const p = url.pathname;
+    if (p === "/pilot" || p.startsWith("/pilot/")) {
+      const { pilotRequest } = await import("../src/pilot/pilot.ts");
+      return pilotRequest(req);
+    }
 
     try {
       // ── API ──

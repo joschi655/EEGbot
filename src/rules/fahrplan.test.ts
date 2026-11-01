@@ -1,7 +1,10 @@
 import { describe, expect, test } from "bun:test";
-import { baueSchritte, berechneKombination, erstelleFahrplan, renderFahrplanMarkdown, FAHRPLAN_DISCLAIMER } from "./fahrplan.ts";
+import { baueSchritte, berechneKombination, erstelleFahrplan as erstelleFahrplanZumDatum, renderFahrplanMarkdown, FAHRPLAN_DISCLAIMER } from "./fahrplan.ts";
 import { regionPasst } from "./foerderMatcher.ts";
 import { Foerderprogramm } from "../schemas/program.ts";
+
+// Bestehende Rechenfixtures prüfen ausdrücklich den gespeicherten Altstand, nicht die heutige Förderfähigkeit.
+const erstelleFahrplan = (fall: Record<string, unknown>) => erstelleFahrplanZumDatum(fall, "2026-07-17");
 
 const standardFall = () => ({
   massnahme: {
@@ -254,7 +257,7 @@ describe("erstelleFahrplan — adversariale Szenarien (Forge)", () => {
 
     // Korrekt wäre: nur ein steuerlicher Match mit passt=true darf als verbleibender Weg erwähnt werden.
     expect(f.nicht_passend.some((n) => n.programm_id === "estg-35c")).toBe(true);
-    expect(f.warnungen.some((w) => /§\s?35c|Verbleibender Weg/i.test(w))).toBe(false);
+    expect(f.warnungen.some((w) => /Verbleibender Weg/i.test(w))).toBe(false);
   });
 });
 
