@@ -13,10 +13,16 @@ RDG-Guardrails.
 
 ## Du möchtest erst einmal Orientierung — ohne Installation?
 
-Die neue **[statische Einstiegsseite](site/index.html)** ist vorbereitet: kostenloser
-Balkonsolar-Vorabcheck, Ratgeber und Checklisten für PV-Dach, Wärmepumpe und Wallbox.
-**Noch kein hiermit bestätigtes GitHub-Pages-Deployment.** Der Link oben zeigt im
-Repository den Quelltext, nicht eine bereits veröffentlichte Website.
+**[Balkonsolar-Vorabcheck im Browser](https://joschi655.github.io/EEGbot/)** — kostenlos,
+ohne Anmeldung und ohne Installation: Montageplatz klären, hypothetische
+Wirtschaftlichkeit rechnen, Ratgeber und Checklisten für PV-Dach, Wärmepumpe und
+Wallbox lesen. Kein Konto, keine Analyse, kein KI-Aufruf.
+
+Die bestehende Web-App mit den deterministischen Rechnern läuft unter
+**[eegbot.aiwerke.de/app/](https://eegbot.aiwerke.de/app/)**. Der KI-Pilot für
+persönlich eingeladene Tester liegt unter
+**[eegbot.aiwerke.de/pilot/](https://eegbot.aiwerke.de/pilot/)** (persönlicher Code
+erforderlich, 20 Aufrufe je Einladung, nur Freitext).
 
 - Zuerst geeignete gesicherte Montagefläche prüfen. Nein/unklar bedeutet STOP;
   eine Fenstertür allein reicht nicht. Ein separater synthetischer Demo-Modus erlaubt Lernen.
